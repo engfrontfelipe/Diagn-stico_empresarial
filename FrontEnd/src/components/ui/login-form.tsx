@@ -1,30 +1,59 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
-  // Estados para armazenar os valores dos campos
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    console.log("Email:", email)
-    console.log("Password:", password)
-    
-    fetch('http://localhost:3333/usuarios/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha: password })
-      
-    })
-  }
+    e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Digite um e-mail e senha válidos!");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3333/usuarios/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }), // Certifique-se de que o backend espera "senha"
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.message || "Usuário ou senha incorretos!");
+        return;
+      }
+
+      if (data.token) {
+        // Salvar o token no localStorage ou sessionStorage
+        localStorage.setItem("token", data.token);
+        
+        toast.success("Login realizado com sucesso!");
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
+      } else {
+        toast.error("Erro ao processar login: token não recebido");
+      }
+
+    } catch (error) {
+      toast.error("Erro ao acessar a API, faça contato com o suporte");
+      console.error("Erro ao acessar a API:", error);
+    }
+  };
 
   return (
     <form 
@@ -45,7 +74,6 @@ export function LoginForm({
             id="email" 
             type="email" 
             placeholder="m@example.com" 
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -57,7 +85,6 @@ export function LoginForm({
           <Input 
             id="password" 
             type="password" 
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -81,5 +108,5 @@ export function LoginForm({
         </Button>
       </div>
     </form>
-  )
+  );
 }
