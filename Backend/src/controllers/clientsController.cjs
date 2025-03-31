@@ -1,5 +1,10 @@
+const dotenv = require("dotenv").config
 const sql = require('../config/db.cjs');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken')
+
+const JWT_SECRET='JEISOQFJMCEOIOCMCECIOEFCEMCJ'
+
 
 // Criar um novo usuário
 const criarUsuario = async (req, res) => {
@@ -100,29 +105,61 @@ const deletarUsuario = async (req, res) => {
     res.status(500).json({ error: 'Erro ao deletar usuário', detalhes: error.message });
   }
 };
+// Função para gerar token
+const generateToken = (email) => {
+  return jwt.sign({ email }, JWT_SECRET , { expiresIn: "1h" });
+};
 
+// Middleware para validar o token
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  if (!authHeader) {
+    return res.status(403).json({ message: "Token não fornecido" });
+  }
+
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+
+  jwt.verify(token, JWT_SECRET , (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Token inválido" });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
+// Rota de login
 const acessarUsuario = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
     const result = await sql`SELECT * FROM usuarios WHERE email = ${email}`;
+
     if (result.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
     const usuario = result[0];
-    const senhaValida = bcrypt.compareSync(senha, usuario.senha);
+
+    // Usa bcrypt.compare de forma assíncrona
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
-      return res.status(400).json({ error: 'Senha inválida' });
+      return res.status(400).json({ error: "Senha inválida" });
     }
 
-    res.json(usuario);
-  
+    // Gera o token JWT
+    const token = generateToken(email);
+
+    return res.status(200).json({ token });
+z 
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar usuário', detalhes: error.message });
+    res.status(500).json({ error: "Erro ao buscar usuário", detalhes: error.message });
   }
 };
+
+
 
 module.exports = {
   criarUsuario,
@@ -130,5 +167,6 @@ module.exports = {
   buscarUsuarioPorId,
   atualizarUsuario,
   deletarUsuario,
-  acessarUsuario
+  acessarUsuario,
+  authenticateToken
 };
