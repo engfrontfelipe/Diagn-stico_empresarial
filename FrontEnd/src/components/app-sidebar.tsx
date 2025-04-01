@@ -1,15 +1,7 @@
 import * as React from "react"
-import {
-  IconCamera,
-  IconChartBar,
-  IconDatabase,
-  IconListDetails,
-  IconSettings,
-} from "@tabler/icons-react"
 
-import { NavDocuments } from "@/components/nav-documents"
+import { NavClientes } from "@/components/nav-Clientes"
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -20,89 +12,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      title: "Cadastrar Clientes",
-      url: "#cadastro",
-      icon: IconListDetails,
-    },
-
-    {
-      title: "Cadastrar Usuário",
-      url: "#",
-      icon: IconListDetails,
-    },
-    
-    {
-      title: "Iniciar Seviço",
-      url: "#",
-      icon: IconChartBar,
-    },
-   
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-     
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-   
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-
- 
-  ],
-  Clientes: [
-    {
-      name: "Cliente 1",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Cliente 2",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Cliente 3",
-      url: "#",
-      icon: IconDatabase,
-    },
-  ],
-}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -115,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <img src="../../src/assets/grovefav.png" className="!size-6" />
+                <img src="../../src/assets/grovefav.png" className="!size-8" />
                 <span className="text-base font-semibold">Grove Tech</span>
               </a>
             </SidebarMenuButton>
@@ -123,12 +32,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.Clientes} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain/>
+        <NavClientes/>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser/>
       </SidebarFooter>
     </Sidebar>
   )

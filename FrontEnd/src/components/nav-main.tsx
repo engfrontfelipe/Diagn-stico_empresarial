@@ -1,36 +1,41 @@
-import { type Icon } from "@tabler/icons-react"
+import { House, User, UserRoundPlus } from "lucide-react"
 
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
-}) {
-  return (
-    <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
+export function NavMain() {
+
+return(
+  <>
+     <SidebarGroup>
+     <SidebarGroupLabel>Gestao</SidebarGroupLabel>
+
+      <SidebarGroupContent className="flex flex-col gap-3">
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
+            <SidebarMenuItem >
+              <SidebarMenuButton className="cursor-pointer">
+                <span>{<House size={18}/>}</span>
+                Tela inicial
+              </SidebarMenuButton>
+
+              <SidebarMenuButton className="cursor-pointer">
+                <span>{<User size={19}/>}</span>
+                Cadastrar Cliente
+              </SidebarMenuButton>
+
+              <SidebarMenuButton className="cursor-pointer">
+                <span>{<UserRoundPlus size={18}/>}</span>
+                Cadastrar Usuário
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
-}
+  </>
+)};
