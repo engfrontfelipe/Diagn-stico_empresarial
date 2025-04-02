@@ -6,7 +6,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function SectionCards({description, title, footer}: {description: string, title: string, footer: string}) {
+export function SectionCards({
+  description,
+  title,
+  footer,
+}: {
+  description: string;
+  title: string;
+  footer: string;
+}) {
   return (
     <div>
       <Card className="@container/card">
@@ -17,9 +25,7 @@ export function SectionCards({description, title, footer}: {description: string,
           </CardTitle>
         </CardHeader>
         <CardFooter>
-          <div className="text-muted-foreground">
-            {footer}
-          </div>
+          <div className="text-muted-foreground">{footer}</div>
         </CardFooter>
       </Card>
     </div>

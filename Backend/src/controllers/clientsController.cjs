@@ -1,9 +1,9 @@
 const sql = require("../config/db.cjs");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const cors = require("cors")
+const cors = require("cors");
 const JWT_SECRET = "JEISOQFJMCEOIOCMCECIOEFCEMCJ";
-const express = require('express');
+const express = require("express");
 
 const app = express();
 app.use(cors());
@@ -20,7 +20,7 @@ const criarUsuario = async (req, res) => {
   const usuarioExistente = await sql`
   SELECT * FROM usuarios WHERE email = ${email};
   `;
-    if (usuarioExistente.length > 0) {
+  if (usuarioExistente.length > 0) {
     return res.status(400).json({ error: "Email já cadastrado" });
   }
 
@@ -36,7 +36,7 @@ const criarUsuario = async (req, res) => {
       VALUES (${nome}, ${email}, ${senhaHash}) 
       RETURNING *;
     `;
-    res.status(201).json({message: "Usuário Cadastrado"})
+    res.status(201).json({ message: "Usuário Cadastrado" });
   } catch (error) {
     res
       .status(500)
@@ -47,8 +47,8 @@ const criarUsuario = async (req, res) => {
 // Listar todos os usuários
 const listarUsuarios = async (req, res) => {
   try {
-    const result = await sql`SELECT id, nome, email FROM usuarios `;
-    res.json(result);
+    const result = await sql`SELECT id, nome, email, ativo FROM usuarios`;
+    res.json(result);    
   } catch (error) {
     res
       .status(500)
@@ -76,18 +76,27 @@ const buscarUsuarioPorId = async (req, res) => {
 // Atualizar usuário por ID
 const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
-  const { nome, email, senha, confirmSenha } = req.body;
+  const { nome, email, senha, confirmSenha, ativo } = req.body;
 
-  if (confirmSenha !== senha) {
+  console.log("Dados recebidos:", { id, nome, email, senha, ativo });
+
+  if (senha && confirmSenha && confirmSenha !== senha) {
     return res.status(400).json({ error: "Senhas não conferem" });
   }
 
   try {
-    const senhaHash = bcrypt.hashSync(senha, 12);
+    let senhaHash;
+    if (senha) {
+      senhaHash = bcrypt.hashSync(senha, 12);
+    }
 
     const result = await sql`
       UPDATE usuarios 
-      SET nome = ${nome}, email = ${email}, senha = ${senhaHash} 
+      SET 
+        nome = COALESCE(${nome}, nome),
+        email = COALESCE(${email}, email),
+        senha = COALESCE(${senhaHash}, senha),
+        ativo = COALESCE(${ativo}, ativo)
       WHERE id = ${id} 
       RETURNING *;
     `;
@@ -96,11 +105,10 @@ const atualizarUsuario = async (req, res) => {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
-    res.json({ msg: "Usuário atualizado com sucesso" });
+    res.json({ msg: "Usuário atualizado com sucesso", usuario: result[0] });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Erro ao atualizar usuário", detalhes: error.message });
+    console.error("Erro ao atualizar usuário:", error);
+    res.status(500).json({ error: "Erro ao atualizar usuário", detalhes: error.message });
   }
 };
 
@@ -128,27 +136,27 @@ const generateToken = (email) => {
 };
 
 // Middleware para validar o token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
+// const authenticateToken = (req, res, next) => {
+//   const authHeader = req.headers["authorization"];
 
-  if (!authHeader) {
-    return res.status(403).json({ message: "Token não fornecido" });
-  }
+//   if (!authHeader) {
+//     return res.status(403).json({ message: "Token não fornecido" });
+//   }
 
-  const token = authHeader.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : authHeader;
+//   const token = authHeader.startsWith("Bearer ")
+//     ? authHeader.slice(7)
+//     : authHeader;
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: "Token inválido" });
-    }
-    req.user = decoded;
-    next();
-  });
-};
+//   jwt.verify(token, JWT_SECRET, (err, decoded) => {
+//     if (err) {
+//       return res.status(403).json({ message: "Token inválido" });
+//     }
+//     req.user = decoded;
+//     next();
+//   });
+// };
 
-// Rota de login
+
 const acessarUsuario = async (req, res) => {
   const { email, senha } = req.body;
 
@@ -161,6 +169,11 @@ const acessarUsuario = async (req, res) => {
 
     const usuario = result[0];
 
+    // Verifica se o usuário está ativo
+    if (!usuario.ativo) {
+      return res.status(403).json({ error: "Usuário inativo. Entre em contato com o suporte." });
+    }
+
     // Usa bcrypt.compare de forma assíncrona
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
@@ -172,13 +185,11 @@ const acessarUsuario = async (req, res) => {
     const token = generateToken(email);
 
     return res.status(200).json({ token });
-    z;
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Erro ao buscar usuário", detalhes: error.message });
+    res.status(500).json({ error: "Erro ao buscar usuário", detalhes: error.message });
   }
 };
+
 
 module.exports = {
   criarUsuario,
@@ -187,5 +198,5 @@ module.exports = {
   atualizarUsuario,
   deletarUsuario,
   acessarUsuario,
-  authenticateToken,
+  // authenticateToken,
 };
