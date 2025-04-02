@@ -23,11 +23,14 @@ export function LoginForm({
     }
 
     try {
-      const response = await fetch("http://localhost:3333/usuarios/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha: password }), // Certifique-se de que o backend espera "senha"
-      });
+      const response = await fetch(
+        "http://localhost:3333/usuarios/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, senha: password }), // Certifique-se de que o backend espera "senha"
+        },
+      );
 
       const data = await response.json();
 
@@ -39,7 +42,7 @@ export function LoginForm({
       if (data.token) {
         // Salvar o token no localStorage ou sessionStorage
         localStorage.setItem("token", data.token);
-        
+
         toast.success("Login realizado com sucesso!");
 
         setTimeout(() => {
@@ -48,7 +51,6 @@ export function LoginForm({
       } else {
         toast.error("Erro ao processar login: token não recebido");
       }
-
     } catch (error) {
       toast.error("Erro ao acessar a API, faça contato com o suporte");
       console.error("Erro ao acessar a API:", error);
@@ -56,8 +58,8 @@ export function LoginForm({
   };
 
   return (
-    <form 
-      className={cn("flex flex-col gap-6", className)} 
+    <form
+      className={cn("flex flex-col gap-6", className)}
       onSubmit={handleSubmit}
       {...props}
     >
@@ -70,10 +72,10 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input 
-            id="email" 
-            type="email" 
-            placeholder="m@example.com" 
+          <Input
+            id="email"
+            type="email"
+            placeholder="m@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -82,15 +84,15 @@ export function LoginForm({
           <div className="flex items-center">
             <Label htmlFor="password">Senha</Label>
           </div>
-          <Input 
-            id="password" 
-            type="password" 
+          <Input
+            id="password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full cursor-pointer bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
         >
           Login
@@ -100,8 +102,8 @@ export function LoginForm({
             Problemas com sua conta?
           </span>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="w-full cursor-pointer bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
         >
           Clique Aqui!

@@ -1,17 +1,15 @@
-import { LoginForm } from "@/components/ui/login-form"
-import grove from "../../assets/grovefav.png"
-import { Toaster } from 'sonner'
+import { LoginForm } from "@/components/ui/login-form";
+import grove from "../../assets/grovefav.png";
+import { Toaster } from "sonner";
 
-function Home () {
-
-
-    return(
-        <div className="grid min-h-svh lg:grid-cols-2">
+function Home() {
+  return (
+    <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
             <div className="flex h-10 w-10 items-center justify-center rounded-md  text-primary-foreground">
-             <img src={grove} alt="Logo grove" className='w-full h-full' />
+              <img src={grove} alt="Logo grove" className="w-full h-full" />
             </div>
             Grove Tech
           </a>
@@ -19,7 +17,7 @@ function Home () {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm />
-            <Toaster position='top-right' richColors closeButton/>
+            <Toaster position="top-right" richColors closeButton />
           </div>
         </div>
       </div>
@@ -31,9 +29,7 @@ function Home () {
         />
       </div>
     </div>
+  );
+}
 
-    )
-
-} 
-
-export default Home
+export default Home;

@@ -2,13 +2,9 @@ import {
   IconDotsVertical,
   IconLogout,
   IconUserCircle,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,18 +13,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-export function NavUser({
-
-}) {
-  const { isMobile } = useSidebar()
+export function NavUser({}) {
+  const { isMobile } = useSidebar();
 
   return (
     <SidebarMenu>
@@ -40,7 +34,10 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src="https://github.com/engfrontfelipe.png" alt="Felipe Maciel" />
+                <AvatarImage
+                  src="https://github.com/engfrontfelipe.png"
+                  alt="Felipe Maciel"
+                />
                 <AvatarFallback className="rounded-lg">GT</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -61,13 +58,16 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src="https://github.com/engfrontfelipe.png" alt="Felipe Maciel" />
+                  <AvatarImage
+                    src="https://github.com/engfrontfelipe.png"
+                    alt="Felipe Maciel"
+                  />
                   <AvatarFallback className="rounded-lg">GT</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Felipe Maciel</span>
                   <span className="text-muted-foreground truncate text-xs">
-                  felipe.souza@groveagency.com.br
+                    felipe.souza@groveagency.com.br
                   </span>
                 </div>
               </div>
@@ -88,5 +88,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

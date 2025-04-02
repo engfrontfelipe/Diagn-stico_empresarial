@@ -1,22 +1,31 @@
-const dotenv = require("dotenv").config
-const sql = require('../config/db.cjs');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken')
+const sql = require("../config/db.cjs");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cors = require("cors")
+const JWT_SECRET = "JEISOQFJMCEOIOCMCECIOEFCEMCJ";
+const express = require('express');
 
-const JWT_SECRET='JEISOQFJMCEOIOCMCECIOEFCEMCJ'
-
+const app = express();
+app.use(cors());
+app.use(express.json());
 
 // Criar um novo usuário
 const criarUsuario = async (req, res) => {
-  
   const { nome, email, senha, confirmSenha } = req.body;
 
   if (!nome || !email || !senha || !confirmSenha) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
 
-  if(senha !== confirmSenha) {
-    return res.status(400).json({ error: 'Senhas não conferem' });
+  const usuarioExistente = await sql`
+  SELECT * FROM usuarios WHERE email = ${email};
+  `;
+    if (usuarioExistente.length > 0) {
+    return res.status(400).json({ error: "Email já cadastrado" });
+  }
+
+  if (senha !== confirmSenha) {
+    return res.status(400).json({ error: "Senhas não conferem" });
   }
 
   const senhaHash = bcrypt.hashSync(senha, 12);
@@ -27,9 +36,11 @@ const criarUsuario = async (req, res) => {
       VALUES (${nome}, ${email}, ${senhaHash}) 
       RETURNING *;
     `;
-    res.status(201).json(result[0]);
+    res.status(201).json({message: "Usuário Cadastrado"})
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao criar usuário', detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao criar usuário", detalhes: error.message });
   }
 };
 
@@ -39,7 +50,9 @@ const listarUsuarios = async (req, res) => {
     const result = await sql`SELECT id, nome, email FROM usuarios `;
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar usuários', detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar usuários", detalhes: error.message });
   }
 };
 
@@ -50,11 +63,13 @@ const buscarUsuarioPorId = async (req, res) => {
   try {
     const result = await sql`SELECT * FROM usuarios WHERE id = ${id}`;
     if (result.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     }
     res.json(result[0]);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar usuário', detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar usuário", detalhes: error.message });
   }
 };
 
@@ -63,10 +78,10 @@ const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
   const { nome, email, senha, confirmSenha } = req.body;
 
-  if(confirmSenha !== senha) {
-    return res.status(400).json({ error: 'Senhas não conferem' });
-  };
-  
+  if (confirmSenha !== senha) {
+    return res.status(400).json({ error: "Senhas não conferem" });
+  }
+
   try {
     const senhaHash = bcrypt.hashSync(senha, 12);
 
@@ -75,17 +90,17 @@ const atualizarUsuario = async (req, res) => {
       SET nome = ${nome}, email = ${email}, senha = ${senhaHash} 
       WHERE id = ${id} 
       RETURNING *;
-    `
+    `;
 
     if (result.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     }
-    
-    res.json({msg: 'Usuário atualizado com sucesso'});
-  } 
-  
-  catch (error) {
-    res.status(500).json({ error: 'Erro ao atualizar usuário', detalhes: error.message });
+
+    res.json({ msg: "Usuário atualizado com sucesso" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Erro ao atualizar usuário", detalhes: error.message });
   }
 };
 
@@ -98,16 +113,18 @@ const deletarUsuario = async (req, res) => {
       DELETE FROM usuarios WHERE id = ${id} RETURNING *;
     `;
     if (result.length === 0) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      return res.status(404).json({ error: "Usuário não encontrado" });
     }
-    res.json({ message: 'Usuário deletado com sucesso' });
+    res.json({ message: "Usuário deletado com sucesso" });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao deletar usuário', detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao deletar usuário", detalhes: error.message });
   }
 };
 // Função para gerar token
 const generateToken = (email) => {
-  return jwt.sign({ email }, JWT_SECRET , { expiresIn: "1h" });
+  return jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
 };
 
 // Middleware para validar o token
@@ -118,9 +135,11 @@ const authenticateToken = (req, res, next) => {
     return res.status(403).json({ message: "Token não fornecido" });
   }
 
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : authHeader;
 
-  jwt.verify(token, JWT_SECRET , (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(403).json({ message: "Token inválido" });
     }
@@ -153,13 +172,13 @@ const acessarUsuario = async (req, res) => {
     const token = generateToken(email);
 
     return res.status(200).json({ token });
-z 
+    z;
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar usuário", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar usuário", detalhes: error.message });
   }
 };
-
-
 
 module.exports = {
   criarUsuario,
@@ -168,5 +187,5 @@ module.exports = {
   atualizarUsuario,
   deletarUsuario,
   acessarUsuario,
-  authenticateToken
+  authenticateToken,
 };

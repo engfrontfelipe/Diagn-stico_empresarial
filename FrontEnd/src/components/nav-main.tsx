@@ -1,5 +1,4 @@
-import { House, User, UserRoundPlus } from "lucide-react"
-
+import { House, User, UserRoundPlus } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,35 +6,51 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
 
 export function NavMain() {
+  const navigate = useNavigate();
 
-return(
-  <>
-     <SidebarGroup>
-     <SidebarGroupLabel>Gestao</SidebarGroupLabel>
+  const handleNavigation = (path: string) => {
+    navigate(path); // Navega para a rota especificada
+  };
 
-      <SidebarGroupContent className="flex flex-col gap-3">
-        <SidebarMenu>
-            <SidebarMenuItem >
-              <SidebarMenuButton className="cursor-pointer">
-                <span>{<House size={18}/>}</span>
+  return (
+    <>
+      <SidebarGroup>
+        <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+
+        <SidebarGroupContent className="flex flex-col gap-3">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/dashboard")}
+                className="cursor-pointer"
+              >
+                <span>{<House size={18} />}</span>
                 Tela inicial
               </SidebarMenuButton>
 
-              <SidebarMenuButton className="cursor-pointer">
-                <span>{<User size={19}/>}</span>
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/register_client")}
+                className="cursor-pointer"
+              >
+                <span>{<User size={19} />}</span>
                 Cadastrar Cliente
               </SidebarMenuButton>
 
-              <SidebarMenuButton className="cursor-pointer">
-                <span>{<UserRoundPlus size={18}/>}</span>
-                Cadastrar Usuário
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/register_user")}
+                className="cursor-pointer"
+              >
+                <span>{<UserRoundPlus size={18} />}</span>
+                Gestão Usuário
               </SidebarMenuButton>
             </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  </>
-)};
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </>
+  );
+}

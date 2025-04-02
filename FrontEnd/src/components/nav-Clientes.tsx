@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 // import {
 //   DropdownMenu,
@@ -13,37 +13,36 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { User } from "lucide-react"
+} from "@/components/ui/sidebar";
+import { User } from "lucide-react";
 
 export function NavClientes() {
- 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Clientes</SidebarGroupLabel>
-      <SidebarMenu>      
-          <SidebarMenuItem key={"Item1"}>
+      <SidebarMenu>
+        <SidebarMenuItem key={"Item1"}>
           <SidebarMenuButton asChild>
-              <a href={"#"}>
-                <span>{<User size={19}/>}</span>
-                Cliente 1
-              </a>
-            </SidebarMenuButton>
-            
-            <SidebarMenuButton asChild>
-              <a href={"#"}>
-                <span>{<User size={19}/>}</span>
-                Cliente 2
-              </a>
-            </SidebarMenuButton>
+            <a href={"#"}>
+              <span>{<User size={19} />}</span>
+              Cliente 1
+            </a>
+          </SidebarMenuButton>
 
-            <SidebarMenuButton asChild>
-              <a href={"#"}>
-                <span>{<User size={19}/>}</span>
-                Cliente 3
-              </a>
-            </SidebarMenuButton>
-            {/* <DropdownMenu>
+          <SidebarMenuButton asChild>
+            <a href={"#"}>
+              <span>{<User size={19} />}</span>
+              Cliente 2
+            </a>
+          </SidebarMenuButton>
+
+          <SidebarMenuButton asChild>
+            <a href={"#"}>
+              <span>{<User size={19} />}</span>
+              Cliente 3
+            </a>
+          </SidebarMenuButton>
+          {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuAction
                   showOnHover
@@ -73,9 +72,8 @@ export function NavClientes() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu> */}
-          </SidebarMenuItem>
-  
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }
