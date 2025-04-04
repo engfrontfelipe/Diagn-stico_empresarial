@@ -37,7 +37,7 @@ export function NavMain() {
                 className="cursor-pointer"
               >
                 <span>{<User size={19} />}</span>
-                Cadastrar Cliente
+                Gestão Clientes
               </SidebarMenuButton>
 
               <SidebarMenuButton
@@ -45,7 +45,7 @@ export function NavMain() {
                 className="cursor-pointer"
               >
                 <span>{<UserRoundPlus size={18} />}</span>
-                Gestão Usuário
+                Gestão Usuários
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

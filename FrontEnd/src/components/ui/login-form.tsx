@@ -33,16 +33,18 @@ export function LoginForm({
       );
 
       const data = await response.json();
-      
+
       if (response.status === 403) {
-        return toast.error(data.message || "Usuário inativo, por favor entre em contato com suporte.");   
+        return toast.error(
+          data.message ||
+            "Usuário inativo, por favor entre em contato com suporte.",
+        );
       }
-      
+
       if (!response.ok) {
         toast.error(data.message || "Usuário ou senha incorretos!");
         return;
       }
-
 
       if (data.token) {
         // Salvar o token no localStorage ou sessionStorage

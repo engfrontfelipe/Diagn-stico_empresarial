@@ -48,7 +48,7 @@ const criarUsuario = async (req, res) => {
 const listarUsuarios = async (req, res) => {
   try {
     const result = await sql`SELECT id, nome, email, ativo FROM usuarios`;
-    res.json(result);    
+    res.json(result);
   } catch (error) {
     res
       .status(500)
@@ -78,8 +78,6 @@ const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
   const { nome, email, senha, confirmSenha, ativo } = req.body;
 
-  console.log("Dados recebidos:", { id, nome, email, senha, ativo });
-
   if (senha && confirmSenha && confirmSenha !== senha) {
     return res.status(400).json({ error: "Senhas não conferem" });
   }
@@ -108,7 +106,9 @@ const atualizarUsuario = async (req, res) => {
     res.json({ msg: "Usuário atualizado com sucesso", usuario: result[0] });
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);
-    res.status(500).json({ error: "Erro ao atualizar usuário", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao atualizar usuário", detalhes: error.message });
   }
 };
 
@@ -156,7 +156,6 @@ const generateToken = (email) => {
 //   });
 // };
 
-
 const acessarUsuario = async (req, res) => {
   const { email, senha } = req.body;
 
@@ -171,7 +170,9 @@ const acessarUsuario = async (req, res) => {
 
     // Verifica se o usuário está ativo
     if (!usuario.ativo) {
-      return res.status(403).json({ error: "Usuário inativo. Entre em contato com o suporte." });
+      return res
+        .status(403)
+        .json({ error: "Usuário inativo. Entre em contato com o suporte." });
     }
 
     // Usa bcrypt.compare de forma assíncrona
@@ -186,10 +187,11 @@ const acessarUsuario = async (req, res) => {
 
     return res.status(200).json({ token });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar usuário", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar usuário", detalhes: error.message });
   }
 };
-
 
 module.exports = {
   criarUsuario,

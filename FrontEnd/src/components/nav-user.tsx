@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   IconDotsVertical,
   IconLogout,
@@ -21,8 +22,29 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavUser({}) {
+export function NavUser({ }) {
   const { isMobile } = useSidebar();
+
+  const [usuarios, setUsuarios] = useState<
+    { id: string; nome: string; email: string; ativo: boolean }[]
+  >([]);
+
+  const fetchUsuarios = async () => {
+    try {
+      const response = await fetch("http://localhost:3333/usuarios/list");
+      if (!response.ok) {
+        throw new Error("Erro ao buscar usuários");
+      }
+      const data = await response.json();
+      setUsuarios(data);
+    } catch (error) {
+      console.error("Erro:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
 
   return (
     <SidebarMenu>
@@ -35,15 +57,15 @@ export function NavUser({}) {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src="https://github.com/engfrontfelipe.png"
+                  src="https://github.com/teste.png"
                   alt="Felipe Maciel"
                 />
                 <AvatarFallback className="rounded-lg">GT</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Felipe Maciel</span>
+                <span className="truncate font-medium">{usuarios[0]?.nome || "Usuário"}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  felipe.souza@groveagency.com.br
+                  {usuarios[0]?.email || "usuário@company.com.br"}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -65,9 +87,9 @@ export function NavUser({}) {
                   <AvatarFallback className="rounded-lg">GT</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Felipe Maciel</span>
+                  <span className="truncate font-medium">{usuarios[0]?.nome || "Usuário"}</span>
                   <span className="text-muted-foreground truncate text-xs">
-                    felipe.souza@groveagency.com.br
+                    {usuarios[0]?.email || "usuário@company.com.br"}
                   </span>
                 </div>
               </div>
