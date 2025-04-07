@@ -255,7 +255,7 @@ export default function RegisterUser() {
                     </Input>
                 
                   </div>
-                  <Button onClick={cadastrarCliente} className="w-full mt-4 cursor-pointer">
+                  <Button onClick={cadastrarCliente} className="w-full mt-1 cursor-pointer">
                     Criar Cliente
                   </Button>
                 </Card>

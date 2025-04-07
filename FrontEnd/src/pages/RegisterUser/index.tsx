@@ -229,7 +229,7 @@ function RegisterUser() {
                 />
               </div>
               <Button
-                className="w-full mt-4 cursor-pointer"
+                className="w-full mt-1 cursor-pointer"
                 onClick={handleSubmit}
               >
                 Criar usuário
