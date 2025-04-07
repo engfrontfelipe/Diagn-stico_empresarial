@@ -5,37 +5,52 @@ import Login from "../pages/Login";
 import { PrivateRoutes } from "./privateRoutes";
 import RegisterUser from "@/pages/RegisterUser";
 import RegisterClient from "@/pages/RegisterClient";
+import PageClient from "@/pages/PageClient";
 
-const Rotas = () => (
-  <Routes>
-    <Route path="/" element={<Home />} />
-    <Route
-      path="/dashboard"
-      element={
-        <PrivateRoutes>
-          <Dashboard />
-        </PrivateRoutes>
-      }
-    />
-    <Route
-      path="/register_user"
-      element={
-        <PrivateRoutes>
-          <RegisterUser />
-        </PrivateRoutes>
-      }
-    />
+const Rotas = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
 
-    <Route
-      path="/register_client"
-      element={
-        <PrivateRoutes>
-          <RegisterClient />
-        </PrivateRoutes>
-      }
-    />
-    <Route path="/login" element={<Login />} />
-  </Routes>
-);
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoutes>
+            <Dashboard />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route
+        path="/register_user"
+        element={
+          <PrivateRoutes>
+            <RegisterUser />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route
+        path="/register_client"
+        element={
+          <PrivateRoutes>
+            <RegisterClient />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route
+        path="/clientes/:id"
+        element={
+          <PrivateRoutes>
+            <PageClient />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  );
+};
 
 export default Rotas;

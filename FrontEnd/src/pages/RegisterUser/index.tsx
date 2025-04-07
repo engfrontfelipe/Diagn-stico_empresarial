@@ -172,6 +172,11 @@ function RegisterUser() {
     toast.success("Usuário atualizado!");
   };
 
+  const usuarioIsActive =() => {
+    const activeUsers = usuarios.filter((usuario) => usuario.ativo);
+    return activeUsers.length;
+  }
+
   return (
     <>
       <SidebarProvider>
@@ -180,11 +185,11 @@ function RegisterUser() {
           <SiteHeader title="Gestão Usuários" />
           <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
             <div className="grid grid-cols-1 gap-4">
-              <SectionCards
-                description="Total de Consultores"
-                title={usuarios.length.toString().concat(" Consultores")}
-                footer="Valor total de Usuários cadastrados" 
-              />
+            <SectionCards
+                  description="Total de Usuários:"
+                  title={`${usuarios.length} usuários`}
+                  footer={`Valor total de usuários ativos é de ${usuarioIsActive()} usuários.`}
+                />
             </div>
 
             <Card className="p-4 w-full">
@@ -255,7 +260,6 @@ function RegisterUser() {
                           checked={usuario.ativo}
                           onCheckedChange={() =>
                             toggleUserStatus(usuario.id, usuario.ativo)
-                            
                           }
                         />
                       </TableCell>

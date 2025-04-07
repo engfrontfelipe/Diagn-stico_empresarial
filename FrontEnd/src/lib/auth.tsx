@@ -19,9 +19,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("http://localhost:3333/usuarios/auth/login", {
-          credentials: "include", // Garante que cookies de sessão sejam enviados
-        });
+        const response = await fetch(
+          "http://localhost:3333/usuarios/auth/login",
+          {
+            credentials: "include", 
+          },
+        );
         if (!response.ok) throw new Error("Erro ao buscar usuário");
 
         const data: User = await response.json();
@@ -43,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth deve ser usado dentro de AuthProvider");
+  if (!context)
+    throw new Error("useAuth deve ser usado dentro de AuthProvider");
   return context;
 }

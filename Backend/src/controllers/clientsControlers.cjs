@@ -17,7 +17,7 @@ const criarCliente = async (req, res) => {
     const clienteExistente = await sql`
       SELECT * FROM clientes WHERE cnpj = ${cnpj};
     `;
-    
+
     if (clienteExistente.length > 0) {
       return res.status(400).json({ error: "CNPJ já cadastrado" });
     }
@@ -27,19 +27,24 @@ const criarCliente = async (req, res) => {
       VALUES (${nome}, ${nome_responsavel}, ${cnpj}) 
       RETURNING *;
     `;
-    
+
     res.status(201).json({ message: "Cliente Cadastrado", cliente: result[0] });
   } catch (error) {
-    res.status(500).json({ error: "Erro ao criar cliente", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao criar cliente", detalhes: error.message });
   }
 };
 
 const listarClientes = async (_req, res) => {
   try {
-    const result = await sql`SELECT id, nome, nome_responsavel, cnpj, ativo FROM clientes`;
+    const result =
+      await sql`SELECT id, nome, nome_responsavel, cnpj, ativo FROM clientes`;
     res.status(200).json(result);
   } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar clientes", detalhes: err.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar clientes", detalhes: err.message });
   }
 };
 
@@ -66,7 +71,25 @@ const atualizarCliente = async (req, res) => {
     res.json({ msg: "Cliente atualizado com sucesso", cliente: result[0] });
   } catch (err) {
     console.error("Erro ao atualizar Cliente:", err);
-    res.status(500).json({ error: "Erro ao atualizar Cliente", detalhes: err.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao atualizar Cliente", detalhes: err.message });
+  }
+};
+
+const buscarClientePorId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await sql`SELECT * FROM clientes WHERE id = ${id}`;
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Cliente não encontrado" });
+    }
+    res.json(result[0]);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar cliente", detalhes: error.message });
   }
 };
 
@@ -74,4 +97,5 @@ module.exports = {
   criarCliente,
   listarClientes,
   atualizarCliente,
+  buscarClientePorId,
 };

@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const usuariosController = require("../controllers/usersController.cjs");
 
-
 router.post("/usuarios/create", usuariosController.criarUsuario); // Criar usuário
 router.get("/usuarios/list", usuariosController.listarUsuarios); // Listar todos os usuários
 router.get("/usuarios/:id", usuariosController.buscarUsuarioPorId); // Buscar usuário por ID

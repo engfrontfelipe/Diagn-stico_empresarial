@@ -9,7 +9,7 @@ function Home() {
         <div className="flex justify-center gap-2 md:justify-start">
           <a href="#" className="flex items-center gap-2 font-medium">
             <div className="flex h-10 w-10 items-center justify-center rounded-md  text-primary-foreground">
-              <img src={grove} alt="Logo grove" className="w-full h-full" />
+              <img src={grove} alt="Logo grove" className="w-full h-full " />
             </div>
             Grove Tech
           </a>

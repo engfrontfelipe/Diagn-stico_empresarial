@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const clientsControlers = require("../controllers/clientsControlers.cjs")
+const clientsControlers = require("../controllers/clientsControlers.cjs");
 
 router.post("/clientes/create", clientsControlers.criarCliente); //criar clientes
 router.get("/clientes/list", clientsControlers.listarClientes); //criar clientes
 router.patch("/clientes/:id", clientsControlers.atualizarCliente); // Atualizar cliente por ID
+router.get("/clientes/:id", clientsControlers.buscarClientePorId); // Buscar usuário por ID
 
 
-
-
-module.exports = router
+module.exports = router;

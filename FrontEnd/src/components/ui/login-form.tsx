@@ -100,7 +100,7 @@ export function LoginForm({
         </div>
         <Button
           type="submit"
-          className="w-full cursor-pointer bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
+          className="w-full cursor-pointer bg-blue-600 text-white hover:hover:bg-blue-500 hover:text-white"
         >
           Login
         </Button>
@@ -111,7 +111,7 @@ export function LoginForm({
         </div>
         <Button
           variant="outline"
-          className="w-full cursor-pointer bg-slate-500 text-white hover:bg-slate-600 hover:text-white"
+          className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white"
         >
           Clique Aqui!
         </Button>

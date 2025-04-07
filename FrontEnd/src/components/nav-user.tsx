@@ -22,7 +22,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export function NavUser({ }) {
+export function NavUser({}) {
   const { isMobile } = useSidebar();
 
   const [usuarios, setUsuarios] = useState<
@@ -63,7 +63,9 @@ export function NavUser({ }) {
                 <AvatarFallback className="rounded-lg">GT</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{usuarios[0]?.nome || "Usuário"}</span>
+                <span className="truncate font-medium">
+                  {usuarios[0]?.nome || "Usuário"}
+                </span>
                 <span className="text-muted-foreground truncate text-xs">
                   {usuarios[0]?.email || "usuário@company.com.br"}
                 </span>
@@ -87,7 +89,9 @@ export function NavUser({ }) {
                   <AvatarFallback className="rounded-lg">GT</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{usuarios[0]?.nome || "Usuário"}</span>
+                  <span className="truncate font-medium">
+                    {usuarios[0]?.nome || "Usuário"}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
                     {usuarios[0]?.email || "usuário@company.com.br"}
                   </span>
