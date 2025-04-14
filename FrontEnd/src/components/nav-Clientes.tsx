@@ -12,7 +12,13 @@ import { useEffect, useState } from "react";
 
 export function NavClientes() {
   const [clientes, setClientes] = useState<
-    { nome_responsavel: string; nome: string; cnpj: string; id: string; ativo: boolean }[]
+    {
+      nome_responsavel: string;
+      nome: string;
+      cnpj: string;
+      id_cliente: string;
+      ativo: boolean;
+    }[]
   >([]);
 
   const fetchClientes = async () => {
@@ -38,9 +44,11 @@ export function NavClientes() {
       <SidebarMenu>
         <SidebarMenuItem key="clientes">
           {clientes.map((cliente) => (
-            <SidebarMenuButton asChild key={cliente.id}>
-              <a href={`/clientes/${cliente.id}`}>
-                <span><User size={19} /></span>
+            <SidebarMenuButton asChild key={cliente.id_cliente}>
+              <a href={`/clientes/${cliente.id_cliente}`}>
+                <span>
+                  <User size={19} />
+                </span>
                 {cliente.nome}
               </a>
             </SidebarMenuButton>

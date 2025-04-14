@@ -5,11 +5,11 @@ import { AuthProvider } from "./lib/auth";
 
 function App() {
   return (
-        <AuthProvider>
-          <BrowserRouter>
-            <Rotas />
-          </BrowserRouter>
-        </AuthProvider> 
+    <AuthProvider>
+      <BrowserRouter>
+        <Rotas />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

@@ -7,5 +7,4 @@ router.get("/clientes/list", clientsControlers.listarClientes); //criar clientes
 router.patch("/clientes/:id", clientsControlers.atualizarCliente); // Atualizar cliente por ID
 router.get("/clientes/:id", clientsControlers.buscarClientePorId); // Buscar usuário por ID
 
-
 module.exports = router;

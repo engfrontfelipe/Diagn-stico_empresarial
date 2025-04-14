@@ -21,11 +21,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/lib/auth";
 
 export function NavUser({}) {
   const { isMobile } = useSidebar();
 
-  const [usuarios, setUsuarios] = useState<
+  const [_usuarios, setUsuarios] = useState<
     { id: string; nome: string; email: string; ativo: boolean }[]
   >([]);
 
@@ -46,14 +47,17 @@ export function NavUser({}) {
     fetchUsuarios();
   }, []);
 
+const {user} = useAuth()
+
+
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
+    <SidebarMenu className="cursor-pointer">
+      <SidebarMenuItem className="cursor-pointer" >
+        <DropdownMenu >
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
@@ -64,10 +68,10 @@ export function NavUser({}) {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {usuarios[0]?.nome || "Usuário"}
+                  {user?.nome}
                 </span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {usuarios[0]?.email || "usuário@company.com.br"}
+                  {user?.email || "usuário@company.com.br"}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -83,33 +87,37 @@ export function NavUser({}) {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src="https://github.com/engfrontfelipe.png"
+                    src="https://github.com/teste.png"
                     alt="Felipe Maciel"
                   />
                   <AvatarFallback className="rounded-lg">GT</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {usuarios[0]?.nome || "Usuário"}
+                    {user?.nome || "Usuário"}
                   </span>
                   <span className="text-muted-foreground truncate text-xs">
-                    {usuarios[0]?.email || "usuário@company.com.br"}
+                    {user?.email || "usuário@company.com.br"}
                   </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <a href="/register_user">
+              <DropdownMenuItem className="cursor-pointer">
                 <IconUserCircle />
                 Account
               </DropdownMenuItem>
+              </a>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <a href="/">
+            <DropdownMenuItem className="cursor-pointer">
               <IconLogout />
-              <a href="/">Log out</a>
+                Log out
             </DropdownMenuItem>
+            </a>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

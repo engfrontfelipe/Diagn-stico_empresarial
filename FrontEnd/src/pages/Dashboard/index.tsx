@@ -1,4 +1,3 @@
-// import { ChartAreaInteractive } from "@/components/chart-area-interactive.tsx";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive.tsx";
 import { AppSidebar } from "../../components/app-sidebar";
 
@@ -6,31 +5,31 @@ import { SectionCards } from "../../components/section-cards";
 import { SiteHeader } from "../../components/site-header.tsx";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth.tsx";
 
 export default function Page() {
 
-  //chamando api dos clientes
-  const [clientes, setClientes] = useState<{ id: string; nome: string; ativo: boolean }[]>([]);
+  const [clientes, setClientes] = useState<
+    { id: string; nome: string; ativo: boolean }[]
+  >([]);
 
-   const fetchClientes = async () => {
-      try {
-        const response = await fetch("http://localhost:3333/clientes/list");
-        if (!response.ok) {
-          throw new Error("Erro ao buscar clientes");
-        }
-        const data = await response.json();
-        setClientes(data);
-      } catch (error) {
-        console.error("Erro:", error);
+  const fetchClientes = async () => {
+    try {     const response = await fetch("http://localhost:3333/clientes/list");
+      if (!response.ok) {
+        throw new Error("Erro ao buscar clientes");
       }
-    };
-  
-    useEffect(() => {
-      fetchClientes();
-    }, []);
+      const data = await response.json();
+      setClientes(data);
+    } catch (error) {
+      console.error("Erro:", error);
+    }
+  };
 
-    //chamando api dos usuários
-    const [usuarios, setUsuarios] = useState<
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  const [usuarios, setUsuarios] = useState<
     { id: string; nome: string; email: string; ativo: boolean }[]
   >([]);
 
@@ -51,15 +50,16 @@ export default function Page() {
     fetchUsuarios();
   }, []);
 
-  const clientIsActive =() => {
+  const clientIsActive = () => {
     const activeClients = clientes.filter((cliente) => cliente.ativo);
     return activeClients.length;
-  }
+  };
 
-  const usuarioIsActive =() => {
+  const usuarioIsActive = () => {
     const activeUsers = usuarios.filter((usuario) => usuario.ativo);
     return activeUsers.length;
-  }
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
@@ -70,7 +70,7 @@ export default function Page() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 ">
               <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
                 <SectionCards
-                  description="Total de Clientes:"
+                  description={`Total de Clientes:`}
                   title={`${clientes.length} clientes`}
                   footer={`O valor total de clientes ativos é de ${clientIsActive()} clientes.`}
                 />
@@ -79,13 +79,11 @@ export default function Page() {
                   title={`${usuarios.length} usuários`}
                   footer={`Valor total de usuários ativos é de ${usuarioIsActive()} usuários.`}
                 />
-               
               </div>
 
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
-              {/* <DataTable data={data} /> */}
             </div>
           </div>
         </div>

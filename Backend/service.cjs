@@ -5,11 +5,13 @@ require("dotenv").config();
 const app = express();
 const usuariosRoutes = require("./src/routes/usersRoute.cjs");
 const clientsRoutes = require("./src/routes/clientsRoute.cjs");
+const questionsRoutes = require("./src/routes/questionsRoute.cjs")
 
 app.use(cors());
 app.use(express.json());
 app.use(usuariosRoutes);
 app.use(clientsRoutes);
+app.use(questionsRoutes);
 
 const PORT = process.env.PORT || 3333;
 app.listen(3333, () => {

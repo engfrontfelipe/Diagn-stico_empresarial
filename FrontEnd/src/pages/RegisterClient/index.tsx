@@ -27,16 +27,22 @@ import { Switch } from "@/components/ui/switch";
 import { Pencil } from "lucide-react";
 import { toast, Toaster } from "sonner";
 
-
 export default function RegisterUser() {
-  
   const [client, setClient] = useState({
     nome_empresa: "",
     nome_responsavel: "",
     cnpj: "",
   });
 
-  const [clientes, setClientes] = useState<{ nome_responsavel: string; nome: string; cnpj: string; id: string; ativo: boolean }[]>([]);
+  const [clientes, setClientes] = useState<
+    {
+      nome_responsavel: string;
+      nome: string;
+      cnpj: string;
+      id_cliente: string;
+      ativo: boolean;
+    }[]
+  >([]);
 
   const formatCNPJ = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 14);
@@ -60,7 +66,7 @@ export default function RegisterUser() {
   };
 
   const [editClientData, setEditClientData] = useState({
-    id: "",
+    id_cliente: "",
     nome_empresa: "",
     nome_responsavel: "",
     cnpj: "",
@@ -74,7 +80,7 @@ export default function RegisterUser() {
     if (id === "cnpj") {
       newValue = formatCNPJ(value);
     }
-    setEditClientData((prev) => ({ ...prev, [id]: newValue }));    
+    setEditClientData((prev) => ({ ...prev, [id]: newValue }));
   };
 
   const cadastrarCliente = (e: React.FormEvent) => {
@@ -95,7 +101,7 @@ export default function RegisterUser() {
       body: JSON.stringify({
         nome: nome_empresa,
         nome_responsavel,
-        cnpj, 
+        cnpj,
       }),
     })
       .then((response) => {
@@ -123,6 +129,7 @@ export default function RegisterUser() {
       }
       const data = await response.json();
       setClientes(data);
+      
     } catch (error) {
       console.error("Erro:", error);
     }
@@ -132,9 +139,9 @@ export default function RegisterUser() {
     fetchClientes();
   }, []);
 
-  const toggleClientStatus = async (id: string, currentStatus: boolean) => {
+  const toggleClientStatus = async (id_cliente: string, currentStatus: boolean) => {       
     try {
-      const response = await fetch(`http://localhost:3333/clientes/${id}`, {
+      const response = await fetch(`http://localhost:3333/clientes/${id_cliente}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -143,28 +150,28 @@ export default function RegisterUser() {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao atualizar status do usuário");
+        throw new Error("Erro ao atualizar status do cliente");
       }
 
-      setClientes((prevClientes) =>
-        prevClientes.map((cliente) =>
-          cliente.id === id ? { ...cliente, ativo: !currentStatus } : cliente,
+      setClientes((prevCliente) =>
+        prevCliente.map((cliente) =>
+          cliente.id_cliente === id_cliente ? { ...cliente, ativo: !currentStatus } : cliente,
         ),
       );
-      toast.success("Status do usuário atualizado com sucesso!");
+      toast.success("Status do cliente atualizado com sucesso!");
     } catch (error) {
-      console.error("Erro ao atualizar usuário:", error);
-      toast.error("Erro ao atualizar status do usuário");
+      console.error("Erro ao atualizar cliente:", error);
+      toast.error("Erro ao atualizar status do cliente");
     }
   };
 
-
-
   const updateClientData = async (
     id: string,
-    updatedData: { nome_responsavel?: string; nome?: string; cnpj?: string },
+    updatedData: { nome?: string; nome_responsavel?: string; cnpj?: string },
   ) => {
     try {
+      console.log("Esse é o id", id);
+      
       const response = await fetch(`http://localhost:3333/clientes/${id}`, {
         method: "PATCH",
         headers: {
@@ -174,40 +181,43 @@ export default function RegisterUser() {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao atualizar dados do Cliente");
+        throw new Error("Erro ao atualizar dados do cliente");
       }
 
       setClientes((prevClientes) =>
         prevClientes.map((cliente) =>
-          cliente.id === id ? { ...cliente, ...updatedData } : cliente,
+          cliente.id_cliente === id ? { ...cliente, ...updatedData } : cliente,
         ),
       );
 
-      toast.success("Dados do Cliente atualizados com sucesso!");
     } catch (error) {
-      console.error("Erro ao atualizar Cliente:", error);
-      toast.error("Erro ao atualizar dados do Cliente");
+      console.error("Erro ao atualizar cliente:", error);
+      toast.error("Erro ao atualizar dados do cliente");
     }
   };
 
   const handleUpdateUser = async () => {
-    const { id, nome_empresa, nome_responsavel, cnpj } = editClientData;
+    const { id_cliente, nome_empresa, nome_responsavel, cnpj } = editClientData;
 
     if (!nome_empresa || !nome_responsavel) {
       toast.error("Nome e email são obrigatórios!");
       return;
     }
 
-    await updateClientData(id, { nome: nome_empresa, nome_responsavel, cnpj: cnpj || undefined });
-    console.log('Cliente atualizado:');
+    await updateClientData(id_cliente, {
+      nome: nome_empresa,
+      nome_responsavel,
+      cnpj: cnpj || undefined,
+    });
+    toast.success("Cliente atualizado com sucesso!")
   };
 
-  const clientIsActive =() => {
+  const clientIsActive = () => {
     const activeClients = clientes.filter((cliente) => cliente.ativo);
     return activeClients.length;
-  }
+  };
 
-    return (
+  return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset>
@@ -216,7 +226,7 @@ export default function RegisterUser() {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
-              <SectionCards
+                <SectionCards
                   description="Total de Clientes:"
                   title={`${clientes.length} clientes`}
                   footer={`O valor total de clientes ativos é de ${clientIsActive()} clientes.`}
@@ -225,7 +235,7 @@ export default function RegisterUser() {
               <div className="px-4 lg:px-6 grid gap-6 md:grid-cols-1">
                 <Card className="p-4 w-full">
                   <div className="grid gap-4">
-                   <Label htmlFor="nome_empresa">Nome da Empresa:</Label>
+                    <Label htmlFor="nome_empresa">Nome da Empresa:</Label>
                     <Input
                       id="nome_empresa"
                       placeholder="Nome da empresa"
@@ -251,11 +261,12 @@ export default function RegisterUser() {
                       placeholder="99.999.999/9999-99"
                       value={client.cnpj}
                       onChange={handleChange}
-                    >
-                    </Input>
-                
+                    ></Input>
                   </div>
-                  <Button onClick={cadastrarCliente} className="w-full mt-1 cursor-pointer">
+                  <Button
+                    onClick={cadastrarCliente}
+                    className="w-full mt-1 cursor-pointer"
+                  >
                     Criar Cliente
                   </Button>
                 </Card>
@@ -271,76 +282,94 @@ export default function RegisterUser() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {clientes.map((cliente) => (
-                      <TableRow key={cliente.id}>
-                        <TableCell>{cliente.nome}</TableCell>
-                        <TableCell>{cliente.nome_responsavel}</TableCell>
-                        <TableCell>
-                          <Switch className="cursor-pointer" checked={cliente.ativo} onCheckedChange={() =>
-                            toggleClientStatus(cliente.id, cliente.ativo)
-                          } />
-                        </TableCell>
-                        <TableCell>
-                          <Dialog>
-                            <DialogTrigger  onClick={() => {
-                              setEditClientData({
-                                id: cliente.id,
-                                nome_empresa: cliente.nome,
-                                nome_responsavel: cliente.nome_responsavel,
-                                cnpj: cliente.cnpj,
-                              });
-                            } }                         
+                      {clientes.map((cliente) =>
+                      (
+                        <TableRow key={cliente.id_cliente}>                          
+                          <TableCell>{cliente.nome}</TableCell>
+                          <TableCell>{cliente.nome_responsavel}</TableCell>
+                          <TableCell>
+                            <Switch
+                              className="cursor-pointer"
+                              checked={cliente.ativo}
+                              onCheckedChange={() =>{
+                                toggleClientStatus(cliente.id_cliente, cliente.ativo)
+                              }
+                              }
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Dialog>
+                              <DialogTrigger
+                                onClick={() => {
+                                  setEditClientData({
+                                    id_cliente: cliente.id_cliente,
+                                    nome_empresa: cliente.nome,
+                                    nome_responsavel: cliente.nome_responsavel,
+                                    cnpj: cliente.cnpj,
+                                  });
+                                }}
                               >
-                              <button
-                            >
-                                <Pencil className="text-center ml-3 cursor-pointer" size={20} />
-                              </button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle className="mb-2">
-                                  Editar dados do Cliente
-                                </DialogTitle>
-                                <DialogDescription>
-                                 <Label htmlFor="nome_responsavel" className="mb-2 mt-4 font-medium">
-                                    Nome do Responsável
-                                  </Label>
-                                  <Input
-                                    id="nome_responsavel"
-                                    placeholder="Digite o nome do responsável"
-                                    value={editClientData.nome_responsavel}
-                                    onChange={handleChangeEdit}
+                                <button>
+                                  <Pencil
+                                    className="text-center ml-3 cursor-pointer"
+                                    size={20}
                                   />
-                                  
-                                  <Label htmlFor="nome_empresa" className="mb-2 mt-4 font-medium">
-                                    Nome da Empresa
-                                  </Label>
-                                  <Input
-                                    id="nome_empresa"
-                                    placeholder="Digite o nome da empresa"
-                                    value={editClientData.nome_empresa}
-                                    onChange={handleChangeEdit}
-                                  />
+                                </button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle className="mb-2">
+                                    Editar dados do Cliente
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    <Label
+                                      htmlFor="nome_responsavel"
+                                      className="mb-2 mt-4 font-medium"
+                                    >
+                                      Nome do Responsável
+                                    </Label>
+                                    <Input
+                                      id="nome_responsavel"
+                                      placeholder="Digite o nome do responsável"
+                                      value={editClientData.nome_responsavel}
+                                      onChange={handleChangeEdit}
+                                    />
 
-                                  <Label className="mb-2 mt-4 font-medium">
-                                    CNPJ
-                                  </Label>
-                                  <Input
-                                    id="cnpj"
-                                    placeholder="Digite o CNPJ (opcional)"
-                                    value={editClientData.cnpj}
-                                    onChange={handleChangeEdit}
-                                  />
-                                  <Button className=" mt-5 w-full cursor-pointer " onClick={handleUpdateUser}>
-                                    Editar
-                                  </Button>
-                                </DialogDescription>
-                              </DialogHeader>
-                            </DialogContent>
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                                    <Label
+                                      htmlFor="nome_empresa"
+                                      className="mb-2 mt-4 font-medium"
+                                    >
+                                      Nome da Empresa
+                                    </Label>
+                                    <Input
+                                      id="nome_empresa"
+                                      placeholder="Digite o nome da empresa"
+                                      value={editClientData.nome_empresa}
+                                      onChange={handleChangeEdit}
+                                    />
+
+                                    <Label className="mb-2 mt-4 font-medium">
+                                      CNPJ
+                                    </Label>
+                                    <Input
+                                      id="cnpj"
+                                      placeholder="Digite o CNPJ (opcional)"
+                                      value={editClientData.cnpj}
+                                      onChange={handleChangeEdit}
+                                    />
+                                    <Button
+                                      className=" mt-5 w-full cursor-pointer "
+                                      onClick={handleUpdateUser}
+                                    >
+                                      Editar
+                                    </Button>
+                                  </DialogDescription>
+                                </DialogHeader>
+                              </DialogContent>
+                            </Dialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </Card>

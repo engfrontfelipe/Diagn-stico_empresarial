@@ -1,84 +1,155 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { CheckCircle, XCircle } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell, Pie, PieChart } from "recharts";
+import { Card } from "@/components/ui/card";
+import { toast, Toaster } from "sonner";
+import { useAuth } from "@/lib/auth";
+import { useParams } from "react-router-dom";
 
-const tabsData = [
-  {
-    value: "Estrategia",
-    label: "Estratégia",
-    fields: [
-      { id: "estrategia1", label: "A empresa possui um objetivo estratégico claro e mensurável para os próximos 12 meses?" },
-      { id: "estrategia2", label: "Existem KPIs definidos para acompanhar os resultados estratégicos?" },
-      { id: "estrategia3", label: "Há um prazo bem definido para a execução da estratégia traçada?" },
-    ],
-  },
-  {
-    value: "Vendas",
-    label: "Vendas",
-    fields: [
-      { id: "vendas1", label: "Existe uma meta mensal de vendas formalizada e comunicada à equipe?" },
-      { id: "vendas2", label: "Os canais de vendas utilizados são monitorados quanto à performance?" },
-      { id: "vendas3", label: "A equipe de vendas está dimensionada adequadamente para a demanda?" },
-    ],
-  },
-  {
-    value: "Marketing",
-    label: "Marketing",
-    fields: [
-      { id: "marketing1", label: "O orçamento de marketing está definido com base em metas e canais estratégicos?" },
-      { id: "marketing2", label: "A empresa atua com uma estratégia clara de presença digital (redes sociais, SEO, etc.)?" },
-      { id: "marketing3", label: "Existem campanhas de marketing planejadas para os próximos meses?" },
-    ],
-  },
-  {
-    value: "RH",
-    label: "Recursos Humanos",
-    fields: [
-      { id: "rh1", label: "Há um plano ativo de contratação para atender às demandas atuais e futuras?" },
-      { id: "rh2", label: "São oferecidos treinamentos regulares para desenvolvimento da equipe?" },
-      { id: "rh3", label: "A empresa revisa e atualiza frequentemente seus benefícios?" },
-    ],
-  },
-  {
-    value: "Operacoes",
-    label: "Operações",
-    fields: [
-      { id: "operacoes1", label: "Os principais processos operacionais estão documentados e otimizados?" },
-      { id: "operacoes2", label: "Existe uma boa relação com os fornecedores principais, baseada em SLA?" },
-      { id: "operacoes3", label: "A logística de distribuição é eficiente e bem planejada?" },
-    ],
-  },
-  {
-    value: "Tecnologia",
-    label: "Tecnologia",
-    fields: [
-      { id: "tech1", label: "A infraestrutura tecnológica atende bem às demandas da empresa?" },
-      { id: "tech2", label: "A empresa investe continuamente em inovação tecnológica?" },
-      { id: "tech3", label: "Existem medidas robustas de segurança da informação implementadas?" },
-    ],
-  },
-];
+const COLORS = ['#28a745', '#43b864', '#66c982', '#85d7a0', '#a3e5bd', '#c2f3da'];
 
-function TableQuestions() {
+function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => void }) {
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [chartData, setChartData] = useState<any[]>([]);
+  const [chartDataPie, setChartDataPie] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<{ id_pergunta: number; texto_pergunta: string; departamento: string }[]>([]);
 
-  const handleSwitchChange = (id: string, value: boolean) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [id]: value,
-    }));
+  const { user } = useAuth();
+  const { id } = useParams();
+  const id_cliente = parseInt(id || "0");
+  const id_usuario = user?.id;
+
+  // Usando useRef para manter o valor mais recente de answers
+  const answersRef = useRef(answers);
+
+  useEffect(() => {
+    if (!id_cliente) return;
+
+    fetch(`http://localhost:3333/questions/answers/${id_cliente}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
+        return res.json();
+      })
+      .then((data) => {
+        const booleanAnswers: Record<string, boolean> = {};
+
+        data.forEach((item: { id_pergunta: number; resposta: number }) => {
+          booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
+        });
+
+        setAnswers(booleanAnswers);
+        answersRef.current = booleanAnswers;
+
+        const respostasValidas = Object.entries(booleanAnswers).map(([id_pergunta, resposta]) => ({
+          id_pergunta: Number(id_pergunta),
+          resposta: resposta ? 1 : 2,
+        }));
+        onUpdateAnswers(respostasValidas);
+      }).catch((error) => {
+        console.error("Erro ao carregar respostas salvas:", error);
+      });
+  }, [id_cliente]);
+
+  useEffect(() => {
+    fetch('http://localhost:3333/questions/list')
+      .then((res) => {
+        if (!res.ok) throw new Error('Erro ao buscar as perguntas');
+        return res.json();
+      })
+      .then((data) => setQuestions(data))
+      .catch((error) => console.error('Erro ao buscar as perguntas:', error));
+  }, []);
+
+  const tabsData = questions.reduce((acc: any[], question) => {
+    const tab = acc.find((t: { label: string }) => t.label === question.departamento);
+    const field = {
+      id: question.id_pergunta,
+      label: question.texto_pergunta,
+    };
+
+    if (tab) {
+      tab.fields.push(field);
+    } else {
+      acc.push({
+        value: question.departamento.toLowerCase().replace(/\s/g, '-'),
+        label: question.departamento,
+        fields: [field],
+      });
+    }
+
+    return acc;
+  }, []);
+
+  const salvarRespostaIndividual = async (idPergunta: string, valor: boolean) => {
+    const respostaNumerica = valor ? 1 : 2;
+    const data_resposta = new Date().toISOString().split("T")[0];
+
+    const resposta = {
+      id_cliente,
+      id_pergunta: parseInt(idPergunta),
+      resposta: respostaNumerica,
+      data_resposta,
+      id_usuario,
+    };
+
+    try {
+      const response = await fetch("http://localhost:3333/questions/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([resposta]),
+      });
+
+      const resultado = await response.json();
+
+      if (!response.ok) {
+        toast.error(resultado?.error || "Erro ao salvar resposta.");
+        return;
+      }
+
+      const mensagem = resultado.message?.toLowerCase();
+
+      if (mensagem?.includes("atualizada")) {
+        toast.info("Resposta atualizada com sucesso.");
+      } else if (mensagem?.includes("salva")) {
+        toast.success("Nova resposta salva com sucesso.");
+      } else {
+        toast.info("Resposta atualizada com sucesso.");
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao salvar, contate o suporte.");
+    }
+  };
+
+  const handleSwitchChange = (idPergunta: string, value: boolean) => {
+    const updatedAnswers = {
+      ...answersRef.current,
+      [idPergunta]: value,
+    };
+
+    setAnswers(updatedAnswers);
+    answersRef.current = updatedAnswers; 
+
+    salvarRespostaIndividual(idPergunta, value);
+
+    const respostasValidas = Object.entries(updatedAnswers)
+      .filter(([_, v]) => v !== null)
+      .map(([id_pergunta, resposta]) => ({
+        id_pergunta: Number(id_pergunta),
+        resposta: resposta ? 1 : 2,
+      }));
+
+    onUpdateAnswers(respostasValidas);
   };
 
   useEffect(() => {
     const updatedChartData = tabsData.map((tab) => {
       let ativos = 0;
       let inativos = 0;
-      tab.fields.forEach((field) => {
-        const isChecked = answers[field.id] || false;
+      tab.fields.forEach((field: any) => {
+        const isChecked = answersRef.current.hasOwnProperty(field.id) ? answersRef.current[field.id] : null;
         isChecked ? ativos++ : inativos++;
       });
       return {
@@ -90,12 +161,31 @@ function TableQuestions() {
     setChartData(updatedChartData);
   }, [answers]);
 
+  useEffect(() => {
+    const updatedChartData = tabsData.map((tab) => {
+      const ativos = tab.fields.reduce((acc: any, field: any) => {
+        return acc + (answersRef.current[field.id] ? 1 : 0);
+      }, 0);
+
+      return {
+        name: tab.label,
+        value: ativos,
+      };
+    });
+
+    setChartDataPie(updatedChartData);
+  }, [answers]);
+
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-4">
-      <Tabs defaultValue="Estrategia">
+    <div className="w-full max-w-8xl mx-auto space-y-4">
+      <Tabs defaultValue="estratégias">
         <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 w-full overflow-x-auto">
           {tabsData.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="text-xs sm:text-sm">
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="text-xs sm:text-sm cursor-pointer"
+            >
               {tab.label}
             </TabsTrigger>
           ))}
@@ -107,46 +197,68 @@ function TableQuestions() {
             value={tab.value}
             className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-6 p-6"
           >
-            {tab.fields.map((field) => (
-              <div key={field.id} className="flex items-center justify-between gap-4 border-b pb-3">
-                <Label htmlFor={field.id} className="text-sm leading-snug max-w-[80%]">
-                  {field.label}
-                </Label>
-                <div className="flex items-center gap-2">
-                  <XCircle className={`w-5 h-5 transition-all duration-200 ${answers[field.id] ? "opacity-30" : "text-destructive"}`} />
-                  <Switch
-                    id={field.id}
-                    checked={answers[field.id] || false}
-                    onCheckedChange={(value) => handleSwitchChange(field.id, value)}
-                  />
-                  <CheckCircle className={`w-5 h-5 transition-all duration-200 ${answers[field.id] ? "text-emerald-600" : "opacity-30"}`} />
+            {tab.fields.map((field: any) => {
+              const isChecked = answersRef.current.hasOwnProperty(field.id)
+                ? answersRef.current[field.id]
+                : null;
+
+              return (
+                <div key={field.id} className="flex items-center justify-between gap-4 border-b pb-3">
+                  <Label htmlFor={field.id} className="text-sm leading-snug max-w-[80%]">
+                    {field.label}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                        isChecked === true ? "bg-emerald-600" : "bg-gray-600"
+                      }`}
+                      onClick={() => handleSwitchChange(field.id, true)}
+                    >
+                      Sim
+                    </button>
+                    <button
+                      type="button"
+                      className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                        isChecked === false ? "bg-red-600" : "bg-gray-600"
+                      }`}
+                      onClick={() => handleSwitchChange(field.id, false)}
+                    >
+                      Não
+                    </button>
+                    {isChecked === null && (
+                      <span className="text-sm text-gray-500 font-medium">Não respondida.</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </TabsContent>
         ))}
       </Tabs>
 
-      <div className="w-full h-[320px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 10, right: 30, left: 30, bottom: 5 }}>
+      <Card className="hidden md:flex w-full h-[320px] flex-row p-5 pt-10 pb-0 mt-5">
+        <PieChart width={380} height={230}>
+          <Pie data={chartDataPie} dataKey="value" nameKey="name" outerRadius={130} fill="#8884d8" label>
+            {chartDataPie.map((_entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </PieChart>
+
+        <ResponsiveContainer width="100%" height="90%">
+          <BarChart data={chartData}>
             <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
             <YAxis allowDecimals={false} />
-            <Tooltip
-              contentStyle={{
-                fontSize: "0.875rem",
-                borderRadius: "0.5rem",
-                height: "auto",
-                margin: "0.5rem",
-              }}
-
-            />
+            <Tooltip contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }} />
             <Legend iconType="circle" />
-            <Bar  dataKey="Ativos"  fill="#1c58da" radius={4}  />
-            <Bar dataKey="Inativos" fill="#011481"  radius={4}/>
+            <Bar dataKey="Ativos" fill="#28a745" radius={4} />
+            <Bar dataKey="Inativos" fill="#ff0000" radius={4} />
           </BarChart>
         </ResponsiveContainer>
-      </div>
+      </Card>
+      <Toaster richColors position="top-right" closeButton duration={1000} />
     </div>
   );
 }

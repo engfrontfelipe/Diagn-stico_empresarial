@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../lib/auth"; // ou o caminho correto
 
 export function LoginForm({
   className,
@@ -14,6 +15,10 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  
+const { setUser } = useAuth(); // Pega o setUser do contexto
+
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -28,7 +33,7 @@ export function LoginForm({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, senha: password }), // Certifique-se de que o backend espera "senha"
+          body: JSON.stringify({ email, senha: password }),
         },
       );
 
@@ -47,8 +52,15 @@ export function LoginForm({
       }
 
       if (data.token) {
-        // Salvar o token no localStorage ou sessionStorage
         localStorage.setItem("token", data.token);
+        const userResponse = await fetch("http://localhost:3333/usuarios/auth/me", {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        });
+      
+        const userData = await userResponse.json();
+        setUser(userData); 
 
         toast.success("Login realizado com sucesso!");
 
@@ -110,6 +122,10 @@ export function LoginForm({
           </span>
         </div>
         <Button
+          type="reset"
+          onClick={() => {
+            console.log("Pediu suporte")
+          }}
           variant="outline"
           className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white"
         >

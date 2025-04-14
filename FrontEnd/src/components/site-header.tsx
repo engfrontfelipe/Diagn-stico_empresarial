@@ -10,12 +10,11 @@ export function SiteHeader({ title }: { title: string }) {
         <Separator
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4 "
-          
         />
         <h1 className="text-balance font-medium ">{title}</h1>
       </div>
-      
-      <ThemeToggle/>
+
+      <ThemeToggle />
     </header>
   );
 }

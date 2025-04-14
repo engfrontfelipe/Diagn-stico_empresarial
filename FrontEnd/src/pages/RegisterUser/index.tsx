@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import {
@@ -36,7 +36,7 @@ function RegisterUser() {
   });
 
   const [usuarios, setUsuarios] = useState<
-    { id: string; nome: string; email: string; ativo: boolean }[]
+    { id_usuario: string; nome: string; email: string; ativo: boolean }[]
   >([]);
 
   const handleChange = (e: any) => {
@@ -78,7 +78,6 @@ function RegisterUser() {
 
       toast.success("Usuário cadastrado com sucesso!");
 
-      // Limpar os campos do formulário
       setFormData({
         nome: "",
         email: "",
@@ -109,7 +108,7 @@ function RegisterUser() {
 
       setUsuarios((prevUsuarios) =>
         prevUsuarios.map((usuario) =>
-          usuario.id === id ? { ...usuario, ativo: !currentStatus } : usuario,
+          usuario.id_usuario === id ? { ...usuario, ativo: !currentStatus } : usuario,
         ),
       );
       toast.success("Status do usuário atualizado com sucesso!");
@@ -138,11 +137,10 @@ function RegisterUser() {
 
       setUsuarios((prevUsuarios) =>
         prevUsuarios.map((usuario) =>
-          usuario.id === id ? { ...usuario, ...updatedData } : usuario,
+          usuario.id_usuario === id ? { ...usuario, ...updatedData } : usuario,
         ),
       );
 
-      toast.success("Dados do usuário atualizados com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
       toast.error("Erro ao atualizar dados do usuário");
@@ -170,12 +168,13 @@ function RegisterUser() {
 
     await updateUserData(id, { nome, email, senha: senha || undefined });
     toast.success("Usuário atualizado!");
+    fetchUsuarios()
   };
 
-  const usuarioIsActive =() => {
+  const usuarioIsActive = () => {
     const activeUsers = usuarios.filter((usuario) => usuario.ativo);
     return activeUsers.length;
-  }
+  };
 
   return (
     <>
@@ -185,11 +184,11 @@ function RegisterUser() {
           <SiteHeader title="Gestão Usuários" />
           <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
             <div className="grid grid-cols-1 gap-4">
-            <SectionCards
-                  description="Total de Usuários:"
-                  title={`${usuarios.length} usuários`}
-                  footer={`Valor total de usuários ativos é de ${usuarioIsActive()} usuários.`}
-                />
+              <SectionCards
+                description="Total de Usuários:"
+                title={`${usuarios.length} usuários`}
+                footer={`Valor total de usuários ativos é de ${usuarioIsActive()} usuários.`}
+              />
             </div>
 
             <Card className="p-4 w-full">
@@ -237,9 +236,6 @@ function RegisterUser() {
             </Card>
 
             <Card className="p-4 w-full">
-              <CardHeader className="font-medium">
-                Tabela de Usuários
-              </CardHeader>
               <Table className="shadow-md min-w-full">
                 <TableHeader>
                   <TableRow>
@@ -251,7 +247,7 @@ function RegisterUser() {
                 </TableHeader>
                 <TableBody>
                   {usuarios.map((usuario) => (
-                    <TableRow key={usuario.id}>
+                    <TableRow key={usuario.id_usuario}>
                       <TableCell>{usuario.nome}</TableCell>
                       <TableCell>{usuario.email}</TableCell>
                       <TableCell>
@@ -259,7 +255,7 @@ function RegisterUser() {
                           className="cursor-pointer"
                           checked={usuario.ativo}
                           onCheckedChange={() =>
-                            toggleUserStatus(usuario.id, usuario.ativo)
+                            toggleUserStatus(usuario.id_usuario, usuario.ativo)
                           }
                         />
                       </TableCell>
@@ -267,7 +263,7 @@ function RegisterUser() {
                         <Dialog>
                           <DialogTrigger
                             onClick={() =>
-                              setEditUserData({ ...usuario, senha: "" })
+                              setEditUserData({ id: usuario.id_usuario, nome: usuario.nome, email: usuario.email, senha: "" })
                             }
                           >
                             <Pencil

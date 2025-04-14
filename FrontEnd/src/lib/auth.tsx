@@ -18,24 +18,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
       try {
-        const response = await fetch(
-          "http://localhost:3333/usuarios/auth/login",
-          {
-            credentials: "include", 
+        const response = await fetch("http://localhost:3333/usuarios/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
         if (!response.ok) throw new Error("Erro ao buscar usuário");
-
+  
         const data: User = await response.json();
         setUser(data);
       } catch (error) {
         console.error("Erro ao buscar usuário:", error);
+        localStorage.removeItem("token");
+        setUser(null);
       }
     };
-
+  
     fetchUser();
   }, []);
+  
+  
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

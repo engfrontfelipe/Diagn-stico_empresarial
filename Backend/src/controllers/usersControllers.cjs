@@ -1,5 +1,5 @@
 const sql = require("../config/db.cjs");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const JWT_SECRET = "JEISOQFJMCEOIOCMCECIOEFCEMCJ";
@@ -9,7 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Criar um novo usuário
 const criarUsuario = async (req, res) => {
   const { nome, email, senha, confirmSenha } = req.body;
 
@@ -44,10 +43,9 @@ const criarUsuario = async (req, res) => {
   }
 };
 
-// Listar todos os usuários
-const listarUsuarios = async (req, res) => {
+const listarUsuarios = async (_req, res) => {
   try {
-    const result = await sql`SELECT id, nome, email, ativo FROM usuarios`;
+    const result = await sql`SELECT id_usuario, nome, email, ativo FROM usuarios`;
     res.json(result);
   } catch (error) {
     res
@@ -56,12 +54,11 @@ const listarUsuarios = async (req, res) => {
   }
 };
 
-// Buscar usuário por ID
 const buscarUsuarioPorId = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await sql`SELECT * FROM usuarios WHERE id = ${id}`;
+    const result = await sql`SELECT * FROM usuarios WHERE id_usuario = ${id}`;
     if (result.length === 0) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
@@ -73,7 +70,6 @@ const buscarUsuarioPorId = async (req, res) => {
   }
 };
 
-// Atualizar usuário por ID
 const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
   const { nome, email, senha, confirmSenha, ativo } = req.body;
@@ -95,7 +91,7 @@ const atualizarUsuario = async (req, res) => {
         email = COALESCE(${email}, email),
         senha = COALESCE(${senhaHash}, senha),
         ativo = COALESCE(${ativo}, ativo)
-      WHERE id = ${id} 
+      WHERE id_usuario = ${id} 
       RETURNING *;
     `;
 
@@ -112,49 +108,30 @@ const atualizarUsuario = async (req, res) => {
   }
 };
 
-// Deletar usuário por ID
-const deletarUsuario = async (req, res) => {
-  const { id } = req.params;
+
+function generateToken(usuario) {
+  const payload = {
+    id: usuario.id_usuario,
+    nome: usuario.nome,
+    email: usuario.email,
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+}
+
+function verificarToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
 
   try {
-    const result = await sql`
-      DELETE FROM usuarios WHERE id = ${id} RETURNING *;
-    `;
-    if (result.length === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado" });
-    }
-    res.json({ message: "Usuário deletado com sucesso" });
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    req.user = decoded;
+    next();
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Erro ao deletar usuário", detalhes: error.message });
+    return res.status(401).json({ error: "Token inválido" });
   }
-};
-// Função para gerar token
-const generateToken = (email) => {
-  return jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
-};
-
-// Middleware para validar o token
-// const authenticateToken = (req, res, next) => {
-//   const authHeader = req.headers["authorization"];
-
-//   if (!authHeader) {
-//     return res.status(403).json({ message: "Token não fornecido" });
-//   }
-
-//   const token = authHeader.startsWith("Bearer ")
-//     ? authHeader.slice(7)
-//     : authHeader;
-
-//   jwt.verify(token, JWT_SECRET, (err, decoded) => {
-//     if (err) {
-//       return res.status(403).json({ message: "Token inválido" });
-//     }
-//     req.user = decoded;
-//     next();
-//   });
-// };
+}
 
 const acessarUsuario = async (req, res) => {
   const { email, senha } = req.body;
@@ -168,22 +145,21 @@ const acessarUsuario = async (req, res) => {
 
     const usuario = result[0];
 
-    // Verifica se o usuário está ativo
+
     if (!usuario.ativo) {
       return res
         .status(403)
         .json({ error: "Usuário inativo. Entre em contato com o suporte." });
     }
 
-    // Usa bcrypt.compare de forma assíncrona
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
       return res.status(400).json({ error: "Senha inválida" });
     }
 
-    // Gera o token JWT
-    const token = generateToken(email);
+ 
+    const token = generateToken(usuario);
 
     return res.status(200).json({ token });
   } catch (error) {
@@ -198,7 +174,7 @@ module.exports = {
   listarUsuarios,
   buscarUsuarioPorId,
   atualizarUsuario,
-  deletarUsuario,
   acessarUsuario,
-  // authenticateToken,
+  verificarToken,
+  
 };
