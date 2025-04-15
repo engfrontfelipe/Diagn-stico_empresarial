@@ -5,7 +5,7 @@ require("dotenv").config();
 const app = express();
 const usuariosRoutes = require("./src/routes/usersRoute.cjs");
 const clientsRoutes = require("./src/routes/clientsRoute.cjs");
-const questionsRoutes = require("./src/routes/questionsRoute.cjs")
+const questionsRoutes = require("./src/routes/questionsRoute.cjs");
 
 app.use(cors());
 app.use(express.json());

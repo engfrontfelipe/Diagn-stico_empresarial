@@ -1,19 +1,43 @@
 import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell, Pie, PieChart } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+  Pie,
+  PieChart,
+} from "recharts";
 import { Card } from "@/components/ui/card";
 import { toast, Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
 
-const COLORS = ['#28a745', '#43b864', '#66c982', '#85d7a0', '#a3e5bd', '#c2f3da'];
+const COLORS = [
+  "#28a745",
+  "#43b864",
+  "#66c982",
+  "#85d7a0",
+  "#a3e5bd",
+  "#c2f3da",
+];
 
-function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => void }) {
+function TableQuestions({
+  onUpdateAnswers,
+}: {
+  onUpdateAnswers: (answers: any[]) => void;
+}) {
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [chartData, setChartData] = useState<any[]>([]);
   const [chartDataPie, setChartDataPie] = useState<any[]>([]);
-  const [questions, setQuestions] = useState<{ id_pergunta: number; texto_pergunta: string; departamento: string }[]>([]);
+  const [questions, setQuestions] = useState<
+    { id_pergunta: number; texto_pergunta: string; departamento: string }[]
+  >([]);
 
   const { user } = useAuth();
   const { id } = useParams();
@@ -41,28 +65,33 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
         setAnswers(booleanAnswers);
         answersRef.current = booleanAnswers;
 
-        const respostasValidas = Object.entries(booleanAnswers).map(([id_pergunta, resposta]) => ({
-          id_pergunta: Number(id_pergunta),
-          resposta: resposta ? 1 : 2,
-        }));
+        const respostasValidas = Object.entries(booleanAnswers).map(
+          ([id_pergunta, resposta]) => ({
+            id_pergunta: Number(id_pergunta),
+            resposta: resposta ? 1 : 2,
+          }),
+        );
         onUpdateAnswers(respostasValidas);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.error("Erro ao carregar respostas salvas:", error);
       });
   }, [id_cliente]);
 
   useEffect(() => {
-    fetch('http://localhost:3333/questions/list')
+    fetch("http://localhost:3333/questions/list")
       .then((res) => {
-        if (!res.ok) throw new Error('Erro ao buscar as perguntas');
+        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         return res.json();
       })
       .then((data) => setQuestions(data))
-      .catch((error) => console.error('Erro ao buscar as perguntas:', error));
+      .catch((error) => console.error("Erro ao buscar as perguntas:", error));
   }, []);
 
   const tabsData = questions.reduce((acc: any[], question) => {
-    const tab = acc.find((t: { label: string }) => t.label === question.departamento);
+    const tab = acc.find(
+      (t: { label: string }) => t.label === question.departamento,
+    );
     const field = {
       id: question.id_pergunta,
       label: question.texto_pergunta,
@@ -72,7 +101,7 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
       tab.fields.push(field);
     } else {
       acc.push({
-        value: question.departamento.toLowerCase().replace(/\s/g, '-'),
+        value: question.departamento.toLowerCase().replace(/\s/g, "-"),
         label: question.departamento,
         fields: [field],
       });
@@ -81,7 +110,10 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
     return acc;
   }, []);
 
-  const salvarRespostaIndividual = async (idPergunta: string, valor: boolean) => {
+  const salvarRespostaIndividual = async (
+    idPergunta: string,
+    valor: boolean,
+  ) => {
     const respostaNumerica = valor ? 1 : 2;
     const data_resposta = new Date().toISOString().split("T")[0];
 
@@ -116,7 +148,6 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
       } else {
         toast.info("Resposta atualizada com sucesso.");
       }
-
     } catch (err) {
       console.error(err);
       toast.error("Erro ao salvar, contate o suporte.");
@@ -130,7 +161,7 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
     };
 
     setAnswers(updatedAnswers);
-    answersRef.current = updatedAnswers; 
+    answersRef.current = updatedAnswers;
 
     salvarRespostaIndividual(idPergunta, value);
 
@@ -149,7 +180,9 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
       let ativos = 0;
       let inativos = 0;
       tab.fields.forEach((field: any) => {
-        const isChecked = answersRef.current.hasOwnProperty(field.id) ? answersRef.current[field.id] : null;
+        const isChecked = answersRef.current.hasOwnProperty(field.id)
+          ? answersRef.current[field.id]
+          : null;
         isChecked ? ativos++ : inativos++;
       });
       return {
@@ -203,8 +236,14 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
                 : null;
 
               return (
-                <div key={field.id} className="flex items-center justify-between gap-4 border-b pb-3">
-                  <Label htmlFor={field.id} className="text-sm leading-snug max-w-[80%]">
+                <div
+                  key={field.id}
+                  className="flex items-center justify-between gap-4 border-b pb-3"
+                >
+                  <Label
+                    htmlFor={field.id}
+                    className="text-sm leading-snug max-w-[80%]"
+                  >
                     {field.label}
                   </Label>
                   <div className="flex items-center gap-2">
@@ -227,7 +266,9 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
                       Não
                     </button>
                     {isChecked === null && (
-                      <span className="text-sm text-gray-500 font-medium">Não respondida.</span>
+                      <span className="text-sm text-gray-500 font-medium">
+                        Não respondida.
+                      </span>
                     )}
                   </div>
                 </div>
@@ -239,9 +280,19 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
 
       <Card className="hidden md:flex w-full h-[320px] flex-row p-5 pt-10 pb-0 mt-5">
         <PieChart width={380} height={230}>
-          <Pie data={chartDataPie} dataKey="value" nameKey="name" outerRadius={130} fill="#8884d8" label>
+          <Pie
+            data={chartDataPie}
+            dataKey="value"
+            nameKey="name"
+            outerRadius={130}
+            fill="#8884d8"
+            label
+          >
             {chartDataPie.map((_entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell
+                key={`cell-${index}`}
+                fill={COLORS[index % COLORS.length]}
+              />
             ))}
           </Pie>
           <Tooltip />
@@ -251,7 +302,10 @@ function TableQuestions({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[])
           <BarChart data={chartData}>
             <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
             <YAxis allowDecimals={false} />
-            <Tooltip contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }} />
+            <Tooltip
+              contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }}
+              cursor={false}
+            />
             <Legend iconType="circle" />
             <Bar dataKey="Ativos" fill="#28a745" radius={4} />
             <Bar dataKey="Inativos" fill="#ff0000" radius={4} />

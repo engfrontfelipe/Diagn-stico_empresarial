@@ -7,9 +7,9 @@
   --radius: 0.4rem;
 
   --background: oklch(0.85 0.025 240); /* Azul acinzentado mais escuro */
-  --foreground: oklch(0.2 0.05 240);   /* Azul profundo para texto */
+  --foreground: oklch(0.2 0.05 240); /* Azul profundo para texto */
 
-  --card: oklch(0.88 0.02 240); 
+  --card: oklch(0.88 0.02 240);
   --card-foreground: oklch(0.18 0.04 240);
 
   --popover: oklch(0.9 0.02 240);
@@ -18,31 +18,29 @@
   --primary: oklch(0.55 0.2 250); /* Azul vibrante */
   --primary-foreground: oklch(0.98 0.01 240);
 
-  --secondary: oklch(0.75 0.08 240); 
+  --secondary: oklch(0.75 0.08 240);
   --secondary-foreground: oklch(0.15 0.04 240);
 
-  --muted: oklch(0.8 0.02 240); 
+  --muted: oklch(0.8 0.02 240);
   --muted-foreground: oklch(0.25 0.02 240);
 
-  --accent: oklch(0.7 0.1 240); 
+  --accent: oklch(0.7 0.1 240);
   --accent-foreground: oklch(0.15 0.02 240);
 
-  --destructive: oklch(0.7 0.15 25); 
+  --destructive: oklch(0.7 0.15 25);
   --destructive-foreground: oklch(0.99 0.01 0);
 
   --border: oklch(0.75 0.015 240);
   --input: oklch(0.78 0.015 240);
   --ring: oklch(0.55 0.2 250);
 
-  /* Gráficos azulados mais fortes */
   --chart-1: oklch(0.5 0.2 230);
   --chart-2: oklch(0.45 0.2 220);
   --chart-3: oklch(0.4 0.2 210);
   --chart-4: oklch(0.55 0.2 240);
   --chart-5: oklch(0.6 0.18 250);
 
-  /* Sidebar */
-  --sidebar: oklch(0.82 0.02 240); 
+  --sidebar: oklch(0.82 0.02 240);
   --sidebar-foreground: oklch(0.15 0.04 240);
 
   --sidebar-primary: oklch(0.55 0.2 250);
@@ -54,7 +52,6 @@
   --sidebar-border: oklch(0.7 0.015 230);
   --sidebar-ring: oklch(0.55 0.2 250);
 }
-
 
 .dark {
   --background: oklch(0.141 0.005 285.823);
@@ -102,7 +99,7 @@
   --secondary: oklch(0.279 0.041 260.031);
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
+  --muted-foreground: oklch(0.85 0.03 256.788);
   --accent: oklch(0.279 0.041 260.031);
   --accent-foreground: oklch(0.984 0.003 247.858);
   --destructive: oklch(0.704 0.191 22.216);

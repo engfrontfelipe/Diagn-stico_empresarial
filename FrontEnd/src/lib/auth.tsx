@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-  
+
       try {
         const response = await fetch("http://localhost:3333/usuarios/auth/me", {
           headers: {
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         });
         if (!response.ok) throw new Error("Erro ao buscar usuário");
-  
+
         const data: User = await response.json();
         setUser(data);
       } catch (error) {
@@ -37,11 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       }
     };
-  
+
     fetchUser();
   }, []);
-  
-  
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

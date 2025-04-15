@@ -5,7 +5,7 @@ import {
   TableRow,
   TableHead,
   TableBody,
-  TableCell
+  TableCell,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 
@@ -36,7 +36,7 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
       })
       .then((data) => {
         const sortedData = data.sort(
-          (a: Question, b: Question) => b.priorizacao - a.priorizacao
+          (a: Question, b: Question) => b.priorizacao - a.priorizacao,
         );
         setQuestions(sortedData);
       })
@@ -46,21 +46,36 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
   return (
     <div className="w-full max-w-8xl space-y-4 -mt-5">
       <Card className="p-8 ">
-        <h1 className="text-center font-medium text-3xl">Tabela de oportunidades</h1>
+        <h1 className="text-center font-medium text-3xl">
+          Tabela de oportunidades
+        </h1>
         <Table className="border-collapse border border-b-accent">
           <TableHeader>
             <TableRow>
-              <TableHead className="border border-b-accent">Oportunidades</TableHead>
-              <TableHead className="border border-b-accent">Departamento</TableHead>
-              <TableHead className="border border-b-accent">Importância</TableHead>
+              <TableHead className="border border-b-accent">
+                Oportunidades
+              </TableHead>
+              <TableHead className="border border-b-accent">
+                Departamento
+              </TableHead>
+              <TableHead className="border border-b-accent">
+                Importância
+              </TableHead>
               <TableHead className="border border-b-accent">Urgência</TableHead>
-              <TableHead className="border border-b-accent">Facilidade</TableHead>
-              <TableHead className="border border-b-accent">Priorização</TableHead>
+              <TableHead className="border border-b-accent">
+                Facilidade
+              </TableHead>
+              <TableHead className="border border-b-accent">
+                Priorização
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {questions.map((q) => (
-              <TableRow key={q.id_pergunta} className="border-t border-b-accent">
+              <TableRow
+                key={q.id_pergunta}
+                className="border-t border-b-accent"
+              >
                 <TableCell className="font-medium border border-b-accent">
                   {q.oportunidade}
                 </TableCell>
@@ -72,10 +87,10 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
                     q.importancia === "Alta"
                       ? "text-red-500 font-semibold"
                       : q.importancia === "Média"
-                      ? "text-yellow-400 font-medium"
-                      : q.importancia === "Baixa"
-                      ? "text-green-400 font-medium"
-                      : "text-gray-500"
+                        ? "text-yellow-400 font-medium"
+                        : q.importancia === "Baixa"
+                          ? "text-green-400 font-medium"
+                          : "text-gray-500"
                   }`}
                 >
                   {q.importancia}
@@ -85,10 +100,10 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
                     q.urgencia === "Alta"
                       ? "text-red-500 font-semibold"
                       : q.urgencia === "Média"
-                      ? "text-yellow-400 font-medium"
-                      : q.urgencia === "Baixa"
-                      ? "text-green-400 font-medium"
-                      : "text-gray-500"
+                        ? "text-yellow-400 font-medium"
+                        : q.urgencia === "Baixa"
+                          ? "text-green-400 font-medium"
+                          : "text-gray-500"
                   }`}
                 >
                   {q.urgencia}
@@ -98,10 +113,10 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
                     q.facilidade_implementacao === "Alta"
                       ? "text-green-400 font-semibold"
                       : q.facilidade_implementacao === "Média"
-                      ? "text-yellow-400 font-medium"
-                      : q.facilidade_implementacao === "Baixa"
-                      ? "text-red-500 font-medium"
-                      : "text-gray-500"
+                        ? "text-yellow-400 font-medium"
+                        : q.facilidade_implementacao === "Baixa"
+                          ? "text-red-500 font-medium"
+                          : "text-gray-500"
                   }`}
                 >
                   {q.facilidade_implementacao}
@@ -111,8 +126,8 @@ function TableAnswers({ clienteId, reloadTrigger }: TableAnswersProps) {
                     q.priorizacao >= 71
                       ? "text-red-500 font-semibold"
                       : q.priorizacao >= 41
-                      ? "text-yellow-400 font-medium"
-                      : "text-green-400 font-medium"
+                        ? "text-yellow-400 font-medium"
+                        : "text-green-400 font-medium"
                   }`}
                 >
                   {q.priorizacao}

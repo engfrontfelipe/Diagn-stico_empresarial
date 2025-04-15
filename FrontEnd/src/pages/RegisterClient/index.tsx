@@ -129,7 +129,6 @@ export default function RegisterUser() {
       }
       const data = await response.json();
       setClientes(data);
-      
     } catch (error) {
       console.error("Erro:", error);
     }
@@ -139,15 +138,21 @@ export default function RegisterUser() {
     fetchClientes();
   }, []);
 
-  const toggleClientStatus = async (id_cliente: string, currentStatus: boolean) => {       
+  const toggleClientStatus = async (
+    id_cliente: string,
+    currentStatus: boolean,
+  ) => {
     try {
-      const response = await fetch(`http://localhost:3333/clientes/${id_cliente}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `http://localhost:3333/clientes/${id_cliente}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ativo: !currentStatus }),
         },
-        body: JSON.stringify({ ativo: !currentStatus }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Erro ao atualizar status do cliente");
@@ -155,7 +160,9 @@ export default function RegisterUser() {
 
       setClientes((prevCliente) =>
         prevCliente.map((cliente) =>
-          cliente.id_cliente === id_cliente ? { ...cliente, ativo: !currentStatus } : cliente,
+          cliente.id_cliente === id_cliente
+            ? { ...cliente, ativo: !currentStatus }
+            : cliente,
         ),
       );
       toast.success("Status do cliente atualizado com sucesso!");
@@ -171,7 +178,7 @@ export default function RegisterUser() {
   ) => {
     try {
       console.log("Esse é o id", id);
-      
+
       const response = await fetch(`http://localhost:3333/clientes/${id}`, {
         method: "PATCH",
         headers: {
@@ -189,7 +196,6 @@ export default function RegisterUser() {
           cliente.id_cliente === id ? { ...cliente, ...updatedData } : cliente,
         ),
       );
-
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
       toast.error("Erro ao atualizar dados do cliente");
@@ -209,7 +215,7 @@ export default function RegisterUser() {
       nome_responsavel,
       cnpj: cnpj || undefined,
     });
-    toast.success("Cliente atualizado com sucesso!")
+    toast.success("Cliente atualizado com sucesso!");
   };
 
   const clientIsActive = () => {
@@ -282,19 +288,20 @@ export default function RegisterUser() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {clientes.map((cliente) =>
-                      (
-                        <TableRow key={cliente.id_cliente}>                          
+                      {clientes.map((cliente) => (
+                        <TableRow key={cliente.id_cliente}>
                           <TableCell>{cliente.nome}</TableCell>
                           <TableCell>{cliente.nome_responsavel}</TableCell>
                           <TableCell>
                             <Switch
                               className="cursor-pointer"
                               checked={cliente.ativo}
-                              onCheckedChange={() =>{
-                                toggleClientStatus(cliente.id_cliente, cliente.ativo)
-                              }
-                              }
+                              onCheckedChange={() => {
+                                toggleClientStatus(
+                                  cliente.id_cliente,
+                                  cliente.ativo,
+                                );
+                              }}
                             />
                           </TableCell>
                           <TableCell>

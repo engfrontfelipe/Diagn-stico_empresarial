@@ -47,13 +47,12 @@ export function NavUser({}) {
     fetchUsuarios();
   }, []);
 
-const {user} = useAuth()
-
+  const { user } = useAuth();
 
   return (
     <SidebarMenu className="cursor-pointer">
-      <SidebarMenuItem className="cursor-pointer" >
-        <DropdownMenu >
+      <SidebarMenuItem className="cursor-pointer">
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -67,9 +66,7 @@ const {user} = useAuth()
                 <AvatarFallback className="rounded-lg">GT</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {user?.nome}
-                </span>
+                <span className="truncate font-medium">{user?.nome}</span>
                 <span className="text-muted-foreground truncate text-xs">
                   {user?.email || "usuário@company.com.br"}
                 </span>
@@ -105,18 +102,18 @@ const {user} = useAuth()
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <a href="/register_user">
-              <DropdownMenuItem className="cursor-pointer">
-                <IconUserCircle />
-                Account
-              </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <IconUserCircle />
+                  Account
+                </DropdownMenuItem>
               </a>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <a href="/">
-            <DropdownMenuItem className="cursor-pointer">
-              <IconLogout />
+              <DropdownMenuItem className="cursor-pointer">
+                <IconLogout />
                 Log out
-            </DropdownMenuItem>
+              </DropdownMenuItem>
             </a>
           </DropdownMenuContent>
         </DropdownMenu>

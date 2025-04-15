@@ -1,5 +1,6 @@
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -24,6 +25,7 @@ export function SectionCards({
             {title}
           </CardTitle>
         </CardHeader>
+        <CardContent></CardContent>
         <CardFooter>
           <div className="text-muted-foreground">{footer}</div>
         </CardFooter>

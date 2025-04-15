@@ -108,7 +108,9 @@ function RegisterUser() {
 
       setUsuarios((prevUsuarios) =>
         prevUsuarios.map((usuario) =>
-          usuario.id_usuario === id ? { ...usuario, ativo: !currentStatus } : usuario,
+          usuario.id_usuario === id
+            ? { ...usuario, ativo: !currentStatus }
+            : usuario,
         ),
       );
       toast.success("Status do usuário atualizado com sucesso!");
@@ -140,7 +142,6 @@ function RegisterUser() {
           usuario.id_usuario === id ? { ...usuario, ...updatedData } : usuario,
         ),
       );
-
     } catch (error) {
       console.error("Erro ao atualizar usuário:", error);
       toast.error("Erro ao atualizar dados do usuário");
@@ -168,7 +169,7 @@ function RegisterUser() {
 
     await updateUserData(id, { nome, email, senha: senha || undefined });
     toast.success("Usuário atualizado!");
-    fetchUsuarios()
+    fetchUsuarios();
   };
 
   const usuarioIsActive = () => {
@@ -263,7 +264,12 @@ function RegisterUser() {
                         <Dialog>
                           <DialogTrigger
                             onClick={() =>
-                              setEditUserData({ id: usuario.id_usuario, nome: usuario.nome, email: usuario.email, senha: "" })
+                              setEditUserData({
+                                id: usuario.id_usuario,
+                                nome: usuario.nome,
+                                email: usuario.email,
+                                senha: "",
+                              })
                             }
                           >
                             <Pencil

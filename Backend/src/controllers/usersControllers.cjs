@@ -45,7 +45,8 @@ const criarUsuario = async (req, res) => {
 
 const listarUsuarios = async (_req, res) => {
   try {
-    const result = await sql`SELECT id_usuario, nome, email, ativo FROM usuarios`;
+    const result =
+      await sql`SELECT id_usuario, nome, email, ativo FROM usuarios`;
     res.json(result);
   } catch (error) {
     res
@@ -108,7 +109,6 @@ const atualizarUsuario = async (req, res) => {
   }
 };
 
-
 function generateToken(usuario) {
   const payload = {
     id: usuario.id_usuario,
@@ -145,7 +145,6 @@ const acessarUsuario = async (req, res) => {
 
     const usuario = result[0];
 
-
     if (!usuario.ativo) {
       return res
         .status(403)
@@ -158,7 +157,6 @@ const acessarUsuario = async (req, res) => {
       return res.status(400).json({ error: "Senha inválida" });
     }
 
- 
     const token = generateToken(usuario);
 
     return res.status(200).json({ token });
@@ -176,5 +174,4 @@ module.exports = {
   atualizarUsuario,
   acessarUsuario,
   verificarToken,
-  
 };

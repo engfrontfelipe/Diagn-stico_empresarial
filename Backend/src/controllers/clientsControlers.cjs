@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 const criarCliente = async (req, res) => {
   const { nome, nome_responsavel, cnpj } = req.body;
 
@@ -14,7 +13,6 @@ const criarCliente = async (req, res) => {
     return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
   try {
-
     const clienteExistente = await sql`
       SELECT * FROM clientes WHERE cnpj = ${cnpj};
     `;
@@ -32,10 +30,11 @@ const criarCliente = async (req, res) => {
     res.status(201).json({ message: "Cliente cadastrado", cliente: result[0] });
   } catch (error) {
     console.error("Erro ao criar cliente:", error);
-    res.status(500).json({ error: "Erro ao criar cliente", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao criar cliente", detalhes: error.message });
   }
 };
-
 
 const listarClientes = async (_req, res) => {
   try {
@@ -47,21 +46,23 @@ const listarClientes = async (_req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error("Erro ao listar clientes:", error);
-    res.status(500).json({ error: "Erro ao buscar clientes", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar clientes", detalhes: error.message });
   }
 };
-
 
 const atualizarCliente = async (req, res) => {
   const id = parseInt(req.params.id);
   if (isNaN(id)) {
     return res.status(400).json({ error: "ID inválido" });
   }
-    const { nome, nome_responsavel, cnpj, ativo } = req.body;
-
+  const { nome, nome_responsavel, cnpj, ativo } = req.body;
 
   if (!nome && !nome_responsavel && !cnpj && ativo === undefined) {
-    return res.status(400).json({ error: "Nenhum campo fornecido para atualização" });
+    return res
+      .status(400)
+      .json({ error: "Nenhum campo fornecido para atualização" });
   }
 
   try {
@@ -83,10 +84,11 @@ const atualizarCliente = async (req, res) => {
     res.json({ message: "Cliente atualizado com sucesso", cliente: result[0] });
   } catch (error) {
     console.error("Erro ao atualizar cliente:", error);
-    res.status(500).json({ error: "Erro ao atualizar cliente", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao atualizar cliente", detalhes: error.message });
   }
 };
-
 
 const buscarClientePorId = async (req, res) => {
   const { id } = req.params;
@@ -105,7 +107,9 @@ const buscarClientePorId = async (req, res) => {
     res.status(200).json(result[0]);
   } catch (error) {
     console.error("Erro ao buscar cliente:", error);
-    res.status(500).json({ error: "Erro ao buscar cliente", detalhes: error.message });
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar cliente", detalhes: error.message });
   }
 };
 

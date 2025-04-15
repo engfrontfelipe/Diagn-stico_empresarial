@@ -68,7 +68,6 @@ const salvarRespostas = async (req, res) => {
           `;
           atualizadas++;
         }
-
       } else {
         await sql`
           INSERT INTO respostas (
@@ -101,7 +100,6 @@ const salvarRespostas = async (req, res) => {
     }
 
     res.status(200).json({ message: mensagem });
-
   } catch (error) {
     console.error("Erro ao salvar respostas:", error);
     res.status(500).json({ error: "Erro ao salvar respostas." });
@@ -158,15 +156,16 @@ const getRespostasNegativasPorCliente = async (req, res) => {
 
     res.status(200).json(rows);
   } catch (error) {
-    console.error('Erro ao buscar respostas negativas:', error);
-    res.status(500).json({ message: 'Erro interno ao buscar respostas negativas.' });
+    console.error("Erro ao buscar respostas negativas:", error);
+    res
+      .status(500)
+      .json({ message: "Erro interno ao buscar respostas negativas." });
   }
 };
-
 
 module.exports = {
   listQuest,
   salvarRespostas,
   obterRespostasPorCliente,
-  getRespostasNegativasPorCliente
+  getRespostasNegativasPorCliente,
 };

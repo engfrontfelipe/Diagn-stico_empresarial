@@ -8,13 +8,13 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth.tsx";
 
 export default function Page() {
-
   const [clientes, setClientes] = useState<
     { id: string; nome: string; ativo: boolean }[]
   >([]);
 
   const fetchClientes = async () => {
-    try {     const response = await fetch("http://localhost:3333/clientes/list");
+    try {
+      const response = await fetch("http://localhost:3333/clientes/list");
       if (!response.ok) {
         throw new Error("Erro ao buscar clientes");
       }
