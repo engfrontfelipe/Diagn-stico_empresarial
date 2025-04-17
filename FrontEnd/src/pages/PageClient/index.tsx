@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface Cliente {
   nome: string;
@@ -33,31 +34,7 @@ interface Cliente {
   data_cadastro: string;
 }
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Estratégia",
-    color: "#2563eb",
-  },
-  safari: {
-    label: "Vendas",
-    color: "#db2777",
-  },
-  firefox: {
-    label: "Marketing",
-    color: "#f59e0b",
-  },
-  edge: {
-    label: "RH",
-    color: "#10b981",
-  },
-  other: {
-    label: "Operações",
-    color: "#8b5cf6",
-  },
-} satisfies ChartConfig;
+const chartConfig = {} satisfies ChartConfig;
 
 export default function PageClient() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +75,6 @@ export default function PageClient() {
       .catch((error) => console.error("Erro ao buscar as perguntas:", error));
   }, []);
 
-
   useEffect(() => {
     const respondidas = answers.length;
     const totalPerguntas = questions.length;
@@ -117,9 +93,9 @@ export default function PageClient() {
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
-      <SidebarInset>
+      <SidebarInset id="top">
         <SiteHeader title={cliente ? cliente.nome : "Carregando..."} />
-        <div className="flex flex-2 flex-col">
+        <div className="flex flex-2 flex-col overflow-x-clip">
           <div className="@container/main flex flex-2 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 ">
               <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
@@ -131,54 +107,62 @@ export default function PageClient() {
                   }`}
                 />
                 <div>
-                  <Card className="@container/card grid grid-cols-2 ">
-                    <div className="w-full ">
-                    <CardHeader>
-                      <CardDescription>Total de Perguntas:</CardDescription>
-                      <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                        {questions.length} perguntas
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent></CardContent>
-                    <CardFooter>
-                      <div className="text-muted-foreground mt-6">
-                        Total de perguntas respondidas: {answers.length}
-                      </div>
-                    </CardFooter>
+                  <Card className="@container/card lg:grid grid-cols-2  hidden container-type h-46">
+                    <div className="w-150">
+                      <CardHeader>
+                        <CardDescription>Total de Perguntas:</CardDescription>
+                        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                          {questions.length} perguntas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent></CardContent>
+                      <CardFooter>
+                        <div className="text-muted-foreground mt-6">
+                          Total de perguntas respondidas: {answers.length}
+                        </div>
+                      </CardFooter>
                     </div>
-                    <ChartContainer config={chartConfig} className="h-[135px] w-[130px] ml-18 ">
-                      <PieChart>
-                        <ChartTooltip
-                          cursor={false}
-                          content={<ChartTooltipContent hideLabel />}
-                        />
-                        <Pie
-                          data={chartDataPie}
-                          dataKey="val"
-                          nameKey="question"
-                          innerRadius={40}
-                          outerRadius={60}
-                          activeIndex={0}
-                          activeShape={({
-                            outerRadius = 0,
-                            ...props
-                          }: PieSectorDataItem) => (
-                            <Sector {...props} outerRadius={outerRadius + 5} />
-                          )}
-                          isAnimationActive={true}
-                          animationDuration={800}
-                        >
-                          {chartDataPie.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                          <Label
-                            value={`${porcentagem}%`}
-                            position="center"
-                            className="fill-muted-foreground text-base"
+                    <div className="flex justify-center items-center">
+                      <ChartContainer
+                        config={chartConfig}
+                        className="h-[135px] w-[130px] ml-18  overflow-hidden"
+                      >
+                        <PieChart>
+                          <ChartTooltip
+                            cursor={false}
+                            content={<ChartTooltipContent hideLabel />}
                           />
-                        </Pie>
-                      </PieChart>
-                    </ChartContainer>  
+                          <Pie
+                            data={chartDataPie}
+                            dataKey="val"
+                            nameKey="question"
+                            innerRadius={45}
+                            outerRadius={60}
+                            activeIndex={0}
+                            activeShape={({
+                              outerRadius = 0,
+                              ...props
+                            }: PieSectorDataItem) => (
+                              <Sector
+                                {...props}
+                                outerRadius={outerRadius + 5}
+                              />
+                            )}
+                            isAnimationActive={true}
+                            animationDuration={800}
+                          >
+                            {chartDataPie.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
+                            <Label
+                              value={`${porcentagem}%`}
+                              position="center"
+                              className="fill-muted-foreground text-base"
+                            />
+                          </Pie>
+                        </PieChart>
+                      </ChartContainer>
+                    </div>
                   </Card>
                 </div>
               </div>
@@ -199,6 +183,27 @@ export default function PageClient() {
               <div className="px-4 lg:px-6 flex align-center justify-center">
                 <DashboardGenerator />
               </div>
+
+              <a
+                href="#top"
+                className="flex justify-center pt-2.5 fixed bottom-4 cursor-pointer end-4 rounded-[100%] w-13 h-13"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-arrow-up-icon lucide-arrow-up"
+                >
+                  <path d="m5 12 7-7 7 7" />
+                  <path d="M12 19V5" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>

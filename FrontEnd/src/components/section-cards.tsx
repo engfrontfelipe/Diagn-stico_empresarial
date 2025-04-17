@@ -18,7 +18,7 @@ export function SectionCards({
 }) {
   return (
     <div>
-      <Card className="@container/card">
+      <Card className="@container/card lg:flex hidden">
         <CardHeader>
           <CardDescription>{description} </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">

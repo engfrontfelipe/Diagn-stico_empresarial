@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-("use client");
+import { useParams } from "react-router-dom";
 
 import {
   Bar,
@@ -12,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+
 import {
   ChartConfig,
   ChartContainer,
@@ -19,6 +22,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
+
 import {
   HoverCard,
   HoverCardTrigger,
@@ -29,75 +33,24 @@ interface Resposta {
   id_resposta: number;
   id_cliente: number;
   texto_pergunta: string;
-  departament: string;
+  departamento: string;
 }
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "#2563eb" },
-  { browser: "safari", visitors: 200, fill: "#db2777" },
-  { browser: "firefox", visitors: 187, fill: "#f59e0b" },
-  { browser: "edge", visitors: 173, fill: "#10b981" },
-  { browser: "other", visitors: 90, fill: "#8b5cf6" },
-];
-
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Estratégia",
-    color: "#2563eb",
-  },
-  safari: {
-    label: "Vendas",
-    color: "#db2777",
-  },
-  firefox: {
-    label: "Marketing",
-    color: "#f59e0b",
-  },
-  edge: {
-    label: "RH",
-    color: "#10b981",
-  },
-  other: {
-    label: "Operações",
-    color: "#8b5cf6",
-  },
+  Tecnologia: { label: "Tecnologia", color: "#ffe600" },
+  Estratégia: { label: "Estratégias", color: "#2563eb" },
+  Vendas: { label: "Vendas", color: "#db2777" },
+  Marketing: { label: "Marketing", color: "#f59e0b" },
+  RH: { label: "RH", color: "#10b981" },
+  Operações: { label: "Operações", color: "#8b5cf6" },
 } satisfies ChartConfig;
 
-const cardsData = [
-  {
-    titulo: "Estratégia",
-    nota: "48%",
-    nivel: "Intermediário",
-    hoverText: "Testando Hover",
-  },
-  {
-    titulo: "Vendas",
-    nota: "62%",
-    nivel: "Avançado",
-    hoverText: "Detalhes da Vendas",
-  },
-  {
-    titulo: "Marketing",
-    nota: "33%",
-    nivel: "Básico",
-    hoverText: "Análise de Marketing",
-  },
-  {
-    titulo: "RH",
-    nota: "85%",
-    nivel: "Avançado",
-    hoverText: "Uso de RH",
-  },
-  {
-    titulo: "Operações",
-    nota: "58%",
-    nivel: "Intermediário",
-    hoverText: "Nível de Operações",
-  },
-];
+const getNivelMaturidade = (porcentagem: number): string => {
+  if (porcentagem < 40) return "Básico";
+  if (porcentagem < 70) return "Intermediário";
+  return "Avançado";
+};
+
 const getNivelBgColor = (nivel: string) => {
   switch (nivel.toLowerCase()) {
     case "básico":
@@ -116,9 +69,13 @@ export default function DashboardGeneral() {
     { question: "Sim", val: 0, fill: "#33bb45" },
     { question: "Não", val: 0, fill: "#df2c2c" },
   ]);
+  const [chartData, setChartData] = useState<
+    { departamento: string; Departamento: number; fill: string }[]
+  >([]);
 
-  const idCliente = 2; //REQ PARAMS
-  const totalPerguntas: number = 30;
+  const { id } = useParams();
+  const idCliente = id;
+  const totalPerguntas = 30;
 
   useEffect(() => {
     const fetchRespostasNao = async () => {
@@ -132,11 +89,19 @@ export default function DashboardGeneral() {
         const qtdSim = totalPerguntas - qtdNao;
 
         const calcPorcentagem = (valor: number) =>
-          totalPerguntas === 0 ? 0 : (valor / totalPerguntas) * 100;
+          (valor / totalPerguntas) * 100;
 
         setChartDataPie([
-          { question: "Sim", val: calcPorcentagem(qtdSim), fill: "#33bb45" },
-          { question: "Não", val: calcPorcentagem(qtdNao), fill: "#df2c2c" },
+          {
+            question: "Sim",
+            val: calcPorcentagem(qtdSim),
+            fill: "#33bb45",
+          },
+          {
+            question: "Não",
+            val: calcPorcentagem(qtdNao),
+            fill: "#df2c2c",
+          },
         ]);
       } catch (error) {
         console.error("Erro ao buscar respostas negativas:", error);
@@ -144,13 +109,81 @@ export default function DashboardGeneral() {
     };
 
     fetchRespostasNao();
-  }, [idCliente, totalPerguntas]);
+  }, [idCliente]);
+
+  useEffect(() => {
+    const fetchRespostasSim = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3333/questions/positive/${idCliente}`,
+        );
+        const data: Resposta[] = await response.json();
+
+        const agrupado = agruparPorDepartamento(data);
+
+        const totalPorDepartamento: Record<string, number> = {
+          Estratégias: 5,
+          Vendas: 5,
+          Marketing: 5,
+          RH: 5,
+          Operações: 5,
+          Tecnologia: 5,
+        };
+
+        const coresDepartamentos: Record<string, string> = {
+          Estratégias: "#2563eb",
+          Vendas: "#db2777",
+          Marketing: "#f59e0b",
+          RH: "#10b981",
+          Operações: "#8b5cf6",
+          Tecnologia: "#ffe600",
+        };
+
+        const novoChartData = Object.entries(totalPorDepartamento).map(
+          ([departamento, totalPerguntas]) => {
+            const respostas = agrupado[departamento] || [];
+            const respostasSim = respostas.length;
+
+            const porcentagemSim =
+              totalPerguntas > 0 ? (respostasSim / totalPerguntas) * 100 : 0;
+
+            return {
+              departamento,
+              Departamento: porcentagemSim,
+              fill: coresDepartamentos[departamento] || "#999999",
+            };
+          },
+        );
+
+        setChartData(novoChartData);
+      } catch (error) {
+        console.error("Erro ao buscar respostas positivas:", error);
+      }
+    };
+
+    fetchRespostasSim();
+  }, [idCliente]);
+
+  function agruparPorDepartamento(respostas: Resposta[]) {
+    return respostas.reduce(
+      (acc, item) => {
+        const departamento = item.departamento;
+        if (!acc[departamento]) {
+          acc[departamento] = [];
+        }
+        acc[departamento].push(item);
+        return acc;
+      },
+      {} as Record<string, Resposta[]>,
+    );
+  }
 
   return (
-    <div className="p-10 w-full max-w-[1600px] mx-auto hidden lg:block">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        <div className="flex flex-col mt-3">
-          <div className="flex">
+    <div className="w-full max-w-[1600px] mx-auto hidden lg:grid">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Diagnóstico Geral */}
+        <div className="flex flex-col justify-center p-6 h-[250px] max-w-60">
+          <div className="flex items-start mb-10">
             <span
               className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
               style={{
@@ -161,14 +194,14 @@ export default function DashboardGeneral() {
               Avaliação
             </span>
             <HoverCard openDelay={1} closeDelay={1}>
-              <HoverCardTrigger className="cursor-pointer text-4xl text-center font-bold text-blue-600 border-2 w-32 h-15 p-2 aspect-video">
-                28%
+              <HoverCardTrigger className="cursor-pointer text-3xl text-center font-bold text-blue-600 border-2 w-auto h-20 pt-5 aspect-video">
+                {chartDataPie[0]?.val.toFixed(0)}%
               </HoverCardTrigger>
               <HoverCardContent>Diagnóstico Geral</HoverCardContent>
             </HoverCard>
           </div>
 
-          <div className="flex mt-5">
+          <div className="flex items-start">
             <span
               className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
               style={{
@@ -176,38 +209,54 @@ export default function DashboardGeneral() {
                 transform: "rotate(180deg)",
               }}
             >
-              Nível de Maturidade
+              Maturidade
             </span>
             <HoverCard openDelay={1} closeDelay={1}>
-              <HoverCardTrigger className="cursor-pointer text-4xl text-center font-bold text-blue-600 border-2 w-32 h-30 p-2 aspect-video">
-                <h3 className="pt-7">Básico</h3>
+              <HoverCardTrigger className="cursor-pointer text-2xl text-center font-bold text-blue-600 border-2 w-auto h-20 p-2 pt-5 aspect-video">
+                <h3 className="">{getNivelMaturidade(chartDataPie[0]?.val)}</h3>
               </HoverCardTrigger>
               <HoverCardContent>Diagnóstico Geral</HoverCardContent>
             </HoverCard>
           </div>
         </div>
+
+        {/* Gráfico de Barras */}
         <ChartContainer
-          className="h-[250px]  max-w-[500px] -ml-35 "
+          className="p-4 h-[250px] w-[400px] -ml-20 max-w-[auto]"
           config={chartConfig}
         >
-          <BarChart data={chartData} layout="vertical">
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            className="w-auto h-full"
+            margin={{ left: 13 }}
+          >
+            <XAxis type="number" dataKey="Departamento" domain={[0, 100]} />
             <YAxis
-              dataKey="browser"
               type="category"
+              dataKey="departamento"
               tickLine={false}
+              tickMargin={10}
               axisLine={false}
               tickFormatter={(value) =>
-                chartConfig[value as keyof typeof chartConfig]?.label
+                chartConfig?.[value as keyof typeof chartConfig]?.label || value
               }
             />
-            <XAxis dataKey="visitors" type="number" />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar dataKey="visitors" layout="vertical" radius={5} />
+            <Bar dataKey="Departamento" radius={5}>
+              {chartData.map((entry, index) => (
+                <Cell key={`bar-${index}`} fill={entry.fill} />
+              ))}
+            </Bar>
           </BarChart>
         </ChartContainer>
 
-        <ChartContainer config={chartConfig} className="h-[250px] w-[300px]">
-          <PieChart>
+        {/* Gráfico de Pizza */}
+        <ChartContainer
+          className=" p-4 h-[300px] max-w-[330px] -mt-5"
+          config={chartConfig}
+        >
+          <PieChart width={250} height={250}>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
@@ -217,7 +266,7 @@ export default function DashboardGeneral() {
               dataKey="val"
               nameKey="question"
               innerRadius={80}
-              outerRadius={110}
+              outerRadius={100}
               activeIndex={0}
               activeShape={({
                 outerRadius = 0,
@@ -226,12 +275,13 @@ export default function DashboardGeneral() {
                 <Sector {...props} outerRadius={outerRadius + 5} />
               )}
               isAnimationActive={true}
+              label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
             >
               {chartDataPie.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
               <Label
-                value="Visitors"
+                value="Sim ou não"
                 position="center"
                 className="fill-muted-foreground text-base"
               />
@@ -239,58 +289,62 @@ export default function DashboardGeneral() {
           </PieChart>
         </ChartContainer>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-5 mt-10">
-        {cardsData.map((card, index) => (
-          <div key={index} className="text-center w-32">
-            <h3 className="font-bold mb-2">{card.titulo}</h3>
 
-            <HoverCard openDelay={1} closeDelay={1}>
-              <div className="flex mb-2">
-                <span
-                  className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
-                  style={{
-                    writingMode: "vertical-rl",
-                    transform: "rotate(180deg)",
-                  }}
-                >
-                  Nota
-                </span>
-                <HoverCardTrigger className="cursor-pointer border-2 w-29 h-14 text-center flex items-center justify-center bg-muted">
-                  <h4 className="text-muted-foreground font-bold text-2xl">
-                    {card.nota}
-                  </h4>
-                </HoverCardTrigger>
-              </div>
-              <HoverCardContent className="text-center ">
-                {card.hoverText}
-              </HoverCardContent>
-            </HoverCard>
+      {/* Cartões Dinâmicos */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 md:gap-4">
+        {chartData.map((card, index) => {
+          const nivel = getNivelMaturidade(card.Departamento);
+          const nota = `${card.Departamento.toFixed(0)}%`;
 
-            <HoverCard>
-              <div className="flex">
-                <span
-                  className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
-                  style={{
-                    writingMode: "vertical-rl",
-                    transform: "rotate(180deg)",
-                  }}
-                >
-                  Nível
-                </span>
-                <HoverCardTrigger
-                  className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(
-                    card.nivel,
-                  )}`}
-                >
-                  <h4 className="font-bold">{card.nivel}</h4>
-                </HoverCardTrigger>
-              </div>
-              <HoverCardContent className="text-center">
-                {card.hoverText}
-              </HoverCardContent>
-            </HoverCard>
-          </div>
-        ))}
+          return (
+            <div key={index} className="text-center w-32">
+              <h3 className="font-bold mb-2">{card.departamento}</h3>
+              <HoverCard openDelay={1} closeDelay={1}>
+                <div className="flex mb-2">
+                  <span
+                    className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                    }}
+                  >
+                    Nota
+                  </span>
+                  <HoverCardTrigger className="cursor-pointer border-2 w-29 h-14 text-center flex items-center justify-center bg-muted">
+                    <h4 className="text-muted-foreground font-bold text-2xl">
+                      {nota}
+                    </h4>
+                  </HoverCardTrigger>
+                </div>
+                <HoverCardContent className="text-center">
+                  Nota de {card.departamento}
+                </HoverCardContent>
+              </HoverCard>
+
+              <HoverCard>
+                <div className="flex">
+                  <span
+                    className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                    }}
+                  >
+                    Nível
+                  </span>
+                  <HoverCardTrigger
+                    className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(nivel)}`}
+                  >
+                    <h4 className="font-bold">{nivel}</h4>
+                  </HoverCardTrigger>
+                </div>
+                <HoverCardContent className="text-center">
+                  Nível de {card.departamento}
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

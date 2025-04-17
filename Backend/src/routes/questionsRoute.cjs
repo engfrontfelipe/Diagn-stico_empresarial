@@ -12,5 +12,9 @@ router.get(
   "/questions/negative/:id_cliente",
   questionsControllers.getRespostasNegativasPorCliente,
 );
+router.get(
+  "/questions/positive/:id_cliente",
+  questionsControllers.getRespostasPositivasPorCliente,
+);
 
 module.exports = router;

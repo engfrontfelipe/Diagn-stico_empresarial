@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 ("use client");
 
 import DashboardGeneral from "./DashboardGeneral";
@@ -8,8 +8,7 @@ import { Card } from "@/components/ui/card";
 export default function DashboardGenerator() {
   const [mostrarDashboard, setMostrarDashboard] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [animationKey, setAnimationKey] = useState(0); // Controla a re-renderização e animação
-
+  const [animationKey, setAnimationKey] = useState(0);
   const handleGerarDashboard = () => {
     setCarregando(true);
 
@@ -20,9 +19,8 @@ export default function DashboardGenerator() {
       const event = new Event("respostaAtualizada");
       window.dispatchEvent(event);
 
-      // Forçar a animação ao alterar a chave
       setAnimationKey((prev) => prev + 1);
-    }, 2000); // Tempo do setTimeout
+    }, 2000);
   };
 
   return (
@@ -31,7 +29,7 @@ export default function DashboardGenerator() {
         <div className="flex justify-center items-center relative">
           {!carregando && (
             <Button
-              className="text-xl px-8 py-4 bg-blue-600 text-white hover:bg-blue-700"
+              className="cursor-pointer text-xl px-8 py-4 bg-blue-900 text-white hover:bg-blue-700"
               onClick={handleGerarDashboard}
             >
               Gerar Dashboard

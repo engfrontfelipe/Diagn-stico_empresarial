@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import { PrivateRoutes } from "./privateRoutes";
 import RegisterUser from "@/pages/RegisterUser";
 import RegisterClient from "@/pages/RegisterClient";
+import RegisterQuest from "@/pages/RegisterQuestion";
 import PageClient from "@/pages/PageClient";
 
 const Rotas = () => {
@@ -35,6 +36,15 @@ const Rotas = () => {
         element={
           <PrivateRoutes>
             <RegisterClient />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route
+        path="/register_quest"
+        element={
+          <PrivateRoutes>
+            <RegisterQuest />
           </PrivateRoutes>
         }
       />

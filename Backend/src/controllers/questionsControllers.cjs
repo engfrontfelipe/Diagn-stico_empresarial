@@ -163,9 +163,42 @@ const getRespostasNegativasPorCliente = async (req, res) => {
   }
 };
 
+const getRespostasPositivasPorCliente = async (req, res) => {
+  const { id_cliente } = req.params;
+
+  try {
+    const rows = await sql`
+      SELECT 
+        r.id_resposta,
+        r.id_cliente,
+        p.texto_pergunta,
+        p.oportunidade,
+        p.importancia,
+        p.priorizacao,
+        p.urgencia,
+        p.facilidade_implementacao,
+        p.departamento,
+        r.data_resposta,
+        r.id_usuario
+      FROM respostas r
+      JOIN perguntas p ON r.id_pergunta = p.id_pergunta
+      WHERE r.resposta = 1 AND r.id_cliente = ${id_cliente}
+      ORDER BY r.data_resposta DESC;
+    `;
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Erro ao buscar respostas negativas:", error);
+    res
+      .status(500)
+      .json({ message: "Erro interno ao buscar respostas negativas." });
+  }
+};
+
 module.exports = {
   listQuest,
   salvarRespostas,
   obterRespostasPorCliente,
   getRespostasNegativasPorCliente,
+  getRespostasPositivasPorCliente,
 };

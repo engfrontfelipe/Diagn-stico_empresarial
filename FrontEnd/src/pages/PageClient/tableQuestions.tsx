@@ -44,7 +44,6 @@ function TableQuestions({
   const id_cliente = parseInt(id || "0");
   const id_usuario = user?.id;
 
-  // Usando useRef para manter o valor mais recente de answers
   const answersRef = useRef(answers);
 
   useEffect(() => {

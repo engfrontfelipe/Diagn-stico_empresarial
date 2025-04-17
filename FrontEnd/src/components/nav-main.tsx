@@ -1,4 +1,4 @@
-import { House, User, UserRoundPlus } from "lucide-react";
+import { FileQuestion, House, User, UserRoundPlus } from "lucide-react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -13,7 +13,7 @@ export function NavMain() {
   const navigate = useNavigate();
 
   const handleNavigation = (path: string) => {
-    navigate(path); // Navega para a rota especificada
+    navigate(path);
   };
 
   return (
@@ -46,6 +46,14 @@ export function NavMain() {
               >
                 <span>{<UserRoundPlus size={18} />}</span>
                 Gestão Usuários
+              </SidebarMenuButton>
+
+              <SidebarMenuButton
+                onClick={() => handleNavigation("/register_quest")}
+                className="cursor-pointer"
+              >
+                <span>{<FileQuestion size={18} />}</span>
+                Gestão De Perguntas
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
