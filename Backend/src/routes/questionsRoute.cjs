@@ -17,4 +17,8 @@ router.get(
   questionsControllers.getRespostasPositivasPorCliente,
 );
 
+router.post("/questions/create", questionsControllers.cadastrarPerguntas)
+
+router.put("/questions/update/:id", questionsControllers.atualizaPergunta)
+
 module.exports = router;

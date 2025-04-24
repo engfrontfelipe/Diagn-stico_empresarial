@@ -195,10 +195,101 @@ const getRespostasPositivasPorCliente = async (req, res) => {
   }
 };
 
+const cadastrarPerguntas = async (req, res) => {
+  const {
+    texto_pergunta,
+    departamento,
+    oportunidade,
+    importancia,
+    urgencia,
+    facilidade_implementacao,
+    priorizacao
+  } = req.body;
+
+  // Validação básica
+  if (!texto_pergunta || !departamento) {
+    return res.status(400).json({ message: 'Campos obrigatórios estão faltando.' });
+  }
+
+  try {
+    const novaPergunta = await sql`
+      INSERT INTO perguntas (
+        texto_pergunta,
+        departamento,
+        oportunidade,
+        importancia,
+        urgencia,
+        facilidade_implementacao,
+        priorizacao
+      ) VALUES (
+        ${texto_pergunta},
+        ${departamento},
+        ${oportunidade},
+        ${importancia},
+        ${urgencia},
+        ${facilidade_implementacao},
+        ${priorizacao}
+      )
+      RETURNING *
+    `;
+
+    res.status(201).json(novaPergunta[0]);
+  } catch (error) {
+    console.error('Erro ao cadastrar pergunta:', error);
+    res.status(500).json({ message: 'Erro ao cadastrar pergunta.' });
+  }
+};
+
+const atualizaPergunta = async (req, res) => {
+  const { id } = req.params;
+  const {
+    texto_pergunta,
+    departamento,
+    oportunidade,
+    importancia,
+    urgencia,
+    facilidade_implementacao,
+    priorizacao
+  } = req.body;
+
+  if (!texto_pergunta || !departamento) {
+    return res.status(400).json({ message: "Campos obrigatórios estão faltando." });
+  }
+
+  try {
+    const resultado = await sql`
+      UPDATE perguntas
+      SET 
+        texto_pergunta = ${texto_pergunta},
+        departamento = ${departamento},
+        oportunidade = ${oportunidade},
+        importancia = ${importancia},
+        urgencia = ${urgencia},
+        facilidade_implementacao = ${facilidade_implementacao},
+        priorizacao = ${priorizacao}
+      WHERE id_pergunta = ${id}
+      RETURNING *;
+    `;
+
+    if (resultado.length === 0) {
+      return res.status(404).json({ message: "Pergunta não encontrada." });
+    }
+
+    res.status(200).json({ message: "Pergunta atualizada com sucesso!", pergunta: resultado[0] });
+  } catch (error) {
+    console.error("Erro ao atualizar pergunta:", error);
+    res.status(500).json({ message: "Erro ao atualizar pergunta." });
+  }
+};
+
+
+
 module.exports = {
   listQuest,
   salvarRespostas,
   obterRespostasPorCliente,
   getRespostasNegativasPorCliente,
   getRespostasPositivasPorCliente,
+  cadastrarPerguntas,
+  atualizaPergunta
 };

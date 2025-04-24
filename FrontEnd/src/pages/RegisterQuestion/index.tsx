@@ -1,10 +1,7 @@
 // Imports mantidos como estavam
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import {
   Table,
   TableHeader,
@@ -32,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Link } from "react-router-dom";
 
 function QuestionManagement() {
   const [formData, setFormData] = useState({
@@ -101,7 +99,7 @@ function QuestionManagement() {
   };
 
   const [editData, setEditData] = useState({
-    id: "",
+    id_pergunta: "",
     texto_pergunta: "",
     departamento: "",
     oportunidade: "",
@@ -116,48 +114,54 @@ function QuestionManagement() {
   };
 
   const handleUpdate = async () => {
-    const { id, ...updatedFields } = editData;
+    const { id_pergunta, ...updatedFields } = editData;
+  
+    if (!id_pergunta) {
+      toast.error("ID inválido. Não foi possível atualizar a pergunta.");
+      return;
+    }
+  
+    const payload = {
+      ...updatedFields,
+      oportunidade: updatedFields.oportunidade,
+      importancia: updatedFields.importancia,
+      urgencia: updatedFields.urgencia,
+      facilidade_implementacao: updatedFields.facilidade_implementacao,
+      prioridade: updatedFields.priorizacao,
+    };
+  
+    console.log("Enviando dados para atualização:", payload); // 🐛 Debug
+  
     try {
-      const response = await fetch(`http://localhost:3333/questions/update/${id}`, {
-        method: "PATCH",
+      const response = await fetch(`http://localhost:3333/questions/update/${id_pergunta}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedFields),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) throw new Error("Erro ao atualizar");
-
+  
       toast.success("Pergunta atualizada!");
       fetchPerguntas();
     } catch (error) {
+      console.error("Erro ao atualizar pergunta:", error); // 🐛 Debug
       toast.error("Erro ao atualizar pergunta");
     }
   };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await fetch(`http://localhost:3333/questions/delete/${id}`, {
-        method: 'DELETE',
-      });
-      // Atualize sua lista depois da deleção, se necessário
-    } catch (error) {
-      console.error('Erro ao apagar pergunta:', error);
-    }
-  };
+  
   
 
+
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset id="top">
-        <SiteHeader title="Gestão de Perguntas" />
+    <>
         <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
           <Card className="p-4 w-full">
             <h1 className="text-center mb-1 text-2xl font-medium">Criar Pergunta</h1>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="mb-1" className="mb-3" htmlFor="texto_pergunta">Texto da Pergunta</Label>
+                <Label className="mb-3" htmlFor="texto_pergunta">Texto da Pergunta</Label>
                 <Input
                   id="texto_pergunta"
                   required
@@ -167,7 +171,7 @@ function QuestionManagement() {
                 />
               </div>
               <div>
-                <Label className="mb-1" className="mb-3">Departamento</Label>
+                <Label className="mb-3">Departamento</Label>
                 <Select onValueChange={(value) => handleSelectChange("departamento", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione o departamento" />
@@ -175,26 +179,28 @@ function QuestionManagement() {
                   <SelectContent>
                     <SelectItem value="RH">RH</SelectItem>
                     <SelectItem value="Financeiro">Financeiro</SelectItem>
-                    <SelectItem value="TI">TI</SelectItem>
+                    <SelectItem value="Tecnologia">Tecnologia</SelectItem>
                     <SelectItem value="Operações">Operações</SelectItem>
+                    <SelectItem value="Marketing">Marketing</SelectItem>
+                    <SelectItem value="Vendas">Vendas</SelectItem>
+                    <SelectItem value="Estratégias">Estratégias</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="mb-1" className="mb-3">Oportunidade</Label>
-                <Select onValueChange={(value) => handleSelectChange("oportunidade", value)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione a oportunidade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Alta">Alta</SelectItem>
-                    <SelectItem value="Média">Média</SelectItem>
-                    <SelectItem value="Baixa">Baixa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+  <Label htmlFor="oportunidade" className="mb-3">Oportunidade</Label>
+  <Input
+    id="oportunidade"
+    placeholder="Digite a oportunidade"
+    value={formData.oportunidade}
+    onChange={handleChange}
+    className="w-full"
+/>
+</div>
+
+
               <div>
-                <Label className="mb-1" className="mb-3">Importância</Label>
+                <Label className="mb-3">Importância</Label>
                 <Select onValueChange={(value) => handleSelectChange("importancia", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione a importância" />
@@ -207,7 +213,7 @@ function QuestionManagement() {
                 </Select>
               </div>
               <div>
-                <Label className="mb-1" className="mb-3">Urgência</Label>
+                <Label className="mb-3">Urgência</Label>
                 <Select onValueChange={(value) => handleSelectChange("urgencia", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione a urgência" />
@@ -220,7 +226,7 @@ function QuestionManagement() {
                 </Select>
               </div>
               <div>
-                <Label className="mb-1" className="mb-3">Facilidade</Label>
+                <Label className="mb-3">Facilidade</Label>
                 <Select onValueChange={(value) => handleSelectChange("facilidade_implementacao", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione a facilidade" />
@@ -233,7 +239,7 @@ function QuestionManagement() {
                 </Select>
               </div>
               <div>
-                <Label className="mb-1" className="mb-3">Priorização</Label>
+                <Label className="mb-3">Priorização</Label>
                 <Input
                   type="number"
                   id="priorizacao"
@@ -264,7 +270,7 @@ function QuestionManagement() {
               </TableHeader>
               <TableBody>
                 {perguntas.map((pergunta) => (
-                  <TableRow key={pergunta.id}>
+                  <TableRow key={pergunta.id_pergunta}>
                     <TableCell>{pergunta.texto_pergunta}</TableCell>
                     <TableCell>{pergunta.departamento}</TableCell>
                     <TableCell>{pergunta.oportunidade}</TableCell>
@@ -277,13 +283,13 @@ function QuestionManagement() {
   <DialogTrigger
     onClick={() =>
       setEditData({
-        id: pergunta.id,
+        id_pergunta: pergunta.id_pergunta,
         texto_pergunta: pergunta.texto_pergunta,
         departamento: pergunta.departamento,
         oportunidade: pergunta.oportunidade,
         importancia: pergunta.importancia,
         urgencia: pergunta.urgencia,
-        facilidade_implementacao: pergunta.facilidade,
+        facilidade_implementacao: pergunta.facilidade_implementacao,
         priorizacao: pergunta.priorizacao,
       })
     }
@@ -295,7 +301,7 @@ function QuestionManagement() {
       <DialogTitle className="mb-5 text-2xl text-center">Editar Pergunta</DialogTitle>
       <DialogDescription className="grid grid-cols-2 gap-4 w-full">
         <div>
-          <Label className="mb-1" htmlFor="texto_pergunta">Texto da Pergunta</Label>
+          <Label htmlFor="texto_pergunta">Texto da Pergunta</Label>
           <Input
             id="texto_pergunta"
             value={editData.texto_pergunta}
@@ -304,7 +310,7 @@ function QuestionManagement() {
         </div>
 
         <div>
-          <Label className="mb-1" htmlFor="departamento">Departamento</Label>
+          <Label htmlFor="departamento">Departamento</Label>
           <Select
             value={editData.departamento}
             onValueChange={(value) =>
@@ -315,35 +321,27 @@ function QuestionManagement() {
               <SelectValue placeholder="Selecione o departamento" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Financeiro">Financeiro</SelectItem>
-              <SelectItem value="RH">RH</SelectItem>
-              <SelectItem value="TI">TI</SelectItem>
-              <SelectItem value="Operações">Operações</SelectItem>
+            <SelectItem value="RH">RH</SelectItem>
+                <SelectItem value="Financeiro">Financeiro</SelectItem>
+                <SelectItem value="Tecnologia">Tecnologia</SelectItem>
+                <SelectItem value="Operações">Operações</SelectItem>
+                <SelectItem value="Marketing">Marketing</SelectItem>
+                <SelectItem value="Vendas">Vendas</SelectItem>
+                <SelectItem value="Estratégias">Estratégias</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <Label className="mb-1" htmlFor="oportunidade">Oportunidade</Label>
-          <Select
-            value={editData.oportunidade}
-            onValueChange={(value) =>
-              setEditData({ ...editData, oportunidade: value })
-            }
-          >
-            <SelectTrigger className="w-full" id="oportunidade">
-              <SelectValue placeholder="Selecione" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Alta">Alta</SelectItem>
-              <SelectItem value="Média">Média</SelectItem>
-              <SelectItem value="Baixa">Baixa</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="oportunidade">Oportunidade</Label>
+            <Input
+              id="oportunidade"
+              value={editData.oportunidade}
+              onChange={handleChangeEdit}
+            /> 
         </div>
-
         <div>
-          <Label className="mb-1" htmlFor="importancia">Importância</Label>
+          <Label htmlFor="importancia">Importância</Label>
           <Select
             value={editData.importancia}
             onValueChange={(value) =>
@@ -362,7 +360,7 @@ function QuestionManagement() {
         </div>
 
         <div>
-          <Label className="mb-1" htmlFor="urgencia">Urgência</Label>
+          <Label htmlFor="urgencia">Urgência</Label>
           <Select
             value={editData.urgencia}
             onValueChange={(value) =>
@@ -381,7 +379,7 @@ function QuestionManagement() {
         </div>
 
         <div>
-          <Label className="mb-1" htmlFor="facilidade_implementacao">Facilidade</Label>
+          <Label htmlFor="facilidade_implementacao">Facilidade</Label>
           <Select
             value={editData.facilidade_implementacao}
             onValueChange={(value) =>
@@ -400,7 +398,7 @@ function QuestionManagement() {
         </div>
 
         <div>
-          <Label className="mb-1" htmlFor="priorizacao">Priorização</Label>
+          <Label htmlFor="priorizacao">Priorização</Label>
           <Input
             id="priorizacao"
             value={editData.priorizacao}
@@ -411,9 +409,6 @@ function QuestionManagement() {
 
       <div className="flex flex-col gap-2 mt-4">
         <Button onClick={handleUpdate}>Salvar</Button>
-        <Button variant="destructive" onClick={() => handleDelete(pergunta.id)}>
-          Apagar Pergunta
-        </Button>
       </div>
     </DialogHeader>
   </DialogContent>
@@ -426,25 +421,10 @@ function QuestionManagement() {
             </Table>
           </Card>
         </div>
-      </SidebarInset>
-      <a href="#top" className="fixed bottom-4 end-4 rounded-full w-13 h-13 flex items-center justify-center ">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="m5 12 7-7 7 7" />
-          <path d="M12 19V5" />
-        </svg>
-      </a>
+      <Link to={"/dashboard"} className="fixed bottom-4 end-4 rounded-full w-13 h-13 flex items-center justify-center ">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3333333333333333" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-house-icon lucide-house bg-muted p-3 rounded-full h-auto w-15 "><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>      </Link>
       <Toaster position="top-right" richColors closeButton />
-    </SidebarProvider>
+    </>
   );
 }
 
