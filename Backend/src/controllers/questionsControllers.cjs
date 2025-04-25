@@ -8,6 +8,7 @@ const listQuest = async (_req, res) => {
       FROM perguntas
     `;
     res.json(result);
+    
   } catch (error) {
     res.status(500).json({
       error: "Erro ao buscar perguntas",
@@ -15,6 +16,46 @@ const listQuest = async (_req, res) => {
     });
   }
 };
+
+const totalPerguntas = async (_req, res) => {
+  try {
+    const result = await sql`
+      SELECT COUNT(*) AS total FROM perguntas
+    `;
+    const total = Number(result[0].total);
+
+    res.json({ total });
+  } catch (error) {
+    res.status(500).json({
+      error: "Erro ao contar perguntas",
+      detalhes: error.message,
+    });
+  }
+};
+
+const totalPorDepartamentoGeral = async (_req, res) => {
+  try {
+    const result = await sql`
+      SELECT departamento, COUNT(*) AS total
+      FROM perguntas
+      GROUP BY departamento
+      ORDER BY departamento
+    `;
+
+    const formatted = result.map(row => ({
+      departamento: row.departamento,
+      total: Number(row.total),
+    }));
+
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({
+      error: "Erro ao buscar total de perguntas por departamento",
+      detalhes: error.message,
+    });
+  }
+};
+
 
 const salvarRespostas = async (req, res) => {
   const respostas = req.body;
@@ -203,15 +244,30 @@ const cadastrarPerguntas = async (req, res) => {
     importancia,
     urgencia,
     facilidade_implementacao,
-    priorizacao
+    priorizacao,
   } = req.body;
 
-  // Validação básica
-  if (!texto_pergunta || !departamento) {
-    return res.status(400).json({ message: 'Campos obrigatórios estão faltando.' });
+  if (
+    !texto_pergunta || !departamento || !oportunidade ||
+    !importancia || !urgencia ||
+    !facilidade_implementacao || !priorizacao
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Campos obrigatórios estão faltando." });
   }
 
   try {
+    const perguntaExistente = await sql`
+      SELECT * FROM perguntas WHERE texto_pergunta = ${texto_pergunta}
+    `;
+
+    if (perguntaExistente.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "Já existe uma pergunta com esse texto." });
+    }
+
     const novaPergunta = await sql`
       INSERT INTO perguntas (
         texto_pergunta,
@@ -235,10 +291,11 @@ const cadastrarPerguntas = async (req, res) => {
 
     res.status(201).json(novaPergunta[0]);
   } catch (error) {
-    console.error('Erro ao cadastrar pergunta:', error);
-    res.status(500).json({ message: 'Erro ao cadastrar pergunta.' });
+    console.error("Erro ao cadastrar pergunta:", error);
+    res.status(500).json({ message: "Erro ao cadastrar pergunta." });
   }
 };
+
 
 const atualizaPergunta = async (req, res) => {
   const { id } = req.params;
@@ -249,11 +306,13 @@ const atualizaPergunta = async (req, res) => {
     importancia,
     urgencia,
     facilidade_implementacao,
-    priorizacao
+    priorizacao,
   } = req.body;
 
   if (!texto_pergunta || !departamento) {
-    return res.status(400).json({ message: "Campos obrigatórios estão faltando." });
+    return res
+      .status(400)
+      .json({ message: "Campos obrigatórios estão faltando." });
   }
 
   try {
@@ -275,14 +334,17 @@ const atualizaPergunta = async (req, res) => {
       return res.status(404).json({ message: "Pergunta não encontrada." });
     }
 
-    res.status(200).json({ message: "Pergunta atualizada com sucesso!", pergunta: resultado[0] });
+    res
+      .status(200)
+      .json({
+        message: "Pergunta atualizada com sucesso!",
+        pergunta: resultado[0],
+      });
   } catch (error) {
     console.error("Erro ao atualizar pergunta:", error);
     res.status(500).json({ message: "Erro ao atualizar pergunta." });
   }
 };
-
-
 
 module.exports = {
   listQuest,
@@ -291,5 +353,7 @@ module.exports = {
   getRespostasNegativasPorCliente,
   getRespostasPositivasPorCliente,
   cadastrarPerguntas,
-  atualizaPergunta
+  atualizaPergunta,
+  totalPorDepartamentoGeral,
+  totalPerguntas
 };

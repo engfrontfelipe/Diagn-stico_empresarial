@@ -7,9 +7,9 @@ app.use(cors());
 app.use(express.json());
 
 const criarCliente = async (req, res) => {
-  const { nome, nome_responsavel, cnpj } = req.body;
+  const { nome, nome_responsavel, cnpj, cargo_responsavel, ramo_empresa } = req.body;
 
-  if (!nome || !nome_responsavel || !cnpj) {
+  if (!nome || !nome_responsavel || !cnpj || !cargo_responsavel || !ramo_empresa) {
     return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
   try {
@@ -22,9 +22,9 @@ const criarCliente = async (req, res) => {
     }
 
     const result = await sql`
-      INSERT INTO clientes (nome, nome_responsavel, cnpj, ativo) 
-      VALUES (${nome}, ${nome_responsavel}, ${cnpj}, true) 
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo;
+      INSERT INTO clientes (nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa) 
+      VALUES (${nome}, ${nome_responsavel}, ${cnpj}, true, ${cargo_responsavel}, ${ramo_empresa}) 
+      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa;
     `;
 
     res.status(201).json({ message: "Cliente cadastrado", cliente: result[0] });
@@ -39,7 +39,7 @@ const criarCliente = async (req, res) => {
 const listarClientes = async (_req, res) => {
   try {
     const result = await sql`
-      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo 
+      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa
       FROM clientes 
       ORDER BY nome ASC;
     `;
@@ -73,8 +73,11 @@ const atualizarCliente = async (req, res) => {
         nome_responsavel = COALESCE(${nome_responsavel}, nome_responsavel),
         cnpj = COALESCE(${cnpj}, cnpj),
         ativo = COALESCE(${ativo}, ativo)
+        ramo_empresa = COALESCE(${ramo_empresa}, ramo_empresa)
+        cargo_responsavel = COALESCE(${cargo_responsavel}, cargo_responsavel)
+
       WHERE id_cliente = ${id}
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo;
+      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa;
     `;
 
     if (result.length === 0) {

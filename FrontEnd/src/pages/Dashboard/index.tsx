@@ -5,8 +5,6 @@ import { SectionCards } from "../../components/section-cards";
 import { SiteHeader } from "../../components/site-header.tsx";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth.tsx";
-
 export default function Page() {
   const [clientes, setClientes] = useState<
     { id: string; nome: string; ativo: boolean }[]

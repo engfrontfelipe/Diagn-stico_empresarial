@@ -23,8 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
 interface Cliente {
   nome: string;
   nome_responsavel: string;
@@ -198,7 +196,7 @@ export default function PageClient() {
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  className="lucide lucide-arrow-up-icon lucide-arrow-up"
+                  className="lucide lucide-arrow-up-icon lucide-arrow-up bg-muted  p-1 h-auto w-10 rounded-full"
                 >
                   <path d="m5 12 7-7 7 7" />
                   <path d="M12 19V5" />
