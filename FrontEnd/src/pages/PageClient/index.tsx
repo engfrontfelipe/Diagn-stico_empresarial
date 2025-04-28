@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 interface Cliente {
   nome: string;
   nome_responsavel: string;
@@ -43,8 +44,9 @@ export default function PageClient() {
   ]);
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [questions, setQuestions] = useState<
-    { id_pergunta: number; texto_pergunta: string; departamento: string }[]
-  >([]);
+    | { id_pergunta: number; texto_pergunta: string; departamento: string }[]
+    | null
+  >(null);
   const [answers, setAnswers] = useState<any[]>([]);
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function PageClient() {
 
   useEffect(() => {
     const respondidas = answers.length;
-    const totalPerguntas = questions.length;
+    const totalPerguntas = questions?.length || 0;
     const naoRespondidas = Math.max(totalPerguntas - respondidas, 0);
 
     setChartDataPie([
@@ -84,9 +86,20 @@ export default function PageClient() {
     ]);
   }, [answers, questions]);
 
-  const porcentagem = questions.length
+  const porcentagem = questions?.length
     ? Math.round((answers.length / questions.length) * 100)
     : 0;
+
+  // Spinner de carregamento
+  const renderLoading = () => (
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+    </div>
+  );
+
+  if (!cliente || !questions) {
+    return renderLoading(); // Exibe o spinner enquanto carrega os dados
+  }
 
   return (
     <SidebarProvider>
@@ -95,21 +108,19 @@ export default function PageClient() {
         <SiteHeader title={cliente ? cliente.nome : "Carregando..."} />
         <div className="flex flex-2 flex-col overflow-x-clip">
           <div className="@container/main flex flex-2 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 ">
-              <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="grid grid-cols-2 gap-4 px-4 lg:px-6">
                 <SectionCards
                   description="Empresa:"
                   title={cliente ? cliente.nome : "Carregando..."}
-                  footer={`Responsável: ${
-                    cliente ? cliente.nome_responsavel : "Carregando..."
-                  }`}
+                  footer={`Responsável: ${cliente ? cliente.nome_responsavel : "Carregando..."}`}
                 />
                 <div>
-                  <Card className="@container/card lg:grid grid-cols-2  hidden container-type h-46">
+                  <Card className="lg:grid grid-cols-2 hidden container-type h-46">
                     <div className="w-150">
                       <CardHeader>
                         <CardDescription>Total de Perguntas:</CardDescription>
-                        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                        <CardTitle className="text-2xl font-semibold tabular-nums">
                           {questions.length} perguntas
                         </CardTitle>
                       </CardHeader>
@@ -123,7 +134,7 @@ export default function PageClient() {
                     <div className="flex justify-center items-center">
                       <ChartContainer
                         config={chartConfig}
-                        className="h-[135px] w-[130px] ml-18  overflow-hidden"
+                        className="h-[135px] w-[130px] ml-18 overflow-hidden"
                       >
                         <PieChart>
                           <ChartTooltip
@@ -137,13 +148,10 @@ export default function PageClient() {
                             innerRadius={45}
                             outerRadius={60}
                             activeIndex={0}
-                            activeShape={({
-                              outerRadius = 0,
-                              ...props
-                            }: PieSectorDataItem) => (
+                            activeShape={(props: PieSectorDataItem) => (
                               <Sector
                                 {...props}
-                                outerRadius={outerRadius + 5}
+                                outerRadius={(props.outerRadius ?? 0) + 5}
                               />
                             )}
                             isAnimationActive={true}
@@ -196,7 +204,7 @@ export default function PageClient() {
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  className="lucide lucide-arrow-up-icon lucide-arrow-up bg-muted  p-1 h-auto w-10 rounded-full"
+                  className="lucide lucide-arrow-up-icon lucide-arrow-up bg-muted p-1 h-auto w-10 rounded-full"
                 >
                   <path d="m5 12 7-7 7 7" />
                   <path d="M12 19V5" />

@@ -26,12 +26,21 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Pencil } from "lucide-react";
 import { toast, Toaster } from "sonner";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../../components/ui/select";
 
 export default function RegisterUser() {
   const [client, setClient] = useState({
     nome_empresa: "",
     nome_responsavel: "",
     cnpj: "",
+    ramo_empresa: "",
+    cargo_responsavel: "",
   });
 
   const [clientes, setClientes] = useState<
@@ -40,6 +49,8 @@ export default function RegisterUser() {
       nome: string;
       cnpj: string;
       id_cliente: string;
+      ramo_empresa: string;
+      cargo_responsavel: string;
       ativo: boolean;
     }[]
   >([]);
@@ -54,14 +65,20 @@ export default function RegisterUser() {
       .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
+  type InputOrSelectEvent =
+    | React.ChangeEvent<HTMLInputElement>
+    | { id: string; value: string };
+
+  const handleChange = (e: InputOrSelectEvent) => {
+    const id = "target" in e ? e.target.id : e.id;
+    const value = "target" in e ? e.target.value : e.value;
 
     let newValue = value;
 
     if (id === "cnpj") {
       newValue = formatCNPJ(value);
     }
+
     setClient((prev) => ({ ...prev, [id]: newValue }));
   };
 
@@ -70,25 +87,45 @@ export default function RegisterUser() {
     nome_empresa: "",
     nome_responsavel: "",
     cnpj: "",
+    ramo_empresa: "",
+    cargo_responsavel: "",
   });
 
-  const handleChangeEdit = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
+  type InputOrSelectEventEdit =
+    | React.ChangeEvent<HTMLInputElement>
+    | { id: string; value: string };
+
+  const handleChangeEdit = (e: InputOrSelectEventEdit) => {
+    const id = "target" in e ? e.target.id : e.id;
+    const value = "target" in e ? e.target.value : e.value;
 
     let newValue = value;
 
     if (id === "cnpj") {
       newValue = formatCNPJ(value);
     }
+
     setEditClientData((prev) => ({ ...prev, [id]: newValue }));
   };
 
   const cadastrarCliente = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { nome_empresa, nome_responsavel, cnpj } = client;
+    const {
+      nome_empresa,
+      nome_responsavel,
+      cnpj,
+      ramo_empresa,
+      cargo_responsavel,
+    } = client;
 
-    if (!nome_empresa || !nome_responsavel) {
+    if (
+      !nome_empresa ||
+      !nome_responsavel ||
+      !cnpj ||
+      !ramo_empresa ||
+      !cargo_responsavel
+    ) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -102,6 +139,8 @@ export default function RegisterUser() {
         nome: nome_empresa,
         nome_responsavel,
         cnpj,
+        ramo_empresa,
+        cargo_responsavel,
       }),
     })
       .then((response) => {
@@ -110,9 +149,8 @@ export default function RegisterUser() {
         }
         return response.json();
       })
-      .then((data) => {
+      .then(() => {
         toast.success("Cliente cadastrado com sucesso!");
-        console.log("Novo cliente cadastrado:", data);
         fetchClientes();
       })
       .catch((error) => {
@@ -174,11 +212,15 @@ export default function RegisterUser() {
 
   const updateClientData = async (
     id: string,
-    updatedData: { nome?: string; nome_responsavel?: string; cnpj?: string },
+    updatedData: {
+      nome?: string;
+      nome_responsavel?: string;
+      cnpj?: string;
+      ramo_empresa: string;
+      cargo_responsavel: string;
+    },
   ) => {
     try {
-      console.log("Esse é o id", id);
-
       const response = await fetch(`http://localhost:3333/clientes/${id}`, {
         method: "PATCH",
         headers: {
@@ -203,7 +245,14 @@ export default function RegisterUser() {
   };
 
   const handleUpdateUser = async () => {
-    const { id_cliente, nome_empresa, nome_responsavel, cnpj } = editClientData;
+    const {
+      id_cliente,
+      nome_empresa,
+      nome_responsavel,
+      cnpj,
+      ramo_empresa,
+      cargo_responsavel,
+    } = editClientData;
 
     if (!nome_empresa || !nome_responsavel) {
       toast.error("Nome e email são obrigatórios!");
@@ -214,6 +263,8 @@ export default function RegisterUser() {
       nome: nome_empresa,
       nome_responsavel,
       cnpj: cnpj || undefined,
+      ramo_empresa,
+      cargo_responsavel,
     });
     toast.success("Cliente atualizado com sucesso!");
   };
@@ -222,6 +273,17 @@ export default function RegisterUser() {
     const activeClients = clientes.filter((cliente) => cliente.ativo);
     return activeClients.length;
   };
+
+  // Spinner de carregamento
+  const renderLoading = () => (
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+    </div>
+  );
+
+  if (!client || !clientes || clientes.length === 0) {
+    return renderLoading();
+  }
 
   return (
     <SidebarProvider>
@@ -260,6 +322,46 @@ export default function RegisterUser() {
                       value={client.nome_responsavel}
                       onChange={handleChange}
                     />
+
+                    <Label htmlFor="cargo_responsavel">
+                      Cargo do Responsável:
+                    </Label>
+                    <Select
+                      value={client.cargo_responsavel}
+                      onValueChange={(value) =>
+                        handleChange({ id: "cargo_responsavel", value })
+                      }
+                    >
+                      <SelectTrigger id="cargo_responsavel" className="w-full">
+                        <SelectValue placeholder="Selecione o Cargo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Gerente">Gerente</SelectItem>
+                        <SelectItem value="Gerente Comercial">
+                          Gerente Comercial
+                        </SelectItem>
+                        <SelectItem value="CO">CO</SelectItem>
+                        <SelectItem value="CTO">CTO</SelectItem>
+                        <SelectItem value="COO">COO</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Label htmlFor="ramo_empresa">Ramo da Empresa:</Label>
+                    <Select
+                      value={client.ramo_empresa}
+                      onValueChange={(value) =>
+                        handleChange({ id: "ramo_empresa", value })
+                      }
+                    >
+                      <SelectTrigger id="ramo_empresa" className="w-full">
+                        <SelectValue placeholder="Selecione o Ramo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Onshore">Onshore</SelectItem>
+                        <SelectItem value="Offshore">Offshore</SelectItem>
+                      </SelectContent>
+                    </Select>
+
                     <Label>CNPJ:</Label>
                     <Input
                       id="cnpj"
@@ -282,7 +384,11 @@ export default function RegisterUser() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Empresa</TableHead>
+                        <TableHead>Ramo Empresa</TableHead>
+
                         <TableHead>Nome do Responsável</TableHead>
+                        <TableHead>Cargo do Responsável</TableHead>
+
                         <TableHead>Ativo</TableHead>
                         <TableHead>Editar</TableHead>
                       </TableRow>
@@ -291,7 +397,9 @@ export default function RegisterUser() {
                       {clientes.map((cliente) => (
                         <TableRow key={cliente.id_cliente}>
                           <TableCell>{cliente.nome}</TableCell>
+                          <TableCell>{cliente.ramo_empresa}</TableCell>
                           <TableCell>{cliente.nome_responsavel}</TableCell>
+                          <TableCell>{cliente.cargo_responsavel}</TableCell>
                           <TableCell>
                             <Switch
                               className="cursor-pointer"
@@ -313,6 +421,9 @@ export default function RegisterUser() {
                                     nome_empresa: cliente.nome,
                                     nome_responsavel: cliente.nome_responsavel,
                                     cnpj: cliente.cnpj,
+                                    ramo_empresa: cliente.ramo_empresa,
+                                    cargo_responsavel:
+                                      cliente.cargo_responsavel,
                                   });
                                 }}
                               >
@@ -323,6 +434,7 @@ export default function RegisterUser() {
                                   />
                                 </button>
                               </DialogTrigger>
+
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle className="mb-2">
@@ -343,6 +455,40 @@ export default function RegisterUser() {
                                     />
 
                                     <Label
+                                      className="mb-2 mt-4 font-medium"
+                                      htmlFor="cargo_responsavel"
+                                    >
+                                      Cargo Responsável:
+                                    </Label>
+                                    <Select
+                                      value={editClientData.cargo_responsavel}
+                                      onValueChange={(value) =>
+                                        handleChangeEdit({
+                                          id: "cargo_responsavel",
+                                          value,
+                                        })
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        id="cargo_responsavel"
+                                        className="w-full"
+                                      >
+                                        <SelectValue placeholder="Selecione o Cargo" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Gerente">
+                                          Gerente
+                                        </SelectItem>
+                                        <SelectItem value="Gerente Comercial">
+                                          Gerente Comercial
+                                        </SelectItem>
+                                        <SelectItem value="CO">CO</SelectItem>
+                                        <SelectItem value="CTO">CTO</SelectItem>
+                                        <SelectItem value="COO">COO</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+
+                                    <Label
                                       htmlFor="nome_empresa"
                                       className="mb-2 mt-4 font-medium"
                                     >
@@ -355,6 +501,37 @@ export default function RegisterUser() {
                                       onChange={handleChangeEdit}
                                     />
 
+                                    <Label
+                                      className="mb-2 mt-4 font-medium"
+                                      htmlFor="ramo_empresa"
+                                    >
+                                      Ramo da Empresa:
+                                    </Label>
+                                    <Select
+                                      value={editClientData.ramo_empresa}
+                                      onValueChange={(value) =>
+                                        handleChangeEdit({
+                                          id: "ramo_empresa",
+                                          value,
+                                        })
+                                      }
+                                    >
+                                      <SelectTrigger
+                                        id="ramo_empresa"
+                                        className="w-full"
+                                      >
+                                        <SelectValue placeholder="Selecione o Ramo" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Onshore">
+                                          Onshore
+                                        </SelectItem>
+                                        <SelectItem value="Offshore">
+                                          Offshore
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+
                                     <Label className="mb-2 mt-4 font-medium">
                                       CNPJ
                                     </Label>
@@ -364,8 +541,9 @@ export default function RegisterUser() {
                                       value={editClientData.cnpj}
                                       onChange={handleChangeEdit}
                                     />
+
                                     <Button
-                                      className=" mt-5 w-full cursor-pointer "
+                                      className="mt-5 w-full cursor-pointer"
                                       onClick={handleUpdateUser}
                                     >
                                       Editar

@@ -6,12 +6,14 @@ const app = express();
 const usuariosRoutes = require("./src/routes/usersRoute.cjs");
 const clientsRoutes = require("./src/routes/clientsRoute.cjs");
 const questionsRoutes = require("./src/routes/questionsRoute.cjs");
+const answersRoute = require("./src/routes/answersRoute.cjs");
 
 app.use(cors());
 app.use(express.json());
 app.use(usuariosRoutes);
 app.use(clientsRoutes);
 app.use(questionsRoutes);
+app.use(answersRoute);
 
 const PORT = process.env.PORT || 3333;
 app.listen(3333, () => {

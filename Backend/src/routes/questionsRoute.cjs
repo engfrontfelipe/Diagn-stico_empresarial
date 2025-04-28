@@ -6,24 +6,17 @@ router.get("/questions/list", questionsControllers.listQuest);
 
 router.get("/questions/list/total", questionsControllers.totalPerguntas);
 
-router.get("/questions/list/total-by-departament", questionsControllers.totalPorDepartamentoGeral);
-
 router.get(
-  "/questions/answers/:id_cliente",
-  questionsControllers.obterRespostasPorCliente,
-);
-router.post("/questions/save", questionsControllers.salvarRespostas);
-router.get(
-  "/questions/negative/:id_cliente",
-  questionsControllers.getRespostasNegativasPorCliente,
-);
-router.get(
-  "/questions/positive/:id_cliente",
-  questionsControllers.getRespostasPositivasPorCliente,
+  "/questions/list/total-by-departament",
+  questionsControllers.totalPorDepartamentoGeral,
 );
 
 router.post("/questions/create", questionsControllers.cadastrarPerguntas);
 
 router.put("/questions/update/:id", questionsControllers.atualizaPergunta);
 
+router.get(
+  "/questions/filterByDepartment",
+  questionsControllers.filterByDepartment,
+);
 module.exports = router;

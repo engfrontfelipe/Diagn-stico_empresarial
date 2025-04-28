@@ -7,9 +7,16 @@ app.use(cors());
 app.use(express.json());
 
 const criarCliente = async (req, res) => {
-  const { nome, nome_responsavel, cnpj, cargo_responsavel, ramo_empresa } = req.body;
+  const { nome, nome_responsavel, cnpj, cargo_responsavel, ramo_empresa } =
+    req.body;
 
-  if (!nome || !nome_responsavel || !cnpj || !cargo_responsavel || !ramo_empresa) {
+  if (
+    !nome ||
+    !nome_responsavel ||
+    !cnpj ||
+    !cargo_responsavel ||
+    !ramo_empresa
+  ) {
     return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
   try {
@@ -57,7 +64,14 @@ const atualizarCliente = async (req, res) => {
   if (isNaN(id)) {
     return res.status(400).json({ error: "ID inválido" });
   }
-  const { nome, nome_responsavel, cnpj, ativo } = req.body;
+  const {
+    nome,
+    nome_responsavel,
+    cnpj,
+    ativo,
+    ramo_empresa,
+    cargo_responsavel,
+  } = req.body;
 
   if (!nome && !nome_responsavel && !cnpj && ativo === undefined) {
     return res
@@ -72,12 +86,12 @@ const atualizarCliente = async (req, res) => {
         nome = COALESCE(${nome}, nome),
         nome_responsavel = COALESCE(${nome_responsavel}, nome_responsavel),
         cnpj = COALESCE(${cnpj}, cnpj),
-        ativo = COALESCE(${ativo}, ativo)
-        ramo_empresa = COALESCE(${ramo_empresa}, ramo_empresa)
+        ativo = COALESCE(${ativo}, ativo),
+        ramo_empresa = COALESCE(${ramo_empresa}, ramo_empresa),
         cargo_responsavel = COALESCE(${cargo_responsavel}, cargo_responsavel)
 
       WHERE id_cliente = ${id}
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa;
+      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa
     `;
 
     if (result.length === 0) {

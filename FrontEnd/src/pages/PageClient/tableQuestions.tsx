@@ -49,7 +49,7 @@ function TableQuestions({
   useEffect(() => {
     if (!id_cliente) return;
 
-    fetch(`http://localhost:3333/questions/answers/${id_cliente}`)
+    fetch(`http://localhost:3333/answers/${id_cliente}`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
         return res.json();
@@ -125,7 +125,7 @@ function TableQuestions({
     };
 
     try {
-      const response = await fetch("http://localhost:3333/questions/save", {
+      const response = await fetch("http://localhost:3333/answers/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([resposta]),

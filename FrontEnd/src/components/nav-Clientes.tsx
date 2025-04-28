@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export function NavClientes() {
   const [clientes, setClientes] = useState<
@@ -28,7 +29,13 @@ export function NavClientes() {
         throw new Error("Erro ao buscar clientes");
       }
       const data = await response.json();
-      setClientes(data);
+
+      // Filtrando apenas os clientes ativos
+      const clientesAtivos = data.filter(
+        (cliente: { ativo: boolean }) => cliente.ativo,
+      );
+
+      setClientes(clientesAtivos);
     } catch (error) {
       console.error("Erro:", error);
     }
@@ -45,12 +52,12 @@ export function NavClientes() {
         <SidebarMenuItem key="clientes">
           {clientes.map((cliente) => (
             <SidebarMenuButton asChild key={cliente.id_cliente}>
-              <a href={`/clientes/${cliente.id_cliente}`}>
+              <Link to={`/clientes/${cliente.id_cliente}`}>
                 <span>
                   <User size={19} />
                 </span>
                 {cliente.nome}
-              </a>
+              </Link>
             </SidebarMenuButton>
           ))}
         </SidebarMenuItem>

@@ -24,7 +24,7 @@ export default function DashboardGenerator() {
   };
 
   return (
-    <Card className="p-10 w-full max-w-[1600px] mx-auto relative">
+    <Card className="p-10 w-full">
       {!mostrarDashboard ? (
         <div className="flex justify-center items-center relative">
           {!carregando && (

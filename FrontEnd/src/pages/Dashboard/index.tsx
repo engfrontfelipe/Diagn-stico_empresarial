@@ -5,10 +5,14 @@ import { SectionCards } from "../../components/section-cards";
 import { SiteHeader } from "../../components/site-header.tsx";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+
 export default function Page() {
   const [clientes, setClientes] = useState<
-    { id: string; nome: string; ativo: boolean }[]
-  >([]);
+    { id: string; nome: string; ativo: boolean }[] | null
+  >(null);
+  const [usuarios, setUsuarios] = useState<
+    { id: string; nome: string; email: string; ativo: boolean }[] | null
+  >(null);
 
   const fetchClientes = async () => {
     try {
@@ -22,14 +26,6 @@ export default function Page() {
       console.error("Erro:", error);
     }
   };
-
-  useEffect(() => {
-    fetchClientes();
-  }, []);
-
-  const [usuarios, setUsuarios] = useState<
-    { id: string; nome: string; email: string; ativo: boolean }[]
-  >([]);
 
   const fetchUsuarios = async () => {
     try {
@@ -45,18 +41,34 @@ export default function Page() {
   };
 
   useEffect(() => {
+    fetchClientes();
     fetchUsuarios();
   }, []);
 
   const clientIsActive = () => {
-    const activeClients = clientes.filter((cliente) => cliente.ativo);
-    return activeClients.length;
+    if (clientes) {
+      const activeClients = clientes.filter((cliente) => cliente.ativo);
+      return activeClients.length;
+    }
+    return 0;
   };
 
   const usuarioIsActive = () => {
-    const activeUsers = usuarios.filter((usuario) => usuario.ativo);
-    return activeUsers.length;
+    if (usuarios) {
+      const activeUsers = usuarios.filter((usuario) => usuario.ativo);
+      return activeUsers.length;
+    }
+    return 0;
   };
+
+  if (!clientes || !usuarios) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {/* Spinner de Carregamento */}
+        <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -65,8 +77,8 @@ export default function Page() {
         <SiteHeader title="Tela Inicial" />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 ">
-              <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
                 <SectionCards
                   description={`Total de Clientes:`}
                   title={`${clientes.length} clientes`}

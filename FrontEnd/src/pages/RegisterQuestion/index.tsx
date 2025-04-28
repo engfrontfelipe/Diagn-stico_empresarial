@@ -30,23 +30,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
-import { Slider } from "@/components/ui/slider";
 function QuestionManagement() {
   const [formData, setFormData] = useState({
     texto_pergunta: "",
     departamento: "",
     oportunidade: "",
-    importancia: "",
-    urgencia: "",
-    facilidade_implementacao: "",
-    priorizacao: "",
   });
 
   const [perguntas, setPerguntas] = useState<any[]>([]);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [departamentoFiltro, setDepartamentoFiltro] = useState<string>("");
 
-  const fetchPerguntas = async () => {
+  const fetchPerguntas = async (departamentoFiltro = "") => {
     try {
-      const response = await fetch("http://localhost:3333/questions/list");
+      const url = departamentoFiltro
+        ? `http://localhost:3333/questions/filterByDepartment?departamento=${departamentoFiltro}`
+        : "http://localhost:3333/questions/list";
+
+      const response = await fetch(url);
       const data = await response.json();
       setPerguntas(data);
     } catch (error) {
@@ -58,6 +59,11 @@ function QuestionManagement() {
     fetchPerguntas();
   }, []);
 
+  const handleDepartamentoFiltroChange = (departamento: string) => {
+    setDepartamentoFiltro(departamento);
+    fetchPerguntas(departamento);
+  };
+
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -65,17 +71,18 @@ function QuestionManagement() {
   const handleSelectChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-  
-  
+
   const handleSubmit = async () => {
-    
-    const camposVazios = Object.entries(formData).filter(([_, valor]) => !valor);
-    
+    // Verifica se algum campo está vazio
+    const camposVazios = Object.entries(formData).filter(
+      ([_, valor]) => !valor,
+    );
+
     if (camposVazios.length > 0) {
       toast.error("Preencha todos os campos antes de salvar!");
       return;
     }
-    
+
     try {
       const response = await fetch("http://localhost:3333/questions/create", {
         method: "POST",
@@ -84,39 +91,37 @@ function QuestionManagement() {
         },
         body: JSON.stringify(formData),
       });
-  
+
+      // Verifica se a resposta da API é bem-sucedida
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error(`Erro: ${errorData.error}`);
+        const errorMessage = errorData?.error || "Erro desconhecido";
+        toast.error(`Erro: ${errorMessage}`);
         return;
       }
-  
+
       toast.success("Pergunta cadastrada com sucesso!");
       setFormData({
         texto_pergunta: "",
-        departamento: "",
+        departamento: formData.departamento,
         oportunidade: "",
-        importancia: "",
-        urgencia: "",
-        facilidade_implementacao: "",
-        priorizacao: "",
       });
-      fetchPerguntas();
+
+      await fetchPerguntas();
     } catch (error) {
-      toast.error("Erro ao cadastrar pergunta!");
+      console.error("Erro inesperado:", error);
+      toast.error("Erro ao cadastrar pergunta. Tente novamente mais tarde.");
+    } finally {
+      // Habilita o botão novamente após a requisição
+      setIsButtonDisabled(false);
     }
   };
-  
 
   const [editData, setEditData] = useState({
     id_pergunta: "",
     texto_pergunta: "",
     departamento: "",
     oportunidade: "",
-    importancia: "",
-    urgencia: "",
-    facilidade_implementacao: "",
-    priorizacao: "",
   });
 
   const handleChangeEdit = (e: any) => {
@@ -134,10 +139,6 @@ function QuestionManagement() {
     const payload = {
       ...updatedFields,
       oportunidade: updatedFields.oportunidade,
-      importancia: updatedFields.importancia,
-      urgencia: updatedFields.urgencia,
-      facilidade_implementacao: updatedFields.facilidade_implementacao,
-      prioridade: updatedFields.priorizacao,
     };
 
     try {
@@ -161,6 +162,16 @@ function QuestionManagement() {
     }
   };
 
+  const renderLoading = () => (
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+    </div>
+  );
+
+  if (!perguntas || perguntas.length === 0) {
+    return renderLoading();
+  }
+
   return (
     <>
       <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
@@ -168,9 +179,9 @@ function QuestionManagement() {
           <h1 className="text-center mb-1 text-2xl font-medium">
             Criar Pergunta
           </h1>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid  gap-4">
             <div>
-              <Label className="mb-3"  htmlFor="texto_pergunta">
+              <Label className="mb-3" htmlFor="texto_pergunta">
                 Texto da Pergunta
               </Label>
               <Input
@@ -203,7 +214,7 @@ function QuestionManagement() {
               </Select>
             </div>
             <div>
-              <Label  htmlFor="oportunidade" className="mb-3">
+              <Label htmlFor="oportunidade" className="mb-3">
                 Oportunidade
               </Label>
               <Input
@@ -214,73 +225,26 @@ function QuestionManagement() {
                 className="w-full"
               />
             </div>
-
-            <div>
-              <Label className="mb-3">Importância</Label>
-              <Select
-                onValueChange={(value) =>
-                  handleSelectChange("importancia", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a importância" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-3">Urgência</Label>
-              <Select
-                onValueChange={(value) => handleSelectChange("urgencia", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a urgência" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-3">Facilidade</Label>
-              <Select
-                onValueChange={(value) =>
-                  handleSelectChange("facilidade_implementacao", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione a facilidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-                              <Label className="mb-3">Priorização</Label>
-                              <Slider
-                                value={[Number(formData.priorizacao)]} 
-                                max={100}
-                                step={5}
-                                onValueChange={(value) =>
-                                  setFormData({ ...formData, priorizacao: String(value[0]) })
-                                }
-                              />
-                              <span className="text-sm mt-2 block text-muted-foreground">
-                                Nível atual: {formData.priorizacao}
-                              </span>
-                            </div>
           </div>
-          <Button className="w-full mt-4" onClick={handleSubmit}>
-            Cadastrar Pergunta
+          <Button
+            className="w-full mt-4 cursor-pointer"
+            onClick={() => {
+              setIsButtonDisabled(true);
+              handleSubmit();
+            }}
+            disabled={
+              isButtonDisabled ||
+              Object.values(formData).some((value) => !value)
+            }
+          >
+            {isButtonDisabled ? (
+              <div className="flex justify-center items-center space-x-2 cursor-pointer">
+                <div className="w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" />
+                <span></span>
+              </div>
+            ) : (
+              "Cadastrar Pergunta"
+            )}
           </Button>
         </Card>
 
@@ -289,12 +253,28 @@ function QuestionManagement() {
             <TableHeader>
               <TableRow>
                 <TableHead>Texto</TableHead>
-                <TableHead>Departamento</TableHead>
+                <TableHead>
+                  Departamento:
+                  <select
+                    id="filtroDepartamento"
+                    value={departamentoFiltro}
+                    onChange={(e) =>
+                      handleDepartamentoFiltroChange(e.target.value)
+                    }
+                    className="w-20 p-2 border border-gray-300 rounded"
+                  >
+                    <option value="">Todos</option>
+                    <option value="RH">RH</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Tecnologia">Tecnologia</option>
+                    <option value="Operações">Operações</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Vendas">Vendas</option>
+                    <option value="Estratégias">Estratégias</option>
+                  </select>
+                </TableHead>
                 <TableHead>Oportunidade</TableHead>
-                <TableHead>Importância</TableHead>
-                <TableHead>Urgência</TableHead>
-                <TableHead>Facilidade</TableHead>
-                <TableHead>Priorização</TableHead>
+
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -304,10 +284,6 @@ function QuestionManagement() {
                   <TableCell>{pergunta.texto_pergunta}</TableCell>
                   <TableCell>{pergunta.departamento}</TableCell>
                   <TableCell>{pergunta.oportunidade}</TableCell>
-                  <TableCell>{pergunta.importancia}</TableCell>
-                  <TableCell>{pergunta.urgencia}</TableCell>
-                  <TableCell>{pergunta.facilidade_implementacao}</TableCell>
-                  <TableCell>{pergunta.priorizacao}</TableCell>
                   <TableCell>
                     <Dialog>
                       <DialogTrigger
@@ -317,11 +293,6 @@ function QuestionManagement() {
                             texto_pergunta: pergunta.texto_pergunta,
                             departamento: pergunta.departamento,
                             oportunidade: pergunta.oportunidade,
-                            importancia: pergunta.importancia,
-                            urgencia: pergunta.urgencia,
-                            facilidade_implementacao:
-                              pergunta.facilidade_implementacao,
-                            priorizacao: pergunta.priorizacao,
                           })
                         }
                       >
@@ -345,7 +316,9 @@ function QuestionManagement() {
                             </div>
 
                             <div>
-                              <Label className="mb-3" htmlFor="departamento">Departamento</Label>
+                              <Label className="mb-3" htmlFor="departamento">
+                                Departamento
+                              </Label>
                               <Select
                                 value={editData.departamento}
                                 onValueChange={(value) =>
@@ -384,109 +357,25 @@ function QuestionManagement() {
                             </div>
 
                             <div>
-                              <Label className="mb-3" htmlFor="oportunidade">Oportunidade</Label>
+                              <Label className="mb-3" htmlFor="oportunidade">
+                                Oportunidade
+                              </Label>
                               <Input
                                 id="oportunidade"
                                 value={editData.oportunidade}
                                 onChange={handleChangeEdit}
                               />
                             </div>
-                            <div>
-                              <Label className="mb-3" htmlFor="importancia">Importância</Label>
-                              <Select
-                                value={editData.importancia}
-                                onValueChange={(value) =>
-                                  setEditData({
-                                    ...editData,
-                                    importancia: value,
-                                  })
-                                }
-                              >
-                                <SelectTrigger
-                                  className="w-full"
-                                  id="importancia"
-                                >
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Alta">Alta</SelectItem>
-                                  <SelectItem value="Média">Média</SelectItem>
-                                  <SelectItem value="Baixa">Baixa</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="mb-3" htmlFor="urgencia">Urgência</Label>
-                              <Select
-                                value={editData.urgencia}
-                                onValueChange={(value) =>
-                                  setEditData({ ...editData, urgencia: value })
-                                }
-                              >
-                                <SelectTrigger className="w-full" id="urgencia">
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Alta">Alta</SelectItem>
-                                  <SelectItem value="Média">Média</SelectItem>
-                                  <SelectItem value="Baixa">Baixa</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="mb-3" htmlFor="facilidade_implementacao">
-                                Facilidade
-                              </Label>
-                              <Select
-                                value={editData.facilidade_implementacao}
-                                onValueChange={(value) =>
-                                  setEditData({
-                                    ...editData,
-                                    facilidade_implementacao: value,
-                                  })
-                                }
-                              >
-                                <SelectTrigger
-                                  className="w-full"
-                                  id="facilidade_implementacao"
-                                >
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Fácil">Fácil</SelectItem>
-                                  <SelectItem value="Média">Média</SelectItem>
-                                  <SelectItem value="Difícil">
-                                    Difícil
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="mb-3">Priorização</Label>
-                              <Slider
-                                value={[Number(editData.priorizacao)]} 
-                                max={100}
-                                step={5}
-                                onValueChange={(value) =>
-                                  setEditData({ ...editData, priorizacao: String(value[0]) })
-                                }
-                              />
-                              <span className="text-sm mt-2 block text-muted-foreground">
-                                Nível atual: {editData.priorizacao}
-                              </span>
-                            </div>
-
                           </DialogDescription>
-
                           <div className="flex flex-col gap-2 mt-4">
-                            <Button onClick={() => {                              
-                              handleUpdate()
-                            
-                            }}>Salvar</Button>
+                            <Button
+                              onClick={() => {
+                                handleUpdate();
+                              }}
+                            >
+                              Salvar
+                            </Button>
                           </div>
-
                         </DialogHeader>
                       </DialogContent>
                     </Dialog>
