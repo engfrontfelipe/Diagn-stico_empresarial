@@ -21,13 +21,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 import {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
 } from "../../components/ui/hover-card";
+import { Card } from "@/components/ui/card";
 
 interface Resposta {
   id_resposta: number;
@@ -86,6 +86,7 @@ export default function DashboardGeneral() {
   >([]);
 
   const [totalPerguntas, setTotalPerguntas] = useState(Number);
+  const [loading, setLoading] = useState(true);
 
   const { id } = useParams();
   const idCliente = id;
@@ -163,14 +164,10 @@ export default function DashboardGeneral() {
           totalPorDepartamento[departamento] = total;
         });
 
-        const coresDepartamentos: Record<string, string> = {
-          Estratégias: "#2563eb",
-          Vendas: "#db2777",
-          Marketing: "#f59e0b",
-          RH: "#10b981",
-          Operações: "#8b5cf6",
-          Tecnologia: "#ffe600",
-          Financeiro: "#ff0000",
+        const getCorPorMaturidade = (valor: number) => {
+          if (valor < 30) return "#ff0000"; // Vermelho
+          if (valor < 70) return "#f59e0b"; // Amarelo
+          return "#00ff00"; // Verde
         };
 
         const novoChartData = Object.entries(totalPorDepartamento).map(
@@ -184,17 +181,17 @@ export default function DashboardGeneral() {
             return {
               departamento,
               Departamento: porcentagemSim,
-              fill: coresDepartamentos[departamento] || "#999999",
+              fill: getCorPorMaturidade(porcentagemSim), // 👈 cor dinâmica aqui
             };
           },
         );
 
         setChartData(novoChartData);
+        setLoading(false);
       } catch (error) {
         console.error("Erro ao buscar respostas positivas ou totais:", error);
       }
     };
-
     fetchRespostasSim();
   }, [idCliente]);
 
@@ -212,12 +209,32 @@ export default function DashboardGeneral() {
     );
   }
 
-  return (
-    <div className=" w-full hidden lg:flex flex-col">
+  const getMaturidadeText = (val: any) => {
+    if (val < 30) return "Maturidade baixa. Requer atenção e melhorias.";
+    if (val < 70) return "Maturidade intermediária. Há espaço para evoluir.";
+    return "Maturidade avançada. Ótimo desempenho!";
+  };
+
+  <HoverCardContent>
+    {getMaturidadeText(chartDataPie[0]?.val ?? 0)}
+  </HoverCardContent>;
+
+  const getMaturidadeColor = (val: any) => {
+    if (val < 30) return "#ff0000"; // Vermelho
+    if (val < 70) return "#f59e0b"; // Amarelo
+    return "#00ff00"; // Verde
+  };
+
+  return loading ? (
+    <div className="flex justify-center items-center ">
+      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+    </div>
+  ) : (
+    <Card className="w-full hidden lg:flex flex-col">
       <div className="flex gap-4 align-middle justify-center p-2 h-70">
         {/* Diagnóstico Geral */}
-        <div className=" mt-6 w-auto">
-          <div className="flex items-start mb-10 ">
+        <div className="mt-6 w-auto">
+          <div className="flex items-start mb-10">
             <span
               className="text-xs font-semibold px-1 mr-2"
               style={{
@@ -232,31 +249,18 @@ export default function DashboardGeneral() {
               <HoverCardTrigger
                 className="cursor-pointer text-3xl text-center font-bold border-2 w-auto h-20 pt-5 aspect-video"
                 style={{
-                  backgroundColor:
-                    chartDataPie[0]?.val < 30
-                      ? "#dc2626" // vermelho
-                      : chartDataPie[0]?.val < 70
-                        ? "#ffe600" // amarelo
-                        : "#16a34a", // verde
+                  backgroundColor: getMaturidadeColor(chartDataPie[0]?.val),
                 }}
               >
                 {chartDataPie[0]?.val.toFixed(0)}%
               </HoverCardTrigger>
 
               <HoverCardContent>
-                {(() => {
-                  const val = chartDataPie[0]?.val ?? 0;
-                  if (val < 30) {
-                    return "Maturidade baixa. Requer atenção e melhorias.";
-                  } else if (val < 70) {
-                    return "Maturidade intermediária. Há espaço para evoluir.";
-                  } else {
-                    return "Maturidade avançada. Ótimo desempenho!";
-                  }
-                })()}
+                {getMaturidadeText(chartDataPie[0]?.val ?? 0)}
               </HoverCardContent>
             </HoverCard>
           </div>
+
           <div className="flex items-start">
             <span
               className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
@@ -271,7 +275,7 @@ export default function DashboardGeneral() {
               <HoverCardTrigger
                 className={`cursor-pointer text-2xl text-center font-bold border-2 w-full h-20 p-2 pt-5 aspect-video ${getNivelBgColor(getNivelMaturidade(chartDataPie[0]?.val))}`}
               >
-                <h3 className="">{getNivelMaturidade(chartDataPie[0]?.val)}</h3>
+                <h3>{getNivelMaturidade(chartDataPie[0]?.val)}</h3>
               </HoverCardTrigger>
               <HoverCardContent>
                 Nível de desenvolvimento da empresa em processos, gestão e
@@ -282,7 +286,7 @@ export default function DashboardGeneral() {
         </div>
 
         {/* Gráfico de Barras */}
-        <ChartContainer className=" h-[auto] w-120" config={chartConfig}>
+        <ChartContainer className="h-auto w-120" config={chartConfig}>
           <BarChart
             data={chartData}
             layout="vertical"
@@ -295,8 +299,8 @@ export default function DashboardGeneral() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) =>
-                chartConfig?.[value as keyof typeof chartConfig]?.label || value
+              tickFormatter={(value: keyof typeof chartConfig) =>
+                chartConfig?.[value]?.label || value
               }
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
@@ -309,7 +313,7 @@ export default function DashboardGeneral() {
         </ChartContainer>
 
         {/* Gráfico de Pizza */}
-        <ChartContainer className=" h-[full] w-70" config={chartConfig}>
+        <ChartContainer className="h-full w-70" config={chartConfig}>
           <PieChart>
             <ChartTooltip
               cursor={false}
@@ -322,7 +326,7 @@ export default function DashboardGeneral() {
               innerRadius={80}
               outerRadius={110}
               activeIndex={0}
-              activeShape={(props: PieSectorDataItem) => (
+              activeShape={(props: any) => (
                 <Sector {...props} outerRadius={(props.outerRadius ?? 0) + 5} />
               )}
               isAnimationActive={true}
@@ -347,7 +351,7 @@ export default function DashboardGeneral() {
           const nota = `${card.Departamento.toFixed(0)}%`;
 
           return (
-            <div key={index} className="text-center w-32 ">
+            <div key={index} className="text-center w-32">
               <h3 className="font-bold mb-2">{card.departamento}</h3>
 
               {/* Cartão com a Nota */}
@@ -363,11 +367,9 @@ export default function DashboardGeneral() {
                     Nota
                   </span>
                   <HoverCardTrigger
-                    className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(
-                      nivel,
-                    )}`}
+                    className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(nivel)}`}
                   >
-                    <h4 className="text-muted-foreground font-bold text-2xl">
+                    <h4 className="text-muted-foreground font-bold w-40 text-2xl">
                       {nota}
                     </h4>
                   </HoverCardTrigger>
@@ -391,14 +393,12 @@ export default function DashboardGeneral() {
                     Nível
                   </span>
                   <HoverCardTrigger
-                    className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(
-                      nivel,
-                    )}`}
+                    className={`cursor-pointer border-2 w-28 h-14 text-center flex items-center justify-center ${getNivelBgColor(nivel)}`}
                   >
-                    <h4 className="font-bold">{nivel}</h4>
+                    <h4 className="font-bold w-40">{nivel}</h4>
                   </HoverCardTrigger>
                 </div>
-                <HoverCardContent className="text-center text-sm">
+                <HoverCardContent className="text-center  text-sm">
                   {descricaoDepartamentos[card.departamento] ??
                     `Nível ${card.departamento}`}
                 </HoverCardContent>
@@ -407,6 +407,6 @@ export default function DashboardGeneral() {
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

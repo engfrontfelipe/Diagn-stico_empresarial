@@ -112,7 +112,6 @@ function QuestionManagement() {
       console.error("Erro inesperado:", error);
       toast.error("Erro ao cadastrar pergunta. Tente novamente mais tarde.");
     } finally {
-      // Habilita o botão novamente após a requisição
       setIsButtonDisabled(false);
     }
   };

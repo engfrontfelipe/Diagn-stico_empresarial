@@ -3,12 +3,12 @@ import { useState } from "react";
 
 import DashboardGeneral from "./DashboardGeneral";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 export default function DashboardGenerator() {
   const [mostrarDashboard, setMostrarDashboard] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+
   const handleGerarDashboard = () => {
     setCarregando(true);
 
@@ -20,33 +20,43 @@ export default function DashboardGenerator() {
       window.dispatchEvent(event);
 
       setAnimationKey((prev) => prev + 1);
-    }, 2000);
+    }, 500);
+  };
+
+  const handleFecharDashboard = () => {
+    setMostrarDashboard(false);
   };
 
   return (
-    <Card className="p-10 w-full">
+    <>
       {!mostrarDashboard ? (
         <div className="flex justify-center items-center relative">
           {!carregando && (
             <Button
-              className="cursor-pointer text-xl px-8 py-4 bg-blue-900 text-white hover:bg-blue-700"
               onClick={handleGerarDashboard}
+              className="px-4 py-2 bg-primary  rounded-md w-full cursor-pointer"
             >
               Gerar Dashboard
             </Button>
           )}
 
           {carregando && (
-            <div className="absolute inset-0 flex justify-center items-center">
-              <div className="spinner-border animate-spin border-t-4 border-blue-600 border-8 rounded-full w-12 h-12"></div>
+            <div className="flex justify-center items-center">
+              <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
             </div>
           )}
         </div>
       ) : (
-        <div className="transition-opacity duration-1000 animate-fadeIn">
+        <div className="transition-opacity duration-1000 animate-fadeIn relative">
+          <button
+            onClick={handleFecharDashboard}
+            className="cursor-pointer absolute top-2 right-2 text-red-500 hover:text-red-700 font-bold text-lg"
+          >
+            ×
+          </button>
           <DashboardGeneral key={animationKey} />
         </div>
       )}
-    </Card>
+    </>
   );
 }

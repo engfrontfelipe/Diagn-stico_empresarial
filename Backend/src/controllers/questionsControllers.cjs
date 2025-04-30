@@ -4,7 +4,7 @@ const sql = require("../config/db.cjs");
 const listQuest = async (_req, res) => {
   try {
     const result = await sql`
-      SELECT id_pergunta, texto_pergunta, departamento
+      SELECT id_pergunta, texto_pergunta, departamento, oportunidade
       FROM perguntas
     `;
     res.json(result);
@@ -155,16 +155,14 @@ const filterByDepartment = async (req, res) => {
     let result;
 
     if (departamento) {
-      // Se foi passado departamento, filtra
       result = await sql`
-        SELECT id_pergunta, texto_pergunta, departamento, oportunidade, importancia, urgencia, facilidade_implementacao, priorizacao
+        SELECT id_pergunta, texto_pergunta, departamento, oportunidade
         FROM perguntas
         WHERE departamento = ${departamento}
       `;
     } else {
-      // Se não foi passado departamento, busca todas
       result = await sql`
-        SELECT id_pergunta, texto_pergunta, departamento, oportunidade, importancia, urgencia, facilidade_implementacao, priorizacao
+        SELECT id_pergunta, texto_pergunta, departamento, oportunidade
         FROM perguntas
       `;
     }

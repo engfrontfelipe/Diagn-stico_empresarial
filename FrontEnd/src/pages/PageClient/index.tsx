@@ -1,5 +1,4 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
@@ -23,6 +22,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 interface Cliente {
   nome: string;
@@ -31,6 +33,7 @@ interface Cliente {
   ativo: boolean;
   id: string;
   data_cadastro: string;
+  consultor: string;
 }
 
 const chartConfig = {} satisfies ChartConfig;
@@ -48,6 +51,93 @@ export default function PageClient() {
     | null
   >(null);
   const [answers, setAnswers] = useState<any[]>([]);
+  const [diagnosticoIniciado, setDiagnosticoIniciado] = useState(false);
+  const [tempoRestante, setTempoRestante] = useState<number | null>(null);
+  const [isStarting, setIsStarting] = useState(false); 
+  const [expirado, setExpirado] = useState(false);
+
+  useEffect(() => {
+    const verificarDiagnostico = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:3333/cliente/diagnostico/status/${id}`
+        );
+        if (!response.ok) throw new Error("Erro ao buscar status do diagnóstico");
+        const data = await response.json();
+
+        console.log(data);
+        
+        setDiagnosticoIniciado(data.iniciado);
+            
+        setExpirado(data.expirado);
+     
+        setTempoRestante(data.tempoRestante ? Math.floor(data.tempoRestante / 1000) : null);
+      } catch (err) {
+        console.error("Erro ao verificar status do diagnóstico", err);
+        toast.error("Erro ao carregar status do diagnóstico.");
+      }
+    };
+
+    if (id) {
+      verificarDiagnostico();
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!diagnosticoIniciado || tempoRestante === null) return;
+
+    const interval = setInterval(() => {
+      setTempoRestante((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          setDiagnosticoIniciado(false);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [diagnosticoIniciado, tempoRestante]);
+
+  
+
+  async function activeTime() {
+    setIsStarting(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3333/cliente/diagnostico/iniciar/${id}`,
+        {
+          method: "POST",
+        }
+      );
+      if (!response.ok) throw new Error("Erro ao iniciar diagnóstico");
+
+      const data = await response.json();
+      console.log("Active Time Response:", data); // Debug log
+
+      // Re-fetch status to ensure consistency
+      const statusResponse = await fetch(
+        `http://localhost:3333/cliente/diagnostico/status/${id}`
+      );
+      if (!statusResponse.ok) throw new Error("Erro ao verificar status após iniciar");
+      const statusData = await statusResponse.json();
+      console.log("Post-Active Status Response:", statusData); // Debug log
+
+      setDiagnosticoIniciado(statusData.iniciado);
+      const tempoInicial = statusData.tempoRestante
+        ? Math.floor(statusData.tempoRestante / 1000)
+        : null;
+      setTempoRestante(tempoInicial);
+
+      toast.success("Diagnóstico iniciado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao iniciar diagnóstico:", error);
+      toast.error("Não foi possível iniciar o diagnóstico.");
+    } finally {
+      setIsStarting(false);
+    }
+  }
 
   useEffect(() => {
     const fetchCliente = async () => {
@@ -55,6 +145,7 @@ export default function PageClient() {
         const response = await fetch(`http://localhost:3333/clientes/${id}`);
         const data = await response.json();
         setCliente(data);
+        console.log("Cliente:", data);
       } catch (err) {
         console.error("Erro ao buscar cliente", err);
       }
@@ -90,7 +181,8 @@ export default function PageClient() {
     ? Math.round((answers.length / questions.length) * 100)
     : 0;
 
-  // Spinner de carregamento
+
+
   const renderLoading = () => (
     <div className="flex justify-center items-center h-screen">
       <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
@@ -98,8 +190,142 @@ export default function PageClient() {
   );
 
   if (!cliente || !questions) {
-    return renderLoading(); // Exibe o spinner enquanto carrega os dados
+    return renderLoading();
   }
+
+  const tempoTotalSegundos = 30 * 24 * 60 * 60;
+  const progresso = tempoRestante !== null
+  ? Math.round(((tempoTotalSegundos - tempoRestante) / tempoTotalSegundos) * 100)
+  : 0;
+
+  function progressoBarra() {
+    if(expirado === true) {
+      return 100
+    }
+    if(porcentagem === 100) { 
+      return 100
+    }
+
+
+   
+    return progresso
+  }
+
+  function renderDiagnosticoUI({
+    tempoRestante,
+    isStarting,
+    diagnosticoIniciado,
+    activeTime,
+  }: {
+    tempoRestante: number | null;
+    isStarting: boolean;
+    diagnosticoIniciado: boolean;
+    activeTime: () => void;
+  }) {
+    
+    if(expirado == true && porcentagem == 100)
+      return <Button disabled>Diagnóstico Concluído</Button>
+    
+   
+    if (expirado === true && porcentagem !== 100) {
+      return <Button disabled>Tempo expirado e Diagnóstico não concluído!</Button>
+      }
+
+    if(porcentagem === 100) {
+      return <Button disabled>Diagnóstico Concluído</Button>
+    }
+  
+    // ▶️ Se ainda não começou
+    if (!diagnosticoIniciado) {
+      return (
+        <Button
+          className="cursor-pointer"
+          onClick={activeTime}
+          disabled={isStarting}
+        >
+          {isStarting ? "Iniciando..." : "Iniciar Diagnóstico"}
+        </Button>
+      );
+    }
+  
+    if (tempoRestante !== null) {
+      const dias = Math.floor(tempoRestante / 86400);
+      const horas = Math.floor((tempoRestante % 86400) / 3600);
+      const minutos = Math.floor((tempoRestante % 3600) / 60);
+      const segundos = tempoRestante % 60;
+  
+      return (
+        <Button disabled>
+          Tempo restante: {dias}d {horas}h {minutos}m {segundos}s
+        </Button >
+      );
+    }
+  
+    return null;
+  }
+
+  function alteraBarraProgresso(porcentagem: number, tempoRestante: number | null, diagnosticoIniciado: boolean) {
+
+    if (!diagnosticoIniciado) {
+      return <Button className="-mt-6" disabled>Diagnóstico não iniciado</Button>;
+    }
+  
+    if (tempoRestante == null && porcentagem < 100) {
+      return (
+        <Button className=" -mt-6 bg-red-500" disabled>
+          Não concluído.
+        </Button>
+      );
+    }
+    if(porcentagem === 100) {
+      return (
+        <Button className=" -mt-6 bg-green-500" disabled>
+          Concluído.
+        </Button>
+      );
+    }
+  
+    const mesCompleto = 2592000;
+    const tempoPorDP = 345600;
+  
+    const limites = [
+      { limite: 23, fator: 1 },
+      { limite: 36, fator: 2 },
+      { limite: 50, fator: 3 },
+      { limite: 65, fator: 4 },
+      { limite: 80, fator: 5 },
+      { limite: 81, fator: 6 },
+      { limite: 100, fator: 7 },
+    ];
+  
+    const diagnosticoAtrasado = limites.some(({ limite, fator }) =>
+      porcentagem < limite &&
+      tempoRestante !== null &&
+      tempoRestante <= mesCompleto - tempoPorDP * fator
+    );
+  
+    if (diagnosticoAtrasado) {
+      return (
+        <Button
+          className="cursor-pointer bg-red-500 -mt-6 hover:bg-red-300"
+          onClick={() => toast.error("Diagnóstico atrasado! Acelere o processo.")}
+        >
+          Diagnóstico atrasado!
+        </Button>
+      );
+    }
+  
+    return (
+      <Button
+        className="cursor-pointer -mt-6 mb-2 bg-green-500 hover:bg-green-300"
+        onClick={() => toast.success("Diágnóstico em dia! Continue assim.")}
+      >
+        Diagnóstico em dia!
+      </Button>
+    );
+  }
+  
+  
 
   return (
     <SidebarProvider>
@@ -110,11 +336,44 @@ export default function PageClient() {
           <div className="@container/main flex flex-2 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="grid grid-cols-2 gap-4 px-4 lg:px-6">
-                <SectionCards
-                  description="Empresa:"
-                  title={cliente ? cliente.nome : "Carregando..."}
-                  footer={`Responsável: ${cliente ? cliente.nome_responsavel : "Carregando..."}`}
-                />
+                <Card className="h-46">
+                  <CardHeader>
+                    <CardTitle className="text-2xl mb-2 flex justify-between">
+                    {cliente ? cliente.nome : "Carregando..."}
+        
+                    {renderDiagnosticoUI({ tempoRestante, isStarting, diagnosticoIniciado, activeTime })}
+                    </CardTitle>
+                    <CardDescription className="grid gap-1 ">
+                      <span className="  ">
+                        Focal point:{" "}
+                        <span className="font-bold text-foreground">
+                          {cliente ? cliente.nome_responsavel : "Carregando..."}.
+                        </span>
+                      </span>
+                      <span className=" flex align-middle  justify-between text-muted-foreground">
+                      <div>
+                      Consultor Responsável:{"   "}	
+                        <span className="font-bold text-foreground">
+                          {cliente ? cliente.consultor : "Carregando..."}.
+                        </span>
+                      </div>
+                        <span>
+                        <>
+                        {alteraBarraProgresso(porcentagem, tempoRestante, diagnosticoIniciado)}
+                        </>
+                      </span>
+                      </span>
+               
+            
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className=" -mt-10">
+                    <p className="text-muted-foreground text-sm mt-2">Tempo Restante:</p>
+                  </CardContent>
+                  <CardFooter className="flex flex-col-reverse ">
+                      <Progress className="-mt-3 w-full h-3.5" value={progressoBarra()}/>
+                  </CardFooter>
+                </Card>
                 <div>
                   <Card className="lg:grid grid-cols-2 hidden container-type h-46">
                     <div className="w-150">
@@ -182,13 +441,12 @@ export default function PageClient() {
                 />
               </div>
 
-              <div className="px-4 lg:px-6 flex align-center justify-center">
+              <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
+                <DashboardGenerator />
                 <TableAnswers clienteId={id!} reloadTrigger={reloadAnswers} />
               </div>
 
-              <div className="px-4 lg:px-6 flex align-center justify-center">
-                <DashboardGenerator />
-              </div>
+
 
               <a
                 href="#top"

@@ -12,20 +12,25 @@ import {
   Cell,
   Pie,
   PieChart,
+  LabelList,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 import { toast, Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const COLORS = [
-  "#28a745",
-  "#43b864",
-  "#66c982",
-  "#85d7a0",
-  "#a3e5bd",
-  "#c2f3da",
+  "#FF5733", // Vermelho
+  "#FF8D1A", // Laranja
+  "#FFC300", // Amarelo
+  "#33B5FF", // Azul
+  "#9C27B0", // Roxo
+  "#8BC34A", // Verde
+  "#FF4081", // Rosa
 ];
+
 
 function TableQuestions({
   onUpdateAnswers,
@@ -38,6 +43,10 @@ function TableQuestions({
   const [questions, setQuestions] = useState<
     { id_pergunta: number; texto_pergunta: string; departamento: string }[]
   >([]);
+
+  const [currentPageByTab, setCurrentPageByTab] = useState<Record<string, number>>({});
+const QUESTIONS_PER_PAGE = 5;
+
 
   const { user } = useAuth();
   const { id } = useParams();
@@ -194,123 +203,212 @@ function TableQuestions({
   }, [answers]);
 
   useEffect(() => {
+    const totalSim = tabsData.reduce((total, tab) => {
+      return (
+        total +
+        tab.fields.reduce((acc: any, field: any) => {
+          return acc + (answersRef.current[field.id] ? 1 : 0);
+        }, 0)
+      );
+    }, 0);
+  
     const updatedChartData = tabsData.map((tab) => {
       const ativos = tab.fields.reduce((acc: any, field: any) => {
         return acc + (answersRef.current[field.id] ? 1 : 0);
       }, 0);
-
+  
+      const porcentagem = totalSim > 0 ? (ativos / totalSim) * 100 : 0;
+  
       return {
         name: tab.label,
-        value: ativos,
+        value: parseFloat(porcentagem.toFixed(2)),
       };
     });
-
+  
     setChartDataPie(updatedChartData);
   }, [answers]);
 
+  
+
   return (
     <div className="w-full max-w-8xl mx-auto space-y-2">
-      <Tabs defaultValue="financeiro">
-        <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
-          {tabsData.map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="text-xs sm:text-sm cursor-pointer"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+     
+<Dialog>
+  <DialogTrigger asChild>
+    <Button className="px-4 py-2 bg-primary  rounded-md w-full cursor-pointer -mb-3">Responder Perguntas</Button>
+  </DialogTrigger>
 
+  <DialogContent className="w-[80vw] !max-w-none max-h-[88vh] mb-6">
+  <DialogHeader>
+      <DialogTitle className="text-center text-3xl font-bold">Tabela de Respostas <br />
+      </DialogTitle>
+    </DialogHeader>
+
+    <Tabs defaultValue="estratégias">
+      <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
         {tabsData.map((tab) => (
-          <TabsContent
+          <TabsTrigger
             key={tab.value}
             value={tab.value}
-            className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-6 p-6"
+            className="text-xs sm:text-sm cursor-pointer"
           >
-            {tab.fields.map((field: any) => {
-              const isChecked = answersRef.current.hasOwnProperty(field.id)
-                ? answersRef.current[field.id]
-                : null;
-
-              return (
-                <div
-                  key={field.id}
-                  className="flex items-center justify-between gap-4 border-b pb-3"
-                >
-                  <Label
-                    htmlFor={field.id}
-                    className="text-sm leading-snug max-w-[80%]"
-                  >
-                    {field.label}
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                        isChecked === true ? "bg-emerald-600" : "bg-gray-600"
-                      }`}
-                      onClick={() => handleSwitchChange(field.id, true)}
-                    >
-                      Sim
-                    </button>
-                    <button
-                      type="button"
-                      className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                        isChecked === false ? "bg-red-600" : "bg-gray-600"
-                      }`}
-                      onClick={() => handleSwitchChange(field.id, false)}
-                    >
-                      Não
-                    </button>
-                    {isChecked === null && (
-                      <span className="text-sm text-gray-500 font-medium">
-                        Não respondida.
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </TabsContent>
+            {tab.label}
+          </TabsTrigger>
         ))}
-      </Tabs>
+      </TabsList>
 
-      <Card className="hidden md:flex w-full h-[320px] flex-row p-5 pt-10 pb-0 mt-5">
-        <PieChart width={380} height={230}>
-          <Pie
-            data={chartDataPie}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={130}
-            fill="#8884d8"
-            label
-          >
-            {chartDataPie.map((_entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
+      {tabsData.map((tab) => (
+        <TabsContent
+          key={tab.value}
+          value={tab.value}
+          className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-3 p-6"
+        >
+          {(() => {
+  const currentPage = currentPageByTab[tab.value] || 1;
+  const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
+  const endIndex = startIndex + QUESTIONS_PER_PAGE;
+  const paginatedFields = tab.fields.slice(startIndex, endIndex);
 
-        <ResponsiveContainer width="100%" height="90%">
-          <BarChart data={chartData}>
-            <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
-            <YAxis allowDecimals={false} />
-            <Tooltip
-              contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }}
-              cursor={false}
-            />
-            <Legend iconType="circle" />
-            <Bar dataKey="Ativos" fill="#28a745" radius={4} />
-            <Bar dataKey="Inativos" fill="#ff0000" radius={4} />
-          </BarChart>
-        </ResponsiveContainer>
-      </Card>
+  return paginatedFields.map((field: any) => {
+            const isChecked = answersRef.current.hasOwnProperty(field.id)
+              ? answersRef.current[field.id]
+              : null;
+
+            return (
+              <div
+                key={field.id}
+                className=" flex items-center justify-between gap-4 border-b pb-3"
+              >
+                <Label
+                  htmlFor={field.id}
+                  className="text-sm leading-snug max-w-[80%]"
+                >
+                  {field.label}
+                </Label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                      isChecked === true ? "bg-emerald-600" : "bg-gray-600"
+                    }`}
+                    onClick={() => handleSwitchChange(field.id, true)}
+                  >
+                    Sim
+                  </button>
+                  <button
+                    type="button"
+                    className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                      isChecked === false ? "bg-red-600" : "bg-gray-600"
+                    }`}
+                    onClick={() => handleSwitchChange(field.id, false)}
+                  >
+                    Não
+                  </button>
+                  {isChecked === null && (
+                    <span className="text-sm text-gray-500 font-medium">
+                      Não respondida.
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+            );
+          });
+          
+          
+        })()}
+
+<div className="flex justify-center gap-x-6 mt-4">
+  <Button
+    size="sm"
+    disabled={(currentPageByTab[tab.value] || 1) === 1}
+    onClick={() =>
+      setCurrentPageByTab((prev) => ({
+        ...prev,
+        [tab.value]: (prev[tab.value] || 1) - 1,
+      }))
+    }
+  >
+    Anterior
+  </Button>
+  <span className="text-sm self-center">
+    Página {(currentPageByTab[tab.value] || 1)} de{" "}
+    {Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)}
+  </span>
+  <Button
+    size="sm"
+    disabled={
+      (currentPageByTab[tab.value] || 1) >=
+      Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)
+    }
+    onClick={() =>
+      setCurrentPageByTab((prev) => ({
+        ...prev,
+        [tab.value]: (prev[tab.value] || 1) + 1,
+      }))
+    }
+  >
+    Próxima
+  </Button>
+</div>
+
+
+  
+        </TabsContent>
+      ))}
+    </Tabs>
+  </DialogContent>
+</Dialog>
+
+{Object.keys(answersRef.current).length === questions.length && (
+  <Card className="hidden md:flex w-full h-[320px] flex-row p-6 pt-10 mt-5">
+<div className="flex flex-col items-center">
+  <h3 className="text-md font-semibold mb-4 -mt-4">% de maturidade pro departamento</h3>
+  <PieChart width={365} height={230}>
+    <Pie
+      data={chartDataPie}
+      dataKey="value"
+      nameKey="name"
+      outerRadius={90}
+      fill="#8884d8"
+      label={({ name }) => name}
+      className="text-md font-medium"
+    >
+      {chartDataPie.map((_entry, index) => (
+        <Cell
+          key={`cell-${index}`}
+          fill={COLORS[index % COLORS.length]}
+        />
+      ))}
+    </Pie>
+    <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
+  </PieChart>
+</div>
+
+    <div className="flex flex-col items-center w-full">
+      <h3 className="text-md font-semibold  -mt-4">Respostas Sim X Respostas Não</h3>
+      <ResponsiveContainer  width="100%" height="100%">
+        <BarChart margin={{ top: 10 }} data={chartData}>
+          <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
+          <YAxis allowDecimals={false} />
+          <Tooltip
+
+            contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }}
+            cursor={false}
+          />
+          <Legend iconType="star" />
+          <Bar dataKey="Ativos" fill="#28a745" radius={4}>
+            <LabelList dataKey="Ativos" position="top" fontSize={14} fill="#fff" />
+          </Bar>
+          <Bar  dataKey="Inativos" fill="#ff0000" radius={4}>
+            <LabelList dataKey="Inativos" position="top" fontSize={14} fill="#fff" />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </Card>
+)}
+
       <Toaster richColors position="top-right" closeButton duration={1000} />
     </div>
   );
