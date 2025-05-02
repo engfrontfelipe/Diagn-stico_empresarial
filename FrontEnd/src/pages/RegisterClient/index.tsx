@@ -305,7 +305,7 @@ export default function RegisterUser() {
               <div className="px-4 lg:px-6 grid gap-6 md:grid-cols-1">
                 <Card className="p-4 w-full">
                   <div className="grid gap-4 ">
-                  <Label htmlFor="consultor">Consultor Responsável:</Label>
+                    <Label htmlFor="consultor">Consultor Responsável:</Label>
                     <Input
                       id="consultor"
                       type="text"
@@ -314,7 +314,6 @@ export default function RegisterUser() {
                       onChange={handleChange}
                     />
 
-                    
                     <Label htmlFor="nome_empresa">Nome da Empresa:</Label>
                     <Input
                       id="nome_empresa"
@@ -323,7 +322,7 @@ export default function RegisterUser() {
                       value={client.nome_empresa}
                       onChange={handleChange}
                     />
-                 
+
                     <Label htmlFor="nome_responsavel">
                       Nome do Responsável:
                     </Label>

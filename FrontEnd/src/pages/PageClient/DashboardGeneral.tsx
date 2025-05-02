@@ -230,8 +230,8 @@ export default function DashboardGeneral() {
       <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
     </div>
   ) : (
-    <Card className="w-full hidden lg:flex flex-col">
-      <div className="flex gap-4 align-middle justify-center p-2 h-70">
+    <Card className="w-full min hidden lg:flex flex-col">
+      <div className="flex gap-1 align-middle justify-center p-2 h-70">
         {/* Diagnóstico Geral */}
         <div className="mt-6 w-auto">
           <div className="flex items-start mb-10">
@@ -286,11 +286,11 @@ export default function DashboardGeneral() {
         </div>
 
         {/* Gráfico de Barras */}
-        <ChartContainer className="h-auto w-120" config={chartConfig}>
+        <ChartContainer className="h-auto w-110 " config={chartConfig}>
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ left: 13, top: 20 }}
+            margin={{ left: 20, top: 20 }}
           >
             <XAxis type="number" dataKey="Departamento" domain={[0, 100]} />
             <YAxis
@@ -313,7 +313,7 @@ export default function DashboardGeneral() {
         </ChartContainer>
 
         {/* Gráfico de Pizza */}
-        <ChartContainer className="h-full w-70" config={chartConfig}>
+        <ChartContainer className="h-full w-70 " config={chartConfig}>
           <PieChart>
             <ChartTooltip
               cursor={false}

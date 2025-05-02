@@ -215,11 +215,6 @@ const verificarDiagnostico = async (req, res) => {
   }
 };
 
-
-
-
-
-
 module.exports = {
   criarCliente,
   listarClientes,
@@ -227,5 +222,4 @@ module.exports = {
   buscarClientePorId,
   iniciarDiagnostico,
   verificarDiagnostico,
-
 };

@@ -125,7 +125,7 @@ export function LoginForm({
         <Button
           type="reset"
           onClick={() => {
-            console.log("Pediu suporte");
+            toast.success("chamada problemas com sua conta");
           }}
           variant="outline"
           className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white"

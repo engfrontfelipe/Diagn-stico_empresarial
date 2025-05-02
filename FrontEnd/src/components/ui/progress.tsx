@@ -1,7 +1,7 @@
-import * as React from "react"
-import * as ProgressPrimitive from "@radix-ui/react-progress"
+import * as React from "react";
+import * as ProgressPrimitive from "@radix-ui/react-progress";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Progress({
   className,
@@ -16,7 +16,7 @@ function Progress({
       data-slot="progress"
       className={cn(
         "bg-primary/20 relative w-full overflow-hidden rounded-full",
-        className
+        className,
       )}
       {...props}
     >
@@ -25,10 +25,12 @@ function Progress({
         className="bg-primary h-full flex items-center justify-end pr-2 text-md font-medium transition-all"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       >
-        <span className="whitespace-nowrap text-muted">{formattedValue}%</span>
+        <span className="whitespace-nowrap text-muted font-medium text-xs text-center pb-0.5">
+          {formattedValue}%
+        </span>
       </ProgressPrimitive.Indicator>
     </ProgressPrimitive.Root>
-  )
+  );
 }
 
-export { Progress }
+export { Progress };

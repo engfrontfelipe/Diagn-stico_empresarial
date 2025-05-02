@@ -13,8 +13,6 @@ router.get(
   usuariosController.verificarToken,
   async (req, res) => {
     try {
-      console.log("🧠 req.user:", req.user);
-
       const email = req.user?.email;
       if (!email) {
         return res.status(400).json({ error: "Email não encontrado no token" });
