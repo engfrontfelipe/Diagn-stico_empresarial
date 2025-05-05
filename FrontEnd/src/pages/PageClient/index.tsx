@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import TableQuestions from "./tableQuestions";
 import TableAnswers from "./tableAnswers";
 import DashboardGenerator from "./DashboardGenerator";
@@ -42,6 +42,8 @@ interface Cliente {
   id: string;
   data_cadastro: string;
   consultor: string;
+  linkedin: string;
+  site: string;
 }
 
 const chartConfig = {} satisfies ChartConfig;
@@ -120,9 +122,8 @@ export default function PageClient() {
       );
       if (!response.ok) throw new Error("Erro ao iniciar diagnóstico");
 
-      const data = await response.json();
+      // const data = await response.json();
 
-      // Re-fetch status to ensure consistency
       const statusResponse = await fetch(
         `http://localhost:3333/cliente/diagnostico/status/${id}`,
       );
@@ -318,9 +319,12 @@ export default function PageClient() {
 
     if (porcentagem === 100) {
       return (
-        <Button className="-mt-6 bg-green-500" disabled>
-          Concluído.
-        </Button>
+        <Link
+          to={`http://localhost:5173/cliente/result/${id}`}
+          className="p-2 rounded bg-green-500 text-primary-foreground font-medium shadow-xs hover:bg-primary/90"
+        >
+          Concluído
+        </Link>
       );
     }
 
@@ -379,15 +383,19 @@ export default function PageClient() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset id="top">
-        <SiteHeader title={cliente ? cliente.nome : "Carregando..."} />
+        <SiteHeader
+          title={cliente ? cliente.nome : "Carregando..."}
+          icon={true}
+          linkedlin={cliente.linkedin}
+          globe={cliente.site}
+        />
+
         <div className="flex flex-2 flex-col overflow-x-clip">
           <div className="@container/main flex flex-2 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 px-4 lg:px-6">
-                {/* Primeiro Card - Maior */}
                 <Card className="h-46 w-full lg:w-full">
                   {" "}
-                  {/* Largura ajustada para ser maior */}
                   <CardHeader>
                     <CardTitle className="text-2xl mb-2 flex justify-between">
                       {cliente ? cliente.nome : "Carregando..."}
@@ -424,7 +432,7 @@ export default function PageClient() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="-mt-10">
-                    <p className="text-muted-foreground text-sm mt-2">
+                    <p className="text-muted-foreground text-sm mt-5">
                       Tempo Restante:
                     </p>
                   </CardContent>
@@ -436,10 +444,8 @@ export default function PageClient() {
                   </CardFooter>
                 </Card>
 
-                {/* Segundo Card - Menor */}
                 <Card className="lg:w-[80%] w-full flex flex-row justify-between">
                   {" "}
-                  {/* Largura ajustada para ser menor */}
                   <div className="w-auto">
                     <CardHeader>
                       <CardDescription>Total de Perguntas:</CardDescription>

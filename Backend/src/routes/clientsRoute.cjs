@@ -4,7 +4,7 @@ const clientsControlers = require("../controllers/clientsControlers.cjs");
 
 router.post("/clientes/create", clientsControlers.criarCliente); //criar clientes
 router.get("/clientes/list", clientsControlers.listarClientes); //listar clientes
-router.patch("/clientes/:id", clientsControlers.atualizarCliente); // Atualizar cliente por ID
+router.patch("/clientes/update/:id", clientsControlers.atualizarCliente); // Atualizar cliente por ID
 router.get("/clientes/:id", clientsControlers.buscarClientePorId); // Buscar usuário por ID
 router.post(
   "/cliente/diagnostico/iniciar/:id",

@@ -21,7 +21,6 @@ import {
   DialogTrigger,
   DialogContent,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Pencil } from "lucide-react";
@@ -35,6 +34,8 @@ export default function RegisterUser() {
     ramo_empresa: "",
     cargo_responsavel: "",
     consultor: "",
+    linkedin: "",
+    site: "",
   });
 
   const [clientes, setClientes] = useState<
@@ -47,6 +48,8 @@ export default function RegisterUser() {
       cargo_responsavel: string;
       ativo: boolean;
       consultor: string;
+      linkedin: string;
+      site: string;
     }[]
   >([]);
 
@@ -85,6 +88,8 @@ export default function RegisterUser() {
     ramo_empresa: "",
     cargo_responsavel: "",
     consultor: "",
+    linkedin: "",
+    site: "",
   });
 
   type InputOrSelectEventEdit =
@@ -114,6 +119,8 @@ export default function RegisterUser() {
       ramo_empresa,
       cargo_responsavel,
       consultor,
+      linkedin,
+      site,
     } = client;
 
     if (
@@ -122,7 +129,9 @@ export default function RegisterUser() {
       !cnpj ||
       !ramo_empresa ||
       !cargo_responsavel ||
-      !consultor
+      !consultor ||
+      !linkedin ||
+      !site
     ) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
@@ -140,6 +149,8 @@ export default function RegisterUser() {
         ramo_empresa,
         cargo_responsavel,
         consultor,
+        linkedin,
+        site,
       }),
     })
       .then((response) => {
@@ -165,6 +176,8 @@ export default function RegisterUser() {
         throw new Error("Erro ao buscar clientes");
       }
       const data = await response.json();
+      console.log(data);
+
       setClientes(data);
     } catch (error) {
       console.error("Erro:", error);
@@ -181,7 +194,7 @@ export default function RegisterUser() {
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:3333/clientes/${id_cliente}`,
+        `http://localhost:3333/clientes/update/${id_cliente}`,
         {
           method: "PATCH",
           headers: {
@@ -218,16 +231,21 @@ export default function RegisterUser() {
       ramo_empresa: string;
       cargo_responsavel: string;
       consultor: string;
+      linkedin: string;
+      site: string;
     },
   ) => {
     try {
-      const response = await fetch(`http://localhost:3333/clientes/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `http://localhost:3333/clientes/update/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
         },
-        body: JSON.stringify(updatedData),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Erro ao atualizar dados do cliente");
@@ -253,6 +271,8 @@ export default function RegisterUser() {
       ramo_empresa,
       cargo_responsavel,
       consultor,
+      linkedin,
+      site,
     } = editClientData;
 
     if (!nome_empresa || !nome_responsavel) {
@@ -267,6 +287,8 @@ export default function RegisterUser() {
       ramo_empresa,
       cargo_responsavel,
       consultor,
+      linkedin: linkedin,
+      site: site,
     });
     toast.success("Cliente atualizado com sucesso!");
   };
@@ -276,7 +298,6 @@ export default function RegisterUser() {
     return activeClients.length;
   };
 
-  // Spinner de carregamento
   const renderLoading = () => (
     <div className="flex justify-center items-center h-screen">
       <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
@@ -291,7 +312,7 @@ export default function RegisterUser() {
     <SidebarProvider>
       <AppSidebar variant="inset" />
       <SidebarInset id="top">
-        <SiteHeader title="Gestão de Clientes" />
+        <SiteHeader title="Gestão de Clientes" icon={false} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -354,6 +375,24 @@ export default function RegisterUser() {
                       onChange={handleChange}
                     />
 
+                    <Label htmlFor="linkedin">LinkedIn:</Label>
+                    <Input
+                      id="linkedin"
+                      type="text"
+                      placeholder="Digite o LinkedIn da empresa"
+                      value={client.linkedin}
+                      onChange={handleChange}
+                    />
+
+                    <Label htmlFor="site">Site:</Label>
+                    <Input
+                      id="site"
+                      type="text"
+                      placeholder="Digite o WebSite da empresa"
+                      value={client.site}
+                      onChange={handleChange}
+                    />
+
                     <Label>CNPJ:</Label>
                     <Input
                       id="cnpj"
@@ -394,6 +433,7 @@ export default function RegisterUser() {
                           <TableCell>{cliente.nome_responsavel}</TableCell>
                           <TableCell>{cliente.cargo_responsavel}</TableCell>
                           <TableCell>{cliente.consultor}</TableCell>
+
                           <TableCell>
                             <Switch
                               className="cursor-pointer"
@@ -419,6 +459,8 @@ export default function RegisterUser() {
                                     cargo_responsavel:
                                       cliente.cargo_responsavel,
                                     consultor: cliente.consultor,
+                                    linkedin: cliente.linkedin,
+                                    site: cliente.site,
                                   });
                                 }}
                               >
@@ -435,10 +477,13 @@ export default function RegisterUser() {
                                   <DialogTitle className="mb-2">
                                     Editar dados do Cliente
                                   </DialogTitle>
-                                  <DialogDescription>
+                                </DialogHeader>
+
+                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                  <div>
                                     <Label
                                       htmlFor="nome_responsavel"
-                                      className="mb-2 mt-4 font-medium"
+                                      className="mb-1 font-medium"
                                     >
                                       Nome do Responsável
                                     </Label>
@@ -448,10 +493,12 @@ export default function RegisterUser() {
                                       value={editClientData.nome_responsavel}
                                       onChange={handleChangeEdit}
                                     />
+                                  </div>
 
+                                  <div>
                                     <Label
                                       htmlFor="consultor"
-                                      className="mb-2 mt-4 font-medium"
+                                      className="mb-1 font-medium"
                                     >
                                       Consultor Responsável
                                     </Label>
@@ -461,18 +508,19 @@ export default function RegisterUser() {
                                       value={editClientData.consultor}
                                       onChange={handleChangeEdit}
                                     />
+                                  </div>
 
+                                  <div>
                                     <Label
-                                      className="mb-2 mt-4 font-medium"
                                       htmlFor="cargo_responsavel"
+                                      className="mb-1 font-medium"
                                     >
-                                      Cargo Responsável:
+                                      Cargo Responsável
                                     </Label>
                                     <Input
                                       id="cargo_responsavel"
                                       type="text"
                                       placeholder="Digite o cargo do responsável"
-                                      className="w-full"
                                       value={editClientData.cargo_responsavel}
                                       onChange={(e) =>
                                         handleChangeEdit({
@@ -481,10 +529,12 @@ export default function RegisterUser() {
                                         })
                                       }
                                     />
+                                  </div>
 
+                                  <div>
                                     <Label
                                       htmlFor="nome_empresa"
-                                      className="mb-2 mt-4 font-medium"
+                                      className="mb-1 font-medium"
                                     >
                                       Nome da Empresa
                                     </Label>
@@ -494,18 +544,19 @@ export default function RegisterUser() {
                                       value={editClientData.nome_empresa}
                                       onChange={handleChangeEdit}
                                     />
+                                  </div>
 
+                                  <div>
                                     <Label
-                                      className="mb-2 mt-4 font-medium"
                                       htmlFor="ramo_empresa"
+                                      className="mb-1 font-medium"
                                     >
-                                      Ramo da Empresa:
+                                      Ramo da Empresa
                                     </Label>
                                     <Input
                                       id="ramo_empresa"
                                       type="text"
                                       placeholder="Digite o ramo da empresa"
-                                      className="w-full"
                                       value={editClientData.ramo_empresa}
                                       onChange={(e) =>
                                         handleChangeEdit({
@@ -514,8 +565,13 @@ export default function RegisterUser() {
                                         })
                                       }
                                     />
+                                  </div>
 
-                                    <Label className="mb-2 mt-4 font-medium">
+                                  <div>
+                                    <Label
+                                      htmlFor="cnpj"
+                                      className="mb-1 font-medium"
+                                    >
                                       CNPJ
                                     </Label>
                                     <Input
@@ -524,15 +580,57 @@ export default function RegisterUser() {
                                       value={editClientData.cnpj}
                                       onChange={handleChangeEdit}
                                     />
+                                  </div>
 
-                                    <Button
-                                      className="mt-5 w-full cursor-pointer"
-                                      onClick={handleUpdateUser}
+                                  <div>
+                                    <Label
+                                      htmlFor="linkedin"
+                                      className="mb-1 font-medium"
                                     >
-                                      Editar
-                                    </Button>
-                                  </DialogDescription>
-                                </DialogHeader>
+                                      LinkedIn
+                                    </Label>
+                                    <Input
+                                      id="linkedin"
+                                      type="text"
+                                      placeholder="Digite o LinkedIn"
+                                      value={editClientData.linkedin}
+                                      onChange={(e) =>
+                                        handleChangeEdit({
+                                          id: "linkedin",
+                                          value: e.target.value,
+                                        })
+                                      }
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <Label
+                                      htmlFor="site"
+                                      className="mb-1 font-medium"
+                                    >
+                                      Site
+                                    </Label>
+                                    <Input
+                                      id="site"
+                                      type="text"
+                                      placeholder="Digite o Site da Empresa"
+                                      value={editClientData.site}
+                                      onChange={(e) =>
+                                        handleChangeEdit({
+                                          id: "site",
+                                          value: e.target.value,
+                                        })
+                                      }
+                                    />
+                                  </div>
+                                </div>
+
+                                <Button
+                                  className="mt-6 w-full cursor-pointer"
+                                  onClick={handleUpdateUser}
+                                >
+                                  Editar
+                                </Button>
                               </DialogContent>
                             </Dialog>
                           </TableCell>

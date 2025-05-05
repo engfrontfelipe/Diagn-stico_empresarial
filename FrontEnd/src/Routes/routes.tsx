@@ -7,6 +7,7 @@ import RegisterUser from "@/pages/RegisterUser";
 import RegisterClient from "@/pages/RegisterClient";
 import RegisterQuest from "@/pages/RegisterQuestion";
 import PageClient from "@/pages/PageClient";
+import PageResult from "@/pages/PageResult";
 
 const Rotas = () => {
   return (
@@ -54,6 +55,15 @@ const Rotas = () => {
         element={
           <PrivateRoutes>
             <PageClient />
+          </PrivateRoutes>
+        }
+      />
+
+      <Route
+        path="/cliente/result/:id"
+        element={
+          <PrivateRoutes>
+            <PageResult />
           </PrivateRoutes>
         }
       />

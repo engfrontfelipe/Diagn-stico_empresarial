@@ -15,7 +15,6 @@ app.use(clientsRoutes);
 app.use(questionsRoutes);
 app.use(answersRoute);
 
-const PORT = process.env.PORT || 3333;
 app.listen(3333, () => {
   console.log(`Servidor rodando na porta http://localhost:3333`);
 });

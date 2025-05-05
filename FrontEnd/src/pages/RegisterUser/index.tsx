@@ -191,7 +191,7 @@ function RegisterUser() {
       <SidebarProvider>
         <AppSidebar variant="inset" />
         <SidebarInset id="top">
-          <SiteHeader title="Gestão Usuários" />
+          <SiteHeader title="Gestão Usuários" icon={false} />
           <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
             <div className="grid grid-cols-1 gap-4">
               <SectionCards

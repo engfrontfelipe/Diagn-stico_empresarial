@@ -14,6 +14,8 @@ const criarCliente = async (req, res) => {
     cargo_responsavel,
     ramo_empresa,
     consultor,
+    linkedin,
+    site,
   } = req.body;
 
   if (
@@ -22,7 +24,9 @@ const criarCliente = async (req, res) => {
     !cnpj ||
     !cargo_responsavel ||
     !ramo_empresa ||
-    !consultor
+    !consultor ||
+    !linkedin ||
+    !site
   ) {
     return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
@@ -36,9 +40,9 @@ const criarCliente = async (req, res) => {
     }
 
     const result = await sql`
-      INSERT INTO clientes (nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor) 
-      VALUES (${nome}, ${nome_responsavel}, ${cnpj}, true, ${cargo_responsavel}, ${ramo_empresa}, ${consultor}) 
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor;
+      INSERT INTO clientes (nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site) 
+      VALUES (${nome}, ${nome_responsavel}, ${cnpj}, true, ${cargo_responsavel}, ${ramo_empresa}, ${consultor}, ${linkedin}, ${site}) 
+      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site;
     `;
 
     res.status(201).json({ message: "Cliente cadastrado", cliente: result[0] });
@@ -53,7 +57,7 @@ const criarCliente = async (req, res) => {
 const listarClientes = async (_req, res) => {
   try {
     const result = await sql`
-      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor
+      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site
       FROM clientes 
       ORDER BY nome ASC;
     `;
@@ -79,6 +83,8 @@ const atualizarCliente = async (req, res) => {
     ramo_empresa,
     cargo_responsavel,
     consultor,
+    linkedin,
+    site,
   } = req.body;
 
   if (!nome && !nome_responsavel && !cnpj && ativo === undefined) {
@@ -97,10 +103,12 @@ const atualizarCliente = async (req, res) => {
         ativo = COALESCE(${ativo}, ativo),
         ramo_empresa = COALESCE(${ramo_empresa}, ramo_empresa),
         cargo_responsavel = COALESCE(${cargo_responsavel}, cargo_responsavel),
-        consultor = COALESCE(${consultor}, consultor)
+        consultor = COALESCE(${consultor}, consultor),
+        linkedin = COALESCE(${linkedin}, linkedin),
+        site = COALESCE(${site}, site)
 
       WHERE id_cliente = ${id}
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor;
+      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site;
     `;
 
     if (result.length === 0) {
@@ -121,7 +129,7 @@ const buscarClientePorId = async (req, res) => {
 
   try {
     const result = await sql`
-      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor 
+      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site 
       FROM clientes 
       WHERE id_cliente = ${id};
     `;
