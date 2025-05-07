@@ -5,17 +5,19 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../lib/auth"; // ou o caminho correto
+import { useAuth } from "../../lib/auth";
+
 const apiUrl = import.meta.env.VITE_API_URL;
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  const { setUser } = useAuth(); // Pega o setUser do contexto
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,40 +27,38 @@ export function LoginForm({
       return;
     }
 
+    setIsLoading(true); // ativa loading
+
     try {
-      const response = await fetch(
-        `${apiUrl}/usuarios/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, senha: password }),
-        },
-      );
+      const response = await fetch(`${apiUrl}/usuarios/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
+      });
 
       const data = await response.json();
 
       if (response.status === 403) {
-        return toast.error(
-          data.message ||
-            "Usuário inativo, por favor entre em contato com suporte.",
+        toast.error(
+          data.message || "Usuário inativo, por favor entre em contato com suporte."
         );
+        setIsLoading(false);
+        return;
       }
 
       if (!response.ok) {
         toast.error(data.message || "Usuário ou senha incorretos!");
+        setIsLoading(false);
         return;
       }
 
       if (data.token) {
         localStorage.setItem("token", data.token);
-        const userResponse = await fetch(
-          `${apiUrl}/usuarios/auth/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
+        const userResponse = await fetch(`${apiUrl}/usuarios/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
           },
-        );
+        });
 
         const userData = await userResponse.json();
         setUser(userData);
@@ -74,6 +74,8 @@ export function LoginForm({
     } catch (error) {
       toast.error("Erro ao acessar a API, faça contato com o suporte");
       console.error("Erro ao acessar a API:", error);
+    } finally {
+      setIsLoading(false); // desativa loading
     }
   };
 
@@ -113,9 +115,14 @@ export function LoginForm({
         </div>
         <Button
           type="submit"
-          className="w-full cursor-pointer bg-blue-600 text-white hover:hover:bg-blue-500 hover:text-white"
+          disabled={isLoading}
+          className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white disabled:opacity-70"
         >
-          Login
+          {isLoading ? (
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          ) : (
+            "Login"
+          )}
         </Button>
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">
