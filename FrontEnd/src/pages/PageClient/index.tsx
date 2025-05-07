@@ -322,7 +322,7 @@ export default function PageClient() {
     if (porcentagem === 100) {
       return (
         <Link
-          to={`http://localhost:5173/cliente/result/${id}`}
+          to={`${apiUrl}/cliente/result/${id}`}
           className="p-2 rounded bg-green-500 text-primary-foreground font-medium shadow-xs hover:bg-primary/90"
         >
           Concluído
