@@ -132,7 +132,7 @@ export function HeaderPageResult() {
               </NavigationMenuLink>
             </Link>
             <NavigationMenuLink
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/clientes/${id}`)}
               className={navigationMenuTriggerStyle()}
             >
               Página Cliente

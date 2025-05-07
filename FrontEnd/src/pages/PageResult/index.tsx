@@ -261,11 +261,11 @@ export default function PageResult({ idCliente }: Props) {
 
 
   return (
-    <div className="w-full h-full mt-25 ">
+    <div className=" w-full h-full mt-25 ">
       <HeaderPageResult />
       <div className="h-5" id="dashGeneral"></div>
       <div className=" ">
-        <div className="flex gap-5 max-w-[83vw] m-auto">
+        <div className="hidden lg:flex gap-5 max-w-[83vw] m-auto">
           <Card className="w-full ">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Resultado Geral de Maturidade
