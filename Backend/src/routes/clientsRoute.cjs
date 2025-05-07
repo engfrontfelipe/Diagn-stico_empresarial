@@ -15,7 +15,7 @@ router.get(
   clientsControlers.verificarDiagnostico,
 ); //verificar diagnostico
 //localhost:3333/clientes/${id}
-http: router.post(
+router.post(
   "/cliente/diagnostico/concluir/:id",
   clientsControlers.concluirDiagnostico,
 );
