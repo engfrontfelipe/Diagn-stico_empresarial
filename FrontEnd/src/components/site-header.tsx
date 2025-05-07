@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/lib/changeButton";
 
 interface SiteHeaderProps {
   title: string;
-  icon: boolean;
+  icon?: boolean;
   linkedlin?: string;
   globe?: string;
 }

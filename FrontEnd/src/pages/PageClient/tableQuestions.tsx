@@ -234,6 +234,16 @@ function TableQuestions({
     setChartDataPie(updatedChartData);
   }, [answers]);
 
+  function getCurrentTheme() {
+    const theme = localStorage.getItem("theme");
+
+    if (theme == "dark") {
+      return "white";
+    } else {
+      return "black";
+    }
+  }
+
   return (
     <div className="w-full max-w-8xl mx-auto space-y-2">
       <Dialog>
@@ -415,7 +425,7 @@ function TableQuestions({
                     dataKey="Ativos"
                     position="top"
                     fontSize={14}
-                    fill="#fff"
+                    fill={getCurrentTheme()}
                   />
                 </Bar>
                 <Bar dataKey="Inativos" fill="#ff0000" radius={4}>
@@ -423,7 +433,7 @@ function TableQuestions({
                     dataKey="Inativos"
                     position="top"
                     fontSize={14}
-                    fill="#fff"
+                    fill={getCurrentTheme()}
                   />
                 </Bar>
               </BarChart>

@@ -254,10 +254,6 @@ export default function DashboardGeneral() {
               >
                 {chartDataPie[0]?.val.toFixed(0)}%
               </HoverCardTrigger>
-
-              <HoverCardContent>
-                {getMaturidadeText(chartDataPie[0]?.val ?? 0)}
-              </HoverCardContent>
             </HoverCard>
           </div>
 

@@ -13,27 +13,20 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 
 const components: { title: string; href: string; description: string }[] = [
   {
     title: "Tabela de IceFrame",
-    href: "#",
+    href: "#iceTable",
     description:
       "A tabela ICE é uma ferramenta usada para priorização de ideias, projetos ou funcionalidades, muito comum em produtos e negócios.",
   },
+
   {
-    title: "Tabela Respostas Positivas",
-    href: "#",
-    description:
-      "Exibe a quantidade de respostas sim recebidas para cada pergunta ou categoria, permitindo avaliar os pontos fortes ou atendidos dentro da avaliação.",
-  },
-  {
-    title: "Tabela Respostas Negativas",
-    href: "#",
-    description:
-      " exibe a quantidade de respostas não para cada pergunta ou categoria, destacando áreas que necessitam de atenção, melhoria ou correção.",
+    title: "Dashboard Geral",
+    href: "#dashGeneral",
+    description: "Visualização geral do cliente, com o dashboard principal.",
   },
 ];
 
@@ -74,43 +67,80 @@ interface Cliente {
   consultor: string;
   linkedin: string;
   site: string;
+  final_diagnostico: string;
 }
-
 
 export function HeaderPageResult() {
   const { id } = useParams<{ id: string }>();
-  const [cliente, setCliente] = useState<Cliente | null>(null) 
-  const navigate = useNavigate()
+  const [cliente, setCliente] = useState<Cliente | null>(null);
+  const navigate = useNavigate();
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
+  useEffect(() => {
+    if (!id) return;
 
-  fetch(`http://localhost:3333/clientes/${id}`)
-  .then(response => response.json())
-  .then(data => {
-    setCliente(data)
-  })
-  .catch(error => {
-    console.error('Erro ao buscar os dados:', error);
-  });
+    fetch(`http://localhost:3333/clientes/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setCliente(data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar os dados:", error);
+      });
+  }, [id]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setShowHeader(false);
+      } else {
+        setShowHeader(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  function getCurrentTheme() {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+      return "https://assinaturas.grovehost.com.br/imagesClientes/consultingWhite.png";
+    } else {
+      return "https://assinaturas.grovehost.com.br/imagesClientes/consultingDark.png";
+    }
+  }
 
   return (
-    <div className="border-b-2 pb-4 border-accent" >
-      <NavigationMenu className="m-auto mt-4">
-        <NavigationMenuList className="">
+    <div
+      className={cn(
+        "border-b-2 pb-4 border-accent fixed top-0 left-0 w-full z-50 bg-background transition-transform duration-300",
+        showHeader ? "translate-y-0" : "-translate-y-full",
+      )}
+    >
+      <NavigationMenu className="ml-10 mt-4">
+        <NavigationMenuList>
+          <img src={getCurrentTheme()} alt="" className="h-auto w-30 mr-6" />
           <NavigationMenuItem>
             <Link to={"/dashboard"}>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Home
               </NavigationMenuLink>
             </Link>
-              <NavigationMenuLink onClick={() => {navigate(-1)}} className={navigationMenuTriggerStyle()}>
-                Página Cliente
-              </NavigationMenuLink>
+            <NavigationMenuLink
+              onClick={() => navigate(-1)}
+              className={navigationMenuTriggerStyle()}
+            >
+              Página Cliente
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Sobre o Cliente</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+              <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[1.4fr_1fr]">
                 <li className="row-span-3">
                   <NavigationMenuLink asChild>
                     <a
@@ -120,20 +150,51 @@ export function HeaderPageResult() {
                       <div className="mb-2 mt-4 text00-lg font-medium">
                         {cliente?.nome}
                       </div>
-                      <p className="text-sm leading-tight text-muted-foreground grid ">
-                        <p className="mb-2">CNPJ: {cliente?.cnpj}</p>
-                        <p className="mb-2">Responsável: {cliente?.nome_responsavel}</p>
-                        <p className="mb-2">Ramo: {cliente?.ramo_empresa}</p>
-                        <p className="mb-2">Consultor Responsável:{cliente?.consultor}</p>
+                      <p className="text-sm leading-tight text-muted-foreground grid">
+                        <p className="mb-2">
+                          CNPJ:{" "}
+                          <span className="font-bold">{cliente?.cnpj}</span>
+                        </p>
+                        <p className="mb-2">
+                          Responsável:{" "}
+                          <span className="font-bold">
+                            {cliente?.nome_responsavel}
+                          </span>
+                        </p>
+                        <p className="mb-2">
+                          Ramo:{" "}
+                          <span className="font-bold">
+                            {cliente?.ramo_empresa}
+                          </span>
+                        </p>
+                        <p className="mb-2">
+                          Consultor Responsável:{" "}
+                          <span className="font-bold">
+                            {cliente?.consultor}
+                          </span>
+                        </p>
+                        <p className="mb-2">
+                          Término do Diagnóstico:{" "}
+                          <span className="font-bold">
+                            {cliente?.final_diagnostico
+                              ? new Date(
+                                  cliente.final_diagnostico,
+                                ).toLocaleDateString("pt-BR")
+                              : "Data não disponível"}
+                          </span>
+                        </p>
                       </p>
                     </a>
                   </NavigationMenuLink>
                 </li>
-                <ListItem href="/docs" title="Dashboard Geral">
-                  Visualização geral do cliente, com o dashboard principal.
+                <ListItem href="#diagResult" title="Diagnóstico Empresarial">
+                  Apresenta uma visão geral do desempenho da empresa com base
+                  nas respostas fornecidas, identificando pontos fortes,
+                  fraquezas e oportunidades de melhoria.
                 </ListItem>
+
                 <ListItem href="#desempenho_area" title="Desempenho por Área">
-                  Desempenho do cliente por área, com barra represantando a
+                  Desempenho do cliente por área, com barra representando a
                   maturidade por área.
                 </ListItem>
                 <ListItem
@@ -147,11 +208,9 @@ export function HeaderPageResult() {
           </NavigationMenuItem>
 
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="">
-              Gráficos e Dashboards
-            </NavigationMenuTrigger>
+            <NavigationMenuTrigger>Gráficos e Dashboards</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {components.map((component) => (
                   <ListItem
                     key={component.title}

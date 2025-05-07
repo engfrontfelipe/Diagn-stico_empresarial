@@ -14,5 +14,10 @@ router.get(
   "/cliente/diagnostico/status/:id",
   clientsControlers.verificarDiagnostico,
 ); //verificar diagnostico
+//localhost:3333/clientes/${id}
+http: router.post(
+  "/cliente/diagnostico/concluir/:id",
+  clientsControlers.concluirDiagnostico,
+);
 
 module.exports = router;

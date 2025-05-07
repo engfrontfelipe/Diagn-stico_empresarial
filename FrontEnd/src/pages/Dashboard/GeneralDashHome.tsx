@@ -130,7 +130,7 @@ export default function GeneralDashHome() {
               if (!status) {
                 return (
                   <TableRow key={cliente.id_cliente}>
-                    <TableCell className="text-center font-bold font-mono">
+                    <TableCell className="text-center font-bold ">
                       <span>Carregando...</span>
                     </TableCell>
                     <TableCell className="text-center text-gray-500 font-medium">
@@ -156,7 +156,7 @@ export default function GeneralDashHome() {
 
               return (
                 <TableRow key={cliente.id_cliente}>
-                  <TableCell className="text-center font-bold font-mono">
+                  <TableCell className="text-center font-medium">
                     <Link to={`/clientes/${cliente.id_cliente}`}>
                       <a className="text-muted-foreground hover:text-accent">
                         {cliente.nome}
@@ -165,7 +165,7 @@ export default function GeneralDashHome() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {status.expirado ? (
+                    {progresso === 100 ? (
                       <span className="text-green-600 font-medium">
                         Diagnóstico finalizado
                       </span>
@@ -183,7 +183,7 @@ export default function GeneralDashHome() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {status.expirado ? (
+                    {progresso === 100 ? (
                       <span className="text-green-600 font-semibold">
                         Finalizado
                       </span>

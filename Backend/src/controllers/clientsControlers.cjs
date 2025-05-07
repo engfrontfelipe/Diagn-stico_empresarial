@@ -129,7 +129,7 @@ const buscarClientePorId = async (req, res) => {
 
   try {
     const result = await sql`
-      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site 
+      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site, final_diagnostico
       FROM clientes 
       WHERE id_cliente = ${id};
     `;
@@ -223,6 +223,26 @@ const verificarDiagnostico = async (req, res) => {
   }
 };
 
+const concluirDiagnostico = async (req, res) => {
+  const { id } = req.params;
+  const { data_conclusao } = req.body;
+
+  try {
+    await sql`
+      UPDATE clientes SET final_diagnostico = ${data_conclusao} WHERE id_cliente = ${id};
+    `;
+
+    res
+      .status(200)
+      .json({ mensagem: "Data de conclusão registrada com sucesso" });
+  } catch (error) {
+    console.error("Erro ao atualizar data de conclusão:", error);
+    res
+      .status(500)
+      .json({ erro: "Erro ao registrar conclusão do diagnóstico" });
+  }
+};
+
 module.exports = {
   criarCliente,
   listarClientes,
@@ -230,4 +250,5 @@ module.exports = {
   buscarClientePorId,
   iniciarDiagnostico,
   verificarDiagnostico,
+  concluirDiagnostico,
 };

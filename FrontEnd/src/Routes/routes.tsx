@@ -63,7 +63,7 @@ const Rotas = () => {
         path="/cliente/result/:id"
         element={
           <PrivateRoutes>
-            <PageResult />
+            <PageResult idCliente={""} />
           </PrivateRoutes>
         }
       />
