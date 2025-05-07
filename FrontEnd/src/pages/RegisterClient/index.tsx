@@ -177,8 +177,6 @@ export default function RegisterUser() {
         throw new Error("Erro ao buscar clientes");
       }
       const data = await response.json();
-      console.log(data);
-
       setClientes(data);
     } catch (error) {
       console.error("Erro:", error);

@@ -259,8 +259,6 @@ export default function PageResult({ idCliente }: Props) {
     return "#00ff00"; // Verde
   };
 
-  console.log( pieChartData[0]?.value.toFixed(0))
-
 
   return (
     <div className="w-full h-full mt-25 ">
