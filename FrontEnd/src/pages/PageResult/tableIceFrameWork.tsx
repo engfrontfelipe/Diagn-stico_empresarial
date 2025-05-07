@@ -6,6 +6,8 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 import { useEffect, useState } from "react";
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {
@@ -80,7 +82,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
     const fetchQuestions = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3333/answers/negative/${clienteId}`,
+          `${apiUrl}/answers/negative/${clienteId}`,
         );
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         const data: Question[] = await res.json();
@@ -89,7 +91,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
           data.map(async (q) => {
             try {
               const r = await fetch(
-                `http://localhost:3333/answers/recovery-status/${q.id_resposta}`,
+                `${apiUrl}/answers/recovery-status/${q.id_resposta}`,
               );
               if (!r.ok) throw new Error("Erro ao buscar estados");
               const { resposta } = await r.json();

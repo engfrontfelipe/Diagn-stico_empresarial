@@ -1,4 +1,5 @@
 "use client";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 import {
   SidebarGroup,
@@ -24,7 +25,7 @@ export function NavClientes() {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("http://localhost:3333/clientes/list");
+      const response = await fetch(`${apiUrl}/clientes/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar clientes");
       }

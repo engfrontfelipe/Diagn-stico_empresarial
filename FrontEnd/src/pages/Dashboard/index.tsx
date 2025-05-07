@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import GeneralDashHome from "./GeneralDashHome.tsx";
 import { Card } from "@/components/ui/card.tsx";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function Page() {
   const [clientes, setClientes] = useState<
     { id: string; nome: string; ativo: boolean }[] | null
@@ -17,7 +19,7 @@ export default function Page() {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("http://localhost:3333/clientes/list");
+      const response = await fetch(`${apiUrl}/clientes/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar clientes");
       }
@@ -30,7 +32,7 @@ export default function Page() {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch("http://localhost:3333/usuarios/list");
+      const response = await fetch(`${apiUrl}/usuarios/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar usuários");
       }

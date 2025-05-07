@@ -14,6 +14,8 @@ import { Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { toast, Toaster } from "sonner";
+
+
 import {
   Dialog,
   DialogHeader,
@@ -22,6 +24,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
 import {
   Select,
   SelectContent,
@@ -44,8 +49,8 @@ function QuestionManagement() {
   const fetchPerguntas = async (departamentoFiltro = "") => {
     try {
       const url = departamentoFiltro
-        ? `http://localhost:3333/questions/filterByDepartment?departamento=${departamentoFiltro}`
-        : "http://localhost:3333/questions/list";
+        ? `${apiUrl}/questions/filterByDepartment?departamento=${departamentoFiltro}`
+        : `${apiUrl}/questions/list`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -84,7 +89,7 @@ function QuestionManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3333/questions/create", {
+      const response = await fetch(`${apiUrl}/questions/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -142,7 +147,7 @@ function QuestionManagement() {
 
     try {
       const response = await fetch(
-        `http://localhost:3333/questions/update/${id_pergunta}`,
+        `${apiUrl}/questions/update/${id_pergunta}`,
         {
           method: "PUT",
           headers: {

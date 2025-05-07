@@ -22,6 +22,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+const apiUrl = import.meta.env.VITE_API_URL;
 import {
   HoverCard,
   HoverCardTrigger,
@@ -95,7 +96,7 @@ export default function DashboardGeneral() {
     const fetchTotalPerguntas = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3333/questions/list/total",
+          `${apiUrl}/questions/list/total`,
         );
         const data = await response.json();
         setTotalPerguntas(data.total);
@@ -113,7 +114,7 @@ export default function DashboardGeneral() {
 
       try {
         const response = await fetch(
-          `http://localhost:3333/answers/negative/${idCliente}`,
+          `${apiUrl}/answers/negative/${idCliente}`,
         );
         const data: Resposta[] = await response.json();
 
@@ -147,14 +148,14 @@ export default function DashboardGeneral() {
     const fetchRespostasSim = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3333/answers/positive/${idCliente}`,
+          `${apiUrl}/answers/positive/${idCliente}`,
         );
         const data: Resposta[] = await response.json();
 
         const agrupado = agruparPorDepartamento(data);
 
         const responseTotais = await fetch(
-          `http://localhost:3333/questions/list/total-by-departament`,
+          `${apiUrl}/questions/list/total-by-departament`,
         );
         const totaisData: { departamento: string; total: number }[] =
           await responseTotais.json();

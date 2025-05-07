@@ -34,6 +34,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 interface Cliente {
   nome: string;
   nome_responsavel: string;
@@ -70,7 +72,7 @@ export default function PageClient() {
     const verificarDiagnostico = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3333/cliente/diagnostico/status/${id}`,
+          `${apiUrl}/cliente/diagnostico/status/${id}`,
         );
         if (!response.ok)
           throw new Error("Erro ao buscar status do diagnóstico");
@@ -115,7 +117,7 @@ export default function PageClient() {
     setIsStarting(true);
     try {
       const response = await fetch(
-        `http://localhost:3333/cliente/diagnostico/iniciar/${id}`,
+        `${apiUrl}/cliente/diagnostico/iniciar/${id}`,
         {
           method: "POST",
         },
@@ -125,7 +127,7 @@ export default function PageClient() {
       // const data = await response.json();
 
       const statusResponse = await fetch(
-        `http://localhost:3333/cliente/diagnostico/status/${id}`,
+        `${apiUrl}/cliente/diagnostico/status/${id}`,
       );
       if (!statusResponse.ok)
         throw new Error("Erro ao verificar status após iniciar");
@@ -149,7 +151,7 @@ export default function PageClient() {
   useEffect(() => {
     const fetchCliente = async () => {
       try {
-        const response = await fetch(`http://localhost:3333/clientes/${id}`);
+        const response = await fetch(`${apiUrl}/clientes/${id}`);
         const data = await response.json();
         setCliente(data);
       } catch (err) {
@@ -163,7 +165,7 @@ export default function PageClient() {
   }, [id]);
 
   useEffect(() => {
-    fetch("http://localhost:3333/questions/list")
+    fetch(`${apiUrl}/questions/list`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         return res.json();

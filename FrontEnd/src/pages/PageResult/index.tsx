@@ -20,6 +20,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 import {
   HoverCard,
   HoverCardContent,
@@ -108,14 +110,14 @@ export default function PageResult({ idCliente }: Props) {
     const fetchRespostasSim = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3333/answers/positive/${idCliente}`,
+          `${apiUrl}/answers/positive/${idCliente}`,
         );
         const data: Resposta[] = await response.json();
 
         const agrupado = agruparPorDepartamento(data);
 
         const responseTotais = await fetch(
-          `http://localhost:3333/questions/list/total-by-departament`,
+          `${apiUrl}/questions/list/total-by-departament`,
         );
         const totaisData: { departamento: string; total: number }[] =
           await responseTotais.json();
@@ -168,8 +170,8 @@ export default function PageResult({ idCliente }: Props) {
         setLoading(true);
   
         const [resPos, resNeg] = await Promise.all([
-          fetch(`http://localhost:3333/answers/positive/${idCliente}`),
-          fetch(`http://localhost:3333/answers/negative/${idCliente}`),
+          fetch(`${apiUrl}/answers/positive/${idCliente}`),
+          fetch(`${apiUrl}/answers/negative/${idCliente}`),
         ]);
   
         const dataPos: Resposta[] = await resPos.json();

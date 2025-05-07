@@ -10,6 +10,8 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 interface Cliente {
   id_cliente: string;
   nome: string;
@@ -35,7 +37,7 @@ export default function GeneralDashHome() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const res = await fetch("http://localhost:3333/clientes/list");
+        const res = await fetch(`${apiUrl}/clientes/list`);
         const data: Cliente[] = await res.json();
         setClientes(data);
 
@@ -43,7 +45,7 @@ export default function GeneralDashHome() {
           .filter((cliente) => !!cliente.id_cliente)
           .map(async (cliente) => {
             const res = await fetch(
-              `http://localhost:3333/cliente/diagnostico/status/${cliente.id_cliente}`,
+              `${apiUrl}/cliente/diagnostico/status/${cliente.id_cliente}`,
             );
             const status = await res.json();
             return {

@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/auth";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export function NavUser({}) {
   const { isMobile } = useSidebar();
 
@@ -32,7 +34,7 @@ export function NavUser({}) {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch("http://localhost:3333/usuarios/list");
+      const response = await fetch(`${apiUrl}/usuarios/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar usuários");
       }

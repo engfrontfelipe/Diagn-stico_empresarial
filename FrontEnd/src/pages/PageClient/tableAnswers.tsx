@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
@@ -96,7 +98,7 @@ export default function TableAnswers({
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:3333/answers/negative/${clienteId}`,
+          `${apiUrl}/answers/negative/${clienteId}`,
         );
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         const data: Question[] = await res.json();
@@ -105,7 +107,7 @@ export default function TableAnswers({
           data.map(async (q) => {
             try {
               const r = await fetch(
-                `http://localhost:3333/answers/recovery-status/${q.id_resposta}`,
+                `${apiUrl}/answers/recovery-status/${q.id_resposta}`,
               );
               if (!r.ok) throw new Error("Erro ao buscar estados");
               const { resposta } = await r.json();
@@ -166,7 +168,7 @@ export default function TableAnswers({
 
     try {
       const body = updated.find((q) => q.id_resposta === id_resposta);
-      await fetch(`http://localhost:3333/answers/update/${id_resposta}`, {
+      await fetch(`${apiUrl}/answers/update/${id_resposta}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

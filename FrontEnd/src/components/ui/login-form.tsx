@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/auth"; // ou o caminho correto
-
+const apiUrl = import.meta.env.VITE_API_URL;
 export function LoginForm({
   className,
   ...props
@@ -27,7 +27,7 @@ export function LoginForm({
 
     try {
       const response = await fetch(
-        "http://localhost:3333/usuarios/auth/login",
+        `${apiUrl}/usuarios/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -52,7 +52,7 @@ export function LoginForm({
       if (data.token) {
         localStorage.setItem("token", data.token);
         const userResponse = await fetch(
-          "http://localhost:3333/usuarios/auth/me",
+          `${apiUrl}/usuarios/auth/me`,
           {
             headers: {
               Authorization: `Bearer ${data.token}`,

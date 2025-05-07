@@ -16,6 +16,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+const apiUrl = import.meta.env.VITE_API_URL;
 import {
   Dialog,
   DialogTrigger,
@@ -137,7 +138,7 @@ export default function RegisterUser() {
       return;
     }
 
-    fetch("http://localhost:3333/clientes/create", {
+    fetch(`${apiUrl}/clientes/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -171,7 +172,7 @@ export default function RegisterUser() {
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch("http://localhost:3333/clientes/list");
+      const response = await fetch(`${apiUrl}/clientes/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar clientes");
       }
@@ -194,7 +195,7 @@ export default function RegisterUser() {
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:3333/clientes/update/${id_cliente}`,
+        `${apiUrl}/clientes/update/${id_cliente}`,
         {
           method: "PATCH",
           headers: {
@@ -237,7 +238,7 @@ export default function RegisterUser() {
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:3333/clientes/update/${id}`,
+        `${apiUrl}/clientes/update/${id}`,
         {
           method: "PATCH",
           headers: {

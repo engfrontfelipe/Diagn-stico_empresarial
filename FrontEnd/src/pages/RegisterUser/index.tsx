@@ -13,6 +13,8 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+const apiUrl = import.meta.env.VITE_API_URL;
+
 import { Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
@@ -45,7 +47,7 @@ function RegisterUser() {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await fetch("http://localhost:3333/usuarios/list");
+      const response = await fetch(`${apiUrl}/usuarios/list`);
       if (!response.ok) {
         throw new Error("Erro ao buscar usuários");
       }
@@ -62,7 +64,7 @@ function RegisterUser() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://localhost:3333/usuarios/create", {
+      const response = await fetch(`${apiUrl}/usuarios/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +96,7 @@ function RegisterUser() {
 
   const toggleUserStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const response = await fetch(`http://localhost:3333/usuarios/${id}`, {
+      const response = await fetch(`${apiUrl}/usuarios/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +127,7 @@ function RegisterUser() {
     updatedData: { nome?: string; email?: string; senha?: string },
   ) => {
     try {
-      const response = await fetch(`http://localhost:3333/usuarios/${id}`, {
+      const response = await fetch(`${apiUrl}/usuarios/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

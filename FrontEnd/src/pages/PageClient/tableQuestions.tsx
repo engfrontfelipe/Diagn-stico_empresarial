@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const COLORS = [
   "#FF5733", // Vermelho
   "#FF8D1A", // Laranja
@@ -64,7 +66,7 @@ function TableQuestions({
   useEffect(() => {
     if (!id_cliente) return;
 
-    fetch(`http://localhost:3333/answers/${id_cliente}`)
+    fetch(`${apiUrl}/answers/${id_cliente}`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
         return res.json();
@@ -93,7 +95,7 @@ function TableQuestions({
   }, [id_cliente]);
 
   useEffect(() => {
-    fetch("http://localhost:3333/questions/list")
+    fetch(`${apiUrl}/questions/list`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         return res.json();
@@ -140,7 +142,7 @@ function TableQuestions({
     };
 
     try {
-      const response = await fetch("http://localhost:3333/answers/save", {
+      const response = await fetch(`${apiUrl}/answers/save`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([resposta]),

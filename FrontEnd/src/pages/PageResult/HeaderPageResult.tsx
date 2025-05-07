@@ -14,6 +14,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -80,7 +81,7 @@ export function HeaderPageResult() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://localhost:3333/clientes/${id}`)
+    fetch(`${apiUrl}/clientes/${id}`)
       .then((response) => response.json())
       .then((data) => {
         setCliente(data);
