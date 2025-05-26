@@ -17,8 +17,8 @@ import { Card } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
+  // ChartTooltip,
+  // ChartTooltipContent,
 } from "@/components/ui/chart";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -27,7 +27,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import ContentDiag from "./contetDiag";
+// import ContentDiag from "./contetDiag";
 import TableIceFrameWork from "./tableIceFrameWork";
 
 interface Props {
