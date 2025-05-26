@@ -265,8 +265,8 @@ export default function PageResult({ idCliente }: Props) {
       <HeaderPageResult />
       <div className="h-5" id="dashGeneral"></div>
       <div className=" ">
-        <div className="hidden lg:flex gap-5 max-w-[83vw] m-auto">
-          <Card className="w-full ">
+        <div className="hidden lg:flex gap-5 w-full pl-10 pr-10 m-auto">
+          <Card className="w-full max-w-[300px]">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Resultado Geral de Maturidade
             </h3>
@@ -343,13 +343,10 @@ export default function PageResult({ idCliente }: Props) {
                       chartConfig?.[value]?.label || value
                     }
                   />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent />}
-                  />
+                  
                   <Bar dataKey="Departamento" radius={5}>
                     {barChartData.map((entry, index) => (
-                      <Cell key={`bar-${index}`} fill={entry.fill} />
+                      <Cell key={`bar-${index} `} fill={entry.fill} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -399,8 +396,9 @@ export default function PageResult({ idCliente }: Props) {
             </div>
           </Card>
         </div>
-        <Card className="w-full max-w-[83vw] mx-auto mt-5 p-4">
-          <div className="flex flex-wrap justify-center gap-3">
+        <div className="w-full  m-auto pl-10 pr-10 ">
+          <Card className="w-full  mt-5 p-4">
+          <div className="flex justify-center gap-3">
             {barChartData.map((card, index) => {
               const nivel = getNivelMaturidade(card.Departamento);
               const nota = `${card.Departamento.toFixed(0)}%`;
@@ -408,7 +406,7 @@ export default function PageResult({ idCliente }: Props) {
               return (
                 <div
                   key={index}
-                  className="text-center w-full sm:w-35 flex-shrink-0"
+                  className="text-center w-full"
                 >
                   <h3 className="font-bold mb-2">{card.departamento}</h3>
 
@@ -466,13 +464,14 @@ export default function PageResult({ idCliente }: Props) {
             })}
           </div>
         </Card>
+        </div>
 
-        <Card id="diagResult" className="p-6 w-[82vw] m-auto mt-5">
+        {/* <Card id="diagResult" className="p-6 w-[82vw] m-auto mt-5">
         <ContentDiag  />
-      </Card>
+      </Card> */}
 
       <Card
-        className="w-[82vw] m-auto mt-5 hidden lg:flex flex-col"
+        className="w-full max-w-[94%] m-auto mt-5"
         id="iceTable"
       >
         <TableIceFrameWork
@@ -481,7 +480,8 @@ export default function PageResult({ idCliente }: Props) {
         />
       </Card>
 
-        <Card className="w-[83vw] m-auto p-6 mt-5" id="desempenho_area">
+        <div className="pl-10 pr-10">
+          <Card className="w-full m-auto p-6  mt-5" id="desempenho_area">
           <h2 className="text-xl font-semibold">Desempenho por Área</h2>
           {departamentoes.map((departamento) => (
             <div key={departamento} className="mb-3">
@@ -498,6 +498,7 @@ export default function PageResult({ idCliente }: Props) {
             </div>
           ))}
         </Card>
+        </div>
       </div>
     </div>
   );
