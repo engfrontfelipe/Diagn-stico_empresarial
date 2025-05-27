@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TableQuestions from "./tableQuestions";
 import TableAnswers from "./tableAnswers";
 import DashboardGenerator from "./DashboardGenerator";
@@ -67,6 +67,7 @@ export default function PageClient() {
   const [tempoRestante, setTempoRestante] = useState<number | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [expirado, setExpirado] = useState(false);
+        const navigate = useNavigate();
 
   useEffect(() => {
     const verificarDiagnostico = async () => {
@@ -321,12 +322,15 @@ export default function PageClient() {
 
     if (porcentagem === 100) {
       return (
-        <Link
-          to={`/cliente/result/${id}`}
-          className="p-2 rounded bg-green-500 text-primary-foreground font-medium shadow-xs hover:bg-primary/90"
+        <Button
+          className="cursor-pointer bg-green-500 hover:bg-primary "
+          onClick={() => {
+            toast.success("Diagnóstico já concluído!");
+            navigate(`/cliente/result/${id}`);
+          }}
         >
           Concluído
-        </Link>
+        </Button>
       );
     }
 
@@ -423,7 +427,7 @@ export default function PageClient() {
                             {cliente ? cliente.consultor : "Carregando..."}.
                           </span>
                         </div>
-                        <span>
+                        <span className="z-10">
                           {alteraBarraProgresso(
                             porcentagem,
                             tempoRestante,
@@ -433,17 +437,17 @@ export default function PageClient() {
                       </span>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="-mt-10">
-                    <p className="text-muted-foreground text-sm mt-5">
+                  <CardContent className="-mt-15">
+                    <p className="text-muted-foreground text-sm mt-6 mb-2">
                       Tempo Restante:
                     </p>
-                  </CardContent>
-                  <CardFooter className="flex flex-col-reverse">
                     <Progress
-                      className="-mt-3 w-full h-3.5"
+                      className=" h-3.5"
                       value={progressoBarra()}
                     />
-                  </CardFooter>
+                  </CardContent>
+          
+               
                 </Card>
 
                 <Card className="lg:w-[80%] w-full flex flex-row justify-between">

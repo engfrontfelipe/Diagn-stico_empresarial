@@ -107,7 +107,7 @@ export default function GeneralDashHome() {
       </div>
 
       <div>
-        <Table className="w-[90%] m-auto mt-4">
+        <Table className="w-[90%] m-auto ">
           <TableHeader>
             <TableRow>
               <TableHead className="text-center font-medium text-[15px]">
