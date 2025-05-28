@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import TableQuestions from "./tableQuestions";
 import TableAnswers from "./tableAnswers";
-import DashboardGenerator from "./DashboardGenerator";
 import {
   ChartConfig,
   ChartContainer,
@@ -33,6 +32,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Results from "./Results";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -67,7 +67,7 @@ export default function PageClient() {
   const [tempoRestante, setTempoRestante] = useState<number | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [expirado, setExpirado] = useState(false);
-        const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const verificarDiagnostico = async () => {
@@ -441,13 +441,8 @@ export default function PageClient() {
                     <p className="text-muted-foreground text-sm mt-6 mb-2">
                       Tempo Restante:
                     </p>
-                    <Progress
-                      className=" h-3.5"
-                      value={progressoBarra()}
-                    />
+                    <Progress className=" h-3.5" value={progressoBarra()} />
                   </CardContent>
-          
-               
                 </Card>
 
                 <Card className="lg:w-[80%] w-full flex flex-row justify-between">
@@ -507,40 +502,20 @@ export default function PageClient() {
                 </Card>
               </div>
 
-              <div className="px-4 lg:px-6 flex align-center justify-center">
+              <div className="px-4 lg:px-6 grid grid-cols-1 gap-5 align-center justify-center -mb-5">
                 <TableQuestions
                   onUpdateAnswers={(updatedAnswers: any[]) => {
                     setReloadAnswers((prev) => !prev);
                     setAnswers(updatedAnswers);
                   }}
                 />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
-                <DashboardGenerator />
                 <TableAnswers clienteId={id!} reloadTrigger={reloadAnswers} />
               </div>
-
-              <a
-                href="#top"
-                className="flex justify-center pt-2.5 fixed bottom-4 cursor-pointer end-4 rounded-[100%] w-13 h-13"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  className="lucide lucide-arrow-up-icon lucide-arrow-up bg-muted p-1 h-auto w-10 rounded-full"
-                >
-                  <path d="m5 12 7-7 7 7" />
-                  <path d="M12 19V5" />
-                </svg>
-              </a>
+              <Results
+                onUpdateAnswers={function (_answers: any[]): void {
+                  throw new Error("Function not implemented.");
+                }}
+              />
             </div>
           </div>
         </div>

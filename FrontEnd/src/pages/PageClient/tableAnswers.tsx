@@ -97,9 +97,7 @@ export default function TableAnswers({
     const fetchQuestions = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `${apiUrl}/answers/negative/${clienteId}`,
-        );
+        const res = await fetch(`${apiUrl}/answers/negative/${clienteId}`);
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         const data: Question[] = await res.json();
 
@@ -202,7 +200,7 @@ export default function TableAnswers({
     <Dialog>
       <DialogTrigger asChild>
         <Button className="px-4 py-2 bg-primary  rounded-md w-full cursor-pointer">
-          Ice FrameWork
+          Tabela de Ice FrameWork
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[80vw] !max-w-none max-h-[85vh] overflow-y-auto  mb-6">

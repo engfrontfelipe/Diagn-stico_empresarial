@@ -1,20 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Cell,
-  Pie,
-  PieChart,
-  LabelList,
-} from "recharts";
-import { Card } from "@/components/ui/card";
+
 import { toast, Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
@@ -29,24 +16,12 @@ import { Button } from "@/components/ui/button";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const COLORS = [
-  "#FF5733", // Vermelho
-  "#FF8D1A", // Laranja
-  "#FFC300", // Amarelo
-  "#33B5FF", // Azul
-  "#9C27B0", // Roxo
-  "#8BC34A", // Verde
-  "#FF4081", // Rosa
-];
-
 function TableQuestions({
   onUpdateAnswers,
 }: {
   onUpdateAnswers: (answers: any[]) => void;
 }) {
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [chartDataPie, setChartDataPie] = useState<any[]>([]);
   const [questions, setQuestions] = useState<
     { id_pergunta: number; texto_pergunta: string; departamento: string }[]
   >([]);
@@ -191,61 +166,6 @@ function TableQuestions({
     onUpdateAnswers(respostasValidas);
   };
 
-  useEffect(() => {
-    const updatedChartData = tabsData.map((tab) => {
-      let ativos = 0;
-      let inativos = 0;
-      tab.fields.forEach((field: any) => {
-        const isChecked = answersRef.current.hasOwnProperty(field.id)
-          ? answersRef.current[field.id]
-          : null;
-        isChecked ? ativos++ : inativos++;
-      });
-      return {
-        nome: tab.label,
-        Ativos: ativos,
-        Inativos: inativos,
-      };
-    });
-    setChartData(updatedChartData);
-  }, [answers]);
-
-  useEffect(() => {
-    const totalSim = tabsData.reduce((total, tab) => {
-      return (
-        total +
-        tab.fields.reduce((acc: any, field: any) => {
-          return acc + (answersRef.current[field.id] ? 1 : 0);
-        }, 0)
-      );
-    }, 0);
-
-    const updatedChartData = tabsData.map((tab) => {
-      const ativos = tab.fields.reduce((acc: any, field: any) => {
-        return acc + (answersRef.current[field.id] ? 1 : 0);
-      }, 0);
-
-      const porcentagem = totalSim > 0 ? (ativos / totalSim) * 100 : 0;
-
-      return {
-        name: tab.label,
-        value: parseFloat(porcentagem.toFixed(2)),
-      };
-    });
-
-    setChartDataPie(updatedChartData);
-  }, [answers]);
-
-  function getCurrentTheme() {
-    const theme = localStorage.getItem("theme");
-
-    if (theme == "dark") {
-      return "white";
-    } else {
-      return "black";
-    }
-  }
-
   return (
     <div className="w-full max-w-8xl mx-auto space-y-2">
       <Dialog>
@@ -378,71 +298,6 @@ function TableQuestions({
           </Tabs>
         </DialogContent>
       </Dialog>
-
-      {Object.keys(answersRef.current).length === questions.length && (
-        <Card className="hidden md:flex w-full h-[320px] flex-row p-6 pt-10 mt-5">
-          <div className="flex flex-col items-center">
-            <h3 className="text-md font-semibold mb-4 -mt-4">
-              % de maturidade pro departamento
-            </h3>
-            <PieChart width={365} height={230}>
-              <Pie
-                data={chartDataPie}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={90}
-                fill="#8884d8"
-                label={({ name }) => name}
-                className="text-md font-medium"
-              >
-                {chartDataPie.map((_entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
-            </PieChart>
-          </div>
-
-          <div className="flex flex-col items-center w-full">
-            <h3 className="text-md font-semibold  -mt-4">
-              Respostas Sim X Respostas Não
-            </h3>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart margin={{ top: 10 }} data={chartData}>
-                <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{
-                    fontSize: "0.875rem",
-                    borderRadius: "0.5rem",
-                  }}
-                  cursor={false}
-                />
-                <Legend iconType="star" />
-                <Bar dataKey="Ativos" fill="#28a745" radius={4}>
-                  <LabelList
-                    dataKey="Ativos"
-                    position="top"
-                    fontSize={14}
-                    fill={getCurrentTheme()}
-                  />
-                </Bar>
-                <Bar dataKey="Inativos" fill="#ff0000" radius={4}>
-                  <LabelList
-                    dataKey="Inativos"
-                    position="top"
-                    fontSize={14}
-                    fill={getCurrentTheme()}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      )}
 
       <Toaster richColors position="top-right" closeButton duration={1000} />
     </div>

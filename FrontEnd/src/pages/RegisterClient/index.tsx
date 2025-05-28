@@ -192,16 +192,13 @@ export default function RegisterUser() {
     currentStatus: boolean,
   ) => {
     try {
-      const response = await fetch(
-        `${apiUrl}/clientes/update/${id_cliente}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ativo: !currentStatus }),
+      const response = await fetch(`${apiUrl}/clientes/update/${id_cliente}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ ativo: !currentStatus }),
+      });
 
       if (!response.ok) {
         throw new Error("Erro ao atualizar status do cliente");
@@ -235,16 +232,13 @@ export default function RegisterUser() {
     },
   ) => {
     try {
-      const response = await fetch(
-        `${apiUrl}/clientes/update/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedData),
+      const response = await fetch(`${apiUrl}/clientes/update/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(updatedData),
+      });
 
       if (!response.ok) {
         throw new Error("Erro ao atualizar dados do cliente");
@@ -642,26 +636,6 @@ export default function RegisterUser() {
             </div>
           </div>
         </div>
-        <a
-          href="#top"
-          className="flex justify-center pt-2.5 fixed bottom-4 cursor-pointer end-4 rounded-[100%] w-13 h-13"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className="lucide lucide-arrow-up-icon lucide-arrow-up"
-          >
-            <path d="m5 12 7-7 7 7" />
-            <path d="M12 19V5" />
-          </svg>
-        </a>
       </SidebarInset>
       <Toaster position="top-right" richColors closeButton />
     </SidebarProvider>

@@ -109,9 +109,7 @@ export default function PageResult({ idCliente }: Props) {
   useEffect(() => {
     const fetchRespostasSim = async () => {
       try {
-        const response = await fetch(
-          `${apiUrl}/answers/positive/${idCliente}`,
-        );
+        const response = await fetch(`${apiUrl}/answers/positive/${idCliente}`);
         const data: Resposta[] = await response.json();
 
         const agrupado = agruparPorDepartamento(data);
@@ -168,20 +166,20 @@ export default function PageResult({ idCliente }: Props) {
     async function fetchData() {
       try {
         setLoading(true);
-  
+
         const [resPos, resNeg] = await Promise.all([
           fetch(`${apiUrl}/answers/positive/${idCliente}`),
           fetch(`${apiUrl}/answers/negative/${idCliente}`),
         ]);
-  
+
         const dataPos: Resposta[] = await resPos.json();
         const dataNeg: Resposta[] = await resNeg.json();
-  
+
         const total = dataPos.length + dataNeg.length;
-  
+
         const percentualSim = total > 0 ? (dataPos.length / total) * 100 : 0;
         const percentualNao = total > 0 ? (dataNeg.length / total) * 100 : 0;
-  
+
         setRespostasPositivas(dataPos);
         setRespostasNegativas(dataNeg);
         setPieChartData([
@@ -195,10 +193,10 @@ export default function PageResult({ idCliente }: Props) {
         setLoading(false);
       }
     }
-  
+
     fetchData();
   }, [idCliente]);
-  
+
   const departamentoes = [
     "Estratégias",
     "Vendas",
@@ -258,7 +256,6 @@ export default function PageResult({ idCliente }: Props) {
     if (val < 70) return "#f59e0b"; // Amarelo
     return "#00ff00"; // Verde
   };
-
 
   return (
     <div className=" w-full h-full mt-25 ">
@@ -343,7 +340,7 @@ export default function PageResult({ idCliente }: Props) {
                       chartConfig?.[value]?.label || value
                     }
                   />
-                  
+
                   <Bar dataKey="Departamento" radius={5}>
                     {barChartData.map((entry, index) => (
                       <Cell key={`bar-${index} `} fill={entry.fill} />
@@ -388,9 +385,11 @@ export default function PageResult({ idCliente }: Props) {
                   </foreignObject>
 
                   <Tooltip
-  formatter={(value: number, name: string) => [`${value.toFixed(2)}%`, name]}
-/>
-
+                    formatter={(value: number, name: string) => [
+                      `${value.toFixed(2)}%`,
+                      name,
+                    ]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -398,106 +397,100 @@ export default function PageResult({ idCliente }: Props) {
         </div>
         <div className="w-full  m-auto pl-10 pr-10 ">
           <Card className="w-full  mt-5 p-4">
-          <div className="flex justify-center gap-3">
-            {barChartData.map((card, index) => {
-              const nivel = getNivelMaturidade(card.Departamento);
-              const nota = `${card.Departamento.toFixed(0)}%`;
+            <div className="flex justify-center gap-3">
+              {barChartData.map((card, index) => {
+                const nivel = getNivelMaturidade(card.Departamento);
+                const nota = `${card.Departamento.toFixed(0)}%`;
 
-              return (
-                <div
-                  key={index}
-                  className="text-center w-full"
-                >
-                  <h3 className="font-bold mb-2">{card.departamento}</h3>
+                return (
+                  <div key={index} className="text-center w-full">
+                    <h3 className="font-bold mb-2">{card.departamento}</h3>
 
-                  {/* Cartão com a Nota */}
-                  <HoverCard openDelay={1} closeDelay={1}>
-                    <div className="flex justify-center mb-2">
-                      <span
-                        className="text-xs font-semibold px-1 mr-2"
-                        style={{
-                          writingMode: "vertical-rl",
-                          transform: "rotate(180deg)",
-                        }}
-                      >
-                        Nota
-                      </span>
-                      <HoverCardTrigger
-                        className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
-                      >
-                        <h4 className="text-muted-foreground font-bold text-xl">
-                          {nota}
-                        </h4>
-                      </HoverCardTrigger>
-                    </div>
-                    <HoverCardContent className="text-sm p-2">
-                      Esta é a nota média do departamento com base nas respostas
-                      das perguntas avaliadas.
-                    </HoverCardContent>
-                  </HoverCard>
+                    {/* Cartão com a Nota */}
+                    <HoverCard openDelay={1} closeDelay={1}>
+                      <div className="flex justify-center mb-2">
+                        <span
+                          className="text-xs font-semibold px-1 mr-2"
+                          style={{
+                            writingMode: "vertical-rl",
+                            transform: "rotate(180deg)",
+                          }}
+                        >
+                          Nota
+                        </span>
+                        <HoverCardTrigger
+                          className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
+                        >
+                          <h4 className="text-muted-foreground font-bold text-xl">
+                            {nota}
+                          </h4>
+                        </HoverCardTrigger>
+                      </div>
+                      <HoverCardContent className="text-sm p-2">
+                        Esta é a nota média do departamento com base nas
+                        respostas das perguntas avaliadas.
+                      </HoverCardContent>
+                    </HoverCard>
 
-                  {/* Cartão com o Nível */}
-                  <HoverCard openDelay={1} closeDelay={1}>
-                    <div className="flex justify-center">
-                      <span
-                        className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
-                        style={{
-                          writingMode: "vertical-rl",
-                          transform: "rotate(180deg)",
-                        }}
-                      >
-                        Nível
-                      </span>
-                      <HoverCardTrigger
-                        className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
-                      >
-                        <h4 className="font-bold">{nivel}</h4>
-                      </HoverCardTrigger>
-                    </div>
-                    <HoverCardContent className="text-sm p-2">
-                      O nível reflete o estágio de maturidade ou conformidade do
-                      departamento com os critérios avaliados.
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+                    {/* Cartão com o Nível */}
+                    <HoverCard openDelay={1} closeDelay={1}>
+                      <div className="flex justify-center">
+                        <span
+                          className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
+                          style={{
+                            writingMode: "vertical-rl",
+                            transform: "rotate(180deg)",
+                          }}
+                        >
+                          Nível
+                        </span>
+                        <HoverCardTrigger
+                          className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
+                        >
+                          <h4 className="font-bold">{nivel}</h4>
+                        </HoverCardTrigger>
+                      </div>
+                      <HoverCardContent className="text-sm p-2">
+                        O nível reflete o estágio de maturidade ou conformidade
+                        do departamento com os critérios avaliados.
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
         </div>
 
         {/* <Card id="diagResult" className="p-6 w-[82vw] m-auto mt-5">
         <ContentDiag  />
       </Card> */}
 
-      <Card
-        className="w-full max-w-[94%] m-auto mt-5"
-        id="iceTable"
-      >
-        <TableIceFrameWork
-          clienteId={idCliente.toString()}
-          reloadTrigger={false}
-        />
-      </Card>
+        <Card className="w-full max-w-[94%] m-auto mt-5" id="iceTable">
+          <TableIceFrameWork
+            clienteId={idCliente.toString()}
+            reloadTrigger={false}
+          />
+        </Card>
 
         <div className="pl-10 pr-10">
           <Card className="w-full m-auto p-6  mt-5" id="desempenho_area">
-          <h2 className="text-xl font-semibold">Desempenho por Área</h2>
-          {departamentoes.map((departamento) => (
-            <div key={departamento} className="mb-3">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-sm font-medium">{departamento}</span>
-                <span className="text-sm">
-                  {getPercentualSetor(departamento)}%
-                </span>
+            <h2 className="text-xl font-semibold">Desempenho por Área</h2>
+            {departamentoes.map((departamento) => (
+              <div key={departamento} className="mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">{departamento}</span>
+                  <span className="text-sm">
+                    {getPercentualSetor(departamento)}%
+                  </span>
+                </div>
+                <Progress
+                  value={getPercentualSetor(departamento)}
+                  className="h-[13px]"
+                />
               </div>
-              <Progress
-                value={getPercentualSetor(departamento)}
-                className="h-[13px]"
-              />
-            </div>
-          ))}
-        </Card>
+            ))}
+          </Card>
         </div>
       </div>
     </div>

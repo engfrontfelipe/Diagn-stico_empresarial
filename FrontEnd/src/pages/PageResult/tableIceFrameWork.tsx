@@ -81,9 +81,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch(
-          `${apiUrl}/answers/negative/${clienteId}`,
-        );
+        const res = await fetch(`${apiUrl}/answers/negative/${clienteId}`);
         if (!res.ok) throw new Error("Erro ao buscar as perguntas");
         const data: Question[] = await res.json();
 

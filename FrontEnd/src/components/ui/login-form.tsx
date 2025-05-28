@@ -40,7 +40,8 @@ export function LoginForm({
 
       if (response.status === 403) {
         toast.error(
-          data.message || "Usuário inativo, por favor entre em contato com suporte."
+          data.message ||
+            "Usuário inativo, por favor entre em contato com suporte.",
         );
         setIsLoading(false);
         return;
