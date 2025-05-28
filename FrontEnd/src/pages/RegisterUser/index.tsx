@@ -344,7 +344,7 @@ function RegisterUser() {
           </div>
         </SidebarInset>
       </SidebarProvider>
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="bottom-center" richColors closeButton />
     </>
   );
 }

@@ -17,7 +17,7 @@ function Home() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm />
-            <Toaster position="top-right" richColors closeButton />
+            <Toaster position="bottom-center" richColors closeButton />
           </div>
         </div>
       </div>

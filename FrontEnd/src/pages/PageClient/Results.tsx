@@ -232,7 +232,7 @@ function Results({
         </Card>
       )}
 
-      <Toaster richColors position="top-right" closeButton duration={1000} />
+      <Toaster richColors position="bottom-center" closeButton duration={1000} />
     </div>
   );
 }

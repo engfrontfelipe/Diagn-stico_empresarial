@@ -167,7 +167,7 @@ export default function GeneralDashHome() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {progresso === 100 ? (
+                    {progresso === 100  && status.iniciado? (
                       <span className="text-green-600 font-medium">
                         Diagnóstico finalizado
                       </span>
@@ -185,7 +185,7 @@ export default function GeneralDashHome() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {progresso === 100 ? (
+                    {progresso === 100 && status.iniciado ? (
                       <span className="text-green-600 font-semibold">
                         Finalizado
                       </span>

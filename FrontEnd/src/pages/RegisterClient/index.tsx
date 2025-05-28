@@ -637,7 +637,7 @@ export default function RegisterUser() {
           </div>
         </div>
       </SidebarInset>
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="bottom-center" richColors closeButton />
     </SidebarProvider>
   );
 }
