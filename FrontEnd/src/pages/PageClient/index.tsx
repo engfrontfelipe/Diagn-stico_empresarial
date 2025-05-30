@@ -32,7 +32,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Results from "./Results";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -280,12 +279,12 @@ export default function PageClient() {
     const tempoPorDP = 345600;
 
     const limites = [
-      { limite: 23, fator: 1 },
-      { limite: 36, fator: 2 },
-      { limite: 50, fator: 3 },
-      { limite: 65, fator: 4 },
-      { limite: 80, fator: 5 },
-      { limite: 81, fator: 6 },
+      { limite: 14, fator: 1 }, 
+      { limite: 29, fator: 2 },
+      { limite: 43, fator: 3 },
+      { limite: 57, fator: 4 },
+      { limite: 71, fator: 5 },
+      { limite: 86, fator: 6 },
       { limite: 100, fator: 7 },
     ];
 
@@ -503,19 +502,17 @@ export default function PageClient() {
               </div>
 
               <div className="px-4 lg:px-6 grid grid-cols-1 gap-5 align-center justify-center -mb-5">
-                <TableQuestions
+               <Card className="p-6">
+                 <TableQuestions
                   onUpdateAnswers={(updatedAnswers: any[]) => {
                     setReloadAnswers((prev) => !prev);
                     setAnswers(updatedAnswers);
                   }}
                 />
+               </Card>
                 <TableAnswers clienteId={id!} reloadTrigger={reloadAnswers} />
               </div>
-              <Results
-                onUpdateAnswers={function (_answers: any[]): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
+             
             </div>
           </div>
         </div>

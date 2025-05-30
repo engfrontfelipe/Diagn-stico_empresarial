@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/hover-card";
 // import ContentDiag from "./contetDiag";
 import TableIceFrameWork from "./tableIceFrameWork";
+import Results from "./Results";
 
 interface Props {
   idCliente: string;
@@ -295,7 +296,7 @@ export default function PageResult({ idCliente }: Props) {
 
               <div className="flex mr-10 items-center">
                 <span
-                  className="text-xs font-semibold m-auto px-1 w-[90%] mr-2 flex items-center justify-center"
+                  className="text-xs font-semibold m-auto px-1 mr-2 flex items-center justify-center"
                   style={{
                     writingMode: "vertical-rl",
                     transform: "rotate(180deg)",
@@ -465,7 +466,11 @@ export default function PageResult({ idCliente }: Props) {
         {/* <Card id="diagResult" className="p-6 w-[82vw] m-auto mt-5">
         <ContentDiag  />
       </Card> */}
-
+         <Results
+                onUpdateAnswers={function (_answers: any[]): void {
+                  throw new Error("Function not implemented.");
+                }}
+              />
         <Card className="w-full max-w-[94%] m-auto mt-5" id="iceTable">
           <TableIceFrameWork
             clienteId={idCliente.toString()}

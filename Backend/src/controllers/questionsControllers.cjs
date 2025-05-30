@@ -1,10 +1,9 @@
 const sql = require("../config/db.cjs");
 
-// Listar perguntas
 const listQuest = async (_req, res) => {
   try {
     const result = await sql`
-      SELECT id_pergunta, texto_pergunta, departamento, oportunidade
+      SELECT id_pergunta, texto_pergunta, departamento, oportunidade, plano_acao
       FROM perguntas
     `;
     res.json(result);
@@ -16,7 +15,6 @@ const listQuest = async (_req, res) => {
   }
 };
 
-// Contar o total de perguntas
 const totalPerguntas = async (_req, res) => {
   try {
     const result = await sql`
@@ -33,7 +31,6 @@ const totalPerguntas = async (_req, res) => {
   }
 };
 
-// Contar o total de perguntas por departamento
 const totalPorDepartamentoGeral = async (_req, res) => {
   try {
     const result = await sql`
@@ -57,7 +54,6 @@ const totalPorDepartamentoGeral = async (_req, res) => {
   }
 };
 
-// Cadastrar nova pergunta
 const cadastrarPerguntas = async (req, res) => {
   const { texto_pergunta, departamento, oportunidade } = req.body;
 
@@ -99,7 +95,6 @@ const cadastrarPerguntas = async (req, res) => {
   }
 };
 
-// Atualizar pergunta
 const atualizaPergunta = async (req, res) => {
   const { id } = req.params;
   const {

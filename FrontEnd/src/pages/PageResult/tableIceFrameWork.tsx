@@ -144,7 +144,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
   );
 
   return (
-    <div className=" w-full space-y-4 p-6">
+    <div className=" w-full space-y-4 pl-10 pr-10">
       <h1 className="text-center font-bold text-3xl">
         Tabela de Ice FrameWork
       </h1>

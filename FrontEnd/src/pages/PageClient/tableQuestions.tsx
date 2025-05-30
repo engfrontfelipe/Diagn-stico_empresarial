@@ -5,13 +5,6 @@ import { Label } from "@/components/ui/label";
 import { toast, Toaster } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -25,11 +18,12 @@ function TableQuestions({
   const [questions, setQuestions] = useState<
     { id_pergunta: number; texto_pergunta: string; departamento: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const [currentPageByTab, setCurrentPageByTab] = useState<
     Record<string, number>
   >({});
-  const QUESTIONS_PER_PAGE = 5;
+  const QUESTIONS_PER_PAGE = 7;
 
   const { user } = useAuth();
   const { id } = useParams();
@@ -38,46 +32,49 @@ function TableQuestions({
 
   const answersRef = useRef(answers);
 
-  useEffect(() => {
-    if (!id_cliente) return;
+useEffect(() => {
+  if (!id_cliente) return;
 
-    fetch(`${apiUrl}/answers/${id_cliente}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
-        return res.json();
-      })
-      .then((data) => {
-        const booleanAnswers: Record<string, boolean> = {};
+  fetch(`${apiUrl}/answers/${id_cliente}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
+      return res.json();
+    })
+    .then((data) => {
+      const booleanAnswers: Record<string, boolean> = {};
 
-        data.forEach((item: { id_pergunta: number; resposta: number }) => {
-          booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
-        });
-
-        setAnswers(booleanAnswers);
-        answersRef.current = booleanAnswers;
-
-        const respostasValidas = Object.entries(booleanAnswers).map(
-          ([id_pergunta, resposta]) => ({
-            id_pergunta: Number(id_pergunta),
-            resposta: resposta ? 1 : 2,
-          }),
-        );
-        onUpdateAnswers(respostasValidas);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar respostas salvas:", error);
+      data.forEach((item: { id_pergunta: number; resposta: number }) => {
+        booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
       });
-  }, [id_cliente]);
 
-  useEffect(() => {
-    fetch(`${apiUrl}/questions/list`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
-        return res.json();
-      })
-      .then((data) => setQuestions(data))
-      .catch((error) => console.error("Erro ao buscar as perguntas:", error));
-  }, []);
+      setAnswers(booleanAnswers);
+      answersRef.current = booleanAnswers;
+
+      const respostasValidas = Object.entries(booleanAnswers).map(
+        ([id_pergunta, resposta]) => ({
+          id_pergunta: Number(id_pergunta),
+          resposta: resposta ? 1 : 2,
+        }),
+      );
+      onUpdateAnswers(respostasValidas);
+    })
+    .catch((error) => {
+      console.error("Erro ao carregar respostas salvas:", error);
+    })
+    .finally(() => setLoading(false)); // <-- aqui
+}, [id_cliente]);
+
+useEffect(() => {
+  fetch(`${apiUrl}/questions/list`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Erro ao buscar as perguntas");
+      return res.json();
+    })
+    .then((data) => setQuestions(data))
+    .catch((error) => console.error("Erro ao buscar as perguntas:", error))
+    .finally(() => setLoading(false)); // <-- aqui também
+}, []);
+
 
   const tabsData = questions.reduce((acc: any[], question) => {
     const tab = acc.find(
@@ -166,21 +163,16 @@ function TableQuestions({
     onUpdateAnswers(respostasValidas);
   };
 
+  if (loading) {
+  return (
+    <div className="flex justify-center items-center h-[400px] w-full">
+          <div className="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+        </div>
+  );
+}
+
   return (
     <div className="w-full max-w-8xl mx-auto space-y-2">
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="px-4 py-2 bg-primary  rounded-md w-full cursor-pointer -mb-3">
-            Responder Perguntas
-          </Button>
-        </DialogTrigger>
-
-        <DialogContent className="w-[80vw] !max-w-none max-h-[88vh] mb-6">
-          <DialogHeader>
-            <DialogTitle className="text-center text-3xl font-bold">
-              Tabela de Respostas <br />
-            </DialogTitle>
-          </DialogHeader>
 
           <Tabs defaultValue="estratégias">
             <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
@@ -296,9 +288,7 @@ function TableQuestions({
               </TabsContent>
             ))}
           </Tabs>
-        </DialogContent>
-      </Dialog>
-
+    
       <Toaster richColors position="bottom-center" closeButton duration={1000} />
     </div>
   );
