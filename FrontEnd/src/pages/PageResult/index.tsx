@@ -21,6 +21,7 @@ import {
   // ChartTooltipContent,
 } from "@/components/ui/chart";
 
+
 const apiUrl = import.meta.env.VITE_API_URL;
 import {
   HoverCard,
@@ -30,6 +31,7 @@ import {
 // import ContentDiag from "./contetDiag";
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";
+import { ContentDiag, selecionarIntroducao } from "./contetDiag";
 
 interface Props {
   idCliente: string;
@@ -92,6 +94,27 @@ export default function PageResult({ idCliente }: Props) {
   const [loading, setLoading] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   idCliente = id || "";
+  const [logoUrl, setLogoUrl] = useState<string>("");
+
+// Função para definir o logo com base no tema
+const verificarTemaEAtualizarLogo = () => {
+  const theme = localStorage.getItem("theme");
+  if (theme === "dark") {
+    setLogoUrl("https://assinaturas.grovehost.com.br/imagesClientes/consultingWhite.png");
+  } else {
+    setLogoUrl("https://assinaturas.grovehost.com.br/imagesClientes/consultingDark.png");
+  }
+};
+
+useEffect(() => {
+  verificarTemaEAtualizarLogo(); // Chama ao carregar
+  const interval = setInterval(() => {
+    verificarTemaEAtualizarLogo(); // Atualiza a cada 1s
+  }, 1000);
+
+  return () => clearInterval(interval); // Limpa quando o componente for desmontado
+}, []);
+
 
   function agruparPorDepartamento(respostas: Resposta[]) {
     return respostas.reduce(
@@ -131,6 +154,8 @@ export default function PageResult({ idCliente }: Props) {
         //   return "#60a5fa"; // Azul claro
         // };
 
+        //gráfico de barras
+       
         const getCorPorMaturidade = (valor: number) => {
           if (valor < 37) return "#dc2626"; // Vermelho (baixo)
           if (valor < 70) return "#f59e0b"; // Amarelo (médio)
@@ -228,7 +253,7 @@ export default function PageResult({ idCliente }: Props) {
   };
 
   const getNivelMaturidade = (porcentagem: number): string => {
-    if (porcentagem < 40) return "Básico";
+    if (porcentagem < 37) return "Básico";
     if (porcentagem < 70) return "Intermediário";
     return "Avançado";
   };
@@ -243,20 +268,13 @@ export default function PageResult({ idCliente }: Props) {
     );
   }
 
-  function getCurrentTheme() {
-    const theme = localStorage.getItem("theme");
-
-    if (theme == "dark") {
-      return "https://assinaturas.grovehost.com.br/imagesClientes/consultingWhite.png";
-    } else {
-      return "https://assinaturas.grovehost.com.br/imagesClientes/consultingDark.png";
-    }
-  }
   const getMaturidadeColor = (val: any) => {
     if (val < 30) return "#ff0000"; // Vermelho
     if (val < 70) return "#f59e0b"; // Amarelo
     return "#00ff00"; // Verde
   };
+
+  const introHTML = selecionarIntroducao(pieChartData[0]?.value)
 
   return (
     <div className=" w-full h-full mt-25 ">
@@ -378,7 +396,7 @@ export default function PageResult({ idCliente }: Props) {
 
                   <foreignObject x="24%" y="39%" width="200" height="200">
                     <img
-                      src={getCurrentTheme()}
+                      src={logoUrl}
                       alt="Central"
                       width="140"
                       height="80"
@@ -396,7 +414,7 @@ export default function PageResult({ idCliente }: Props) {
             </div>
           </Card>
         </div>
-        <div className="w-full  m-auto pl-10 pr-10 ">
+        <div className="w-full m-auto pl-10 pr-10 ">
           <Card className="w-full  mt-5 p-4">
             <div className="flex justify-center gap-3">
               {barChartData.map((card, index) => {
@@ -463,9 +481,11 @@ export default function PageResult({ idCliente }: Props) {
           </Card>
         </div>
 
-        {/* <Card id="diagResult" className="p-6 w-[82vw] m-auto mt-5">
-        <ContentDiag  />
-      </Card> */}
+       <div className="pl-10 pr-10">
+         <Card id="diagResult" className="pl-6 pr-6 w-auto  mt-5">
+          <ContentDiag htmlIntroducao={introHTML} />
+        </Card>
+       </div>
          <Results
                 onUpdateAnswers={function (_answers: any[]): void {
                   throw new Error("Function not implemented.");

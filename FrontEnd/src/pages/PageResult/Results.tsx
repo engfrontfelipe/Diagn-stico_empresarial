@@ -32,6 +32,23 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
   >([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [labelColor, setLabelColor] = useState(getInitialThemeColor());
+
+  function getInitialThemeColor() {
+    const theme = localStorage.getItem("theme");
+    return theme === "dark" ? "white" : "black";
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const theme = localStorage.getItem("theme");
+      const newColor = theme === "dark" ? "white" : "black";
+      setLabelColor(prev => (prev !== newColor ? newColor : prev));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const { id } = useParams();
   const id_cliente = parseInt(id || "0");
 
@@ -40,7 +57,6 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
   useEffect(() => {
     if (!id_cliente) return;
 
-    // Função assíncrona para controlar os dois fetchs
     async function fetchData() {
       try {
         const [resAnswers, resQuestions] = await Promise.all([
@@ -140,18 +156,12 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
     setChartDataPie(updatedChartData);
   }, [answers, questions]);
 
-  function getCurrentTheme() {
-    const theme = localStorage.getItem("theme");
-    return theme === "dark" ? "white" : "black";
-  }
-
   return (
     <div className="w-full pl-10 pr-10">
       {isLoading ? (
-              <div className="flex justify-center items-center h-[400px] w-full">
+        <div className="flex justify-center items-center h-[400px] w-full">
           <div className="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
         </div>
-
       ) : (
         Object.keys(answersRef.current).length === questions.length && (
           <Card className="hidden md:flex w-full h-[350px] flex-row p-6 pt-10 mt-5">
@@ -198,7 +208,7 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
                       dataKey="Ativos"
                       position="top"
                       fontSize={14}
-                      fill={getCurrentTheme()}
+                      fill={labelColor}
                     />
                   </Bar>
                   <Bar dataKey="Inativos" fill="#ff0000" radius={4}>
@@ -206,7 +216,7 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
                       dataKey="Inativos"
                       position="top"
                       fontSize={14}
-                      fill={getCurrentTheme()}
+                      fill={labelColor}
                     />
                   </Bar>
                 </BarChart>

@@ -14,6 +14,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/lib/changeButton";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const components: { title: string; href: string; description: string }[] = [
@@ -118,7 +119,7 @@ export function HeaderPageResult() {
   return (
     <div
       className={cn(
-        "border-b-2 pb-4 border-accent fixed top-0 left-0 w-full z-50 bg-background transition-transform duration-300",
+        " flex items-center justify-between border-b-2 pb-4 border-accent fixed top-0 left-0 w-full z-50 bg-background transition-transform duration-300",
         showHeader ? "translate-y-0" : "-translate-y-full",
       )}
     >
@@ -130,14 +131,14 @@ export function HeaderPageResult() {
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Home
               </NavigationMenuLink>
-            </Link>
+            </Link>    
+          </NavigationMenuItem>
             <NavigationMenuLink
               onClick={() => navigate(`/clientes/${id}`)}
               className={navigationMenuTriggerStyle()}
             >
-              Página Cliente
+               Cliente
             </NavigationMenuLink>
-          </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Sobre o Cliente</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -225,7 +226,11 @@ export function HeaderPageResult() {
             </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
+   
       </NavigationMenu>
+         <div className="mt-5 mr-10">
+        <ThemeToggle/>
+      </div>
     </div>
   );
 }

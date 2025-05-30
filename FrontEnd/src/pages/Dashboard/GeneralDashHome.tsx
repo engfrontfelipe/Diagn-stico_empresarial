@@ -40,6 +40,7 @@ export default function GeneralDashHome() {
         const res = await fetch(`${apiUrl}/clientes/list`);
         const data: Cliente[] = await res.json();
         setClientes(data);
+        console.log("Clientes:", data);
 
         const statusPromises = data
           .filter((cliente) => !!cliente.id_cliente)
@@ -167,7 +168,7 @@ export default function GeneralDashHome() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    {progresso === 100  && status.iniciado? (
+                    {progresso === 100 ? (
                       <span className="text-green-600 font-medium">
                         Diagnóstico finalizado
                       </span>
