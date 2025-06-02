@@ -1,9 +1,8 @@
-import { JSX, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { introducoes, consideracoesFinais } from "../Client/StaticDictionary";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-// Converte um número de 0 a 100 para o nível de maturidade (em dezenas: 0, 10, ..., 100)
-function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
+export function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
   const nivel = Math.min(Math.ceil(pontuacao / 10) * 10, 100);
   return nivel.toString() as MaturidadeNivel;
 }
@@ -27,17 +26,21 @@ export function selecionarTextoConclusao(pontuacao: number): string {
 export function selecionarTexto(pontuacao: number): string {
   const nivel = obterNivelMaturidade(pontuacao);
   const opcoes = introducoes[nivel];
-  const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
-  const texto = opcoes[indiceAleatorio];
+
   if (!opcoes || opcoes.length === 0) {
     return `<section><p>Introdução não disponível para o nível ${nivel}.</p></section>`;
   }
+
+  const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
+  const texto = opcoes[indiceAleatorio];
+
   return `
     <section id="introducao-${nivel}">
       <p>${texto.trim().replace(/\n/g, '<br>')}</p>
     </section>
   `;
 }
+
 
 
 // Importar intros específicas por área e o tipo MaturidadeNivel
@@ -151,9 +154,10 @@ type RespostaNegativa = {
   plano_acao: JSON
   oportunidade: string;
   priorizacao: number
+  texto_afirmativa: string;
 };
 // Função utilitária para obter o texto do nível com base no percentual
-function obterNivelTexto(porcentagem: number): string {
+export function obterNivelTexto(porcentagem: number): string {
   if (porcentagem <= 37) return 'Básico';
   if (porcentagem <= 70) return 'Intermediário';
   return 'Avançado';
@@ -200,33 +204,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
     }
   }, [clienteId]);
   
-  function obterOportunidadesPorDepartamento(
-  departamento: string,
-  respostas: RespostaNegativa[]
-): JSX.Element {
-  const oportunidadesOrdenadas = respostas
-   
-  .filter(resposta => resposta.departamento.toLowerCase() === departamento.toLowerCase())
-  .filter(resposta => resposta.oportunidade && typeof resposta.priorizacao === "number")
-    
-    .sort((a, b) => b.priorizacao - a.priorizacao); 
-  ;
 
-  if (oportunidadesOrdenadas.length === 0) {
-    return <p>Nenhuma oportunidade encontrada para este departamento.</p>;
-  }
-
-  return (
-    <ul className="ml-4">
-      {oportunidadesOrdenadas.map((resposta, index) => (
-        <li key={index} className="mt-3 list-decimal pl-5  border-b-1 pb-1">
-          {resposta.oportunidade} - <span className="font-medium italic">Priorização: {resposta.priorizacao}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-  
   function renderizarPlanoAcao(departamento: string, respostas: RespostaNegativa[]) {
   const planosDoDepartamento = respostas.filter(
     resposta => resposta.departamento.toLowerCase() === departamento.toLowerCase()
@@ -240,7 +218,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
     <ul className="mt-4 list-disc pl-6 space-y-2">
       {planosDoDepartamento.map((resposta) => (
         <li key={resposta.id}>
-          <strong>{resposta.texto_pergunta}</strong>
+          <strong>{resposta.texto_afirmativa}</strong>
           <div className="text-sm mt-2">
             {resposta.plano_acao
               ? Object.entries(resposta.plano_acao).map(([chave, valor]) => (
@@ -394,46 +372,63 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
         </div>     
       </section>
       <section>
-        <h2 className="font-semibold text-2xl mb-4 mt-5">Mapa de oportunidade</h2>
-        <div>
-          <h3 className="font-medium text-[17px] mb-5">Estratégias</h3>
-          {obterOportunidadesPorDepartamento("estratégias", respostasNegativas)}
-        </div>
-        
-        <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">Vendas</h3>
-          {obterOportunidadesPorDepartamento("vendas", respostasNegativas)}
-        </div>
+        <h2 className="font-semibold text-2xl mb-4 mt-5">Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
+        <table className="min-w-full table-auto border border-accent">
+          <thead>
+            <tr className="bg-accent">
+              <th className="border border-accent px-4 py-2 text-left">Departamento</th>
+              <th className="border border-accent px-4 py-2 text-left">Oportunidade</th>
+              <th className="border border-accent px-4 py-2 text-left">Priorização</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              "estratégias",
+              "vendas",
+              "marketing",
+              "rh",
+              "operações",
+              "tecnologia",
+              "financeiro"
+            ].flatMap((departamento) => {
+              const oportunidades = respostasNegativas
+                .filter(resposta => resposta.departamento.toLowerCase() === departamento.toLowerCase())
+                .filter(resposta => resposta.oportunidade && typeof resposta.priorizacao === "number")
+                .sort((a, b) => b.priorizacao - a.priorizacao);
 
-          <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">Marketing</h3>
-          {obterOportunidadesPorDepartamento("Marketing", respostasNegativas)}
-        </div>
+              if (oportunidades.length === 0) {
+                return (
+                  <tr key={departamento}>
+                    <td className="border border-accent px-4 py-2 capitalize">
+                      {departamento.charAt(0).toUpperCase() + departamento.slice(1)}
+                    </td>
+                    <td className="border border-accent px-4 py-2 italic text-gray-500" colSpan={2}>
+                      Nenhuma oportunidade encontrada.
+                    </td>
+                  </tr>
+                );
+              }
 
-        <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">RH</h3>
-          {obterOportunidadesPorDepartamento("RH", respostasNegativas)}
-        </div>
-
-        <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">Operações</h3>
-          {obterOportunidadesPorDepartamento("Operações", respostasNegativas)}
-        </div>
-
-        <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">Tecnologia</h3>
-          {obterOportunidadesPorDepartamento("Tecnologia", respostasNegativas)}
-        </div>
-        
-        <div>
-          <h3 className="font-medium text-[17px] mb-5 mt-5">Financeiro</h3>
-          {obterOportunidadesPorDepartamento("Financeiro", respostasNegativas)}
-        </div>
+              return oportunidades.map((resposta, index) => (
+                <tr key={`${departamento}-${index}`}>
+                  <td className="border border-accent px-4 py-2 capitalize">
+                    {departamento.charAt(0).toUpperCase() + departamento.slice(1)}
+                  </td>
+                  <td className="border border-accent px-4 py-2">{resposta.oportunidade}</td>
+                  <td className="border border-accent px-4 py-2">{resposta.priorizacao}</td>
+                </tr>
+              ));
+            })}
+          </tbody>
+        </table>
       </section>
+
       <section>
-        <h2 className="font-semibold text-2xl mt-5 mb-2">Considerações Finais</h2> 
+        <h2 className="font-semibold text-2xl mt-10 mb-2">Considerações Finais</h2> 
         <ComponenteConclusao pontuacao={percentualGeral}/>
       </section>
+
+      <h3 className="font-medium mt-10">"O segredo da mudança é focar toda a sua energia não em lutar contra o velho, mas em construir o novo." - Sócrates</h3>
     </div>
   );
 }

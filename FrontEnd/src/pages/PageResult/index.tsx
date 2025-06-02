@@ -32,6 +32,9 @@ import {
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";
 import { ContentDiag, selecionarTexto } from "./contetDiag";
+import { handleGeneratePDF } from "../Client";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Props {
   idCliente: string;
@@ -41,6 +44,11 @@ interface Resposta {
   id: number;
   departamento: string;
   resposta: string; // "sim" ou "não"
+  texto_pergunta: string;
+  plano_acao: JSON
+  oportunidade: string;
+  priorizacao: number
+  texto_afirmativa?: string;
 }
 
 const COLORS = ["#12d300", "#fc1a1a"];
@@ -71,6 +79,7 @@ const getNivelBgColor = (nivel: string) => {
   }
 };
 
+
 const chartConfig = {
   Tecnologia: { label: "Tecnologia" },
   Estratégia: { label: "Estratégias" },
@@ -81,19 +90,24 @@ const chartConfig = {
   Financeiro: { label: "Financeiro " },
 } satisfies ChartConfig;
 
+
+
+
 export default function PageResult({ idCliente }: Props) {
-  
-
-
   
   const [respostasPositivas, setRespostasPositivas] = useState<Resposta[]>([]);
   const [respostasNegativas, setRespostasNegativas] = useState<Resposta[]>([]);
-  const [pieChartData, setPieChartData] = useState<
-    { name: string; value: number }[]
-  >([]);
   const [barChartData, setBarChartData] = useState<
     { departamento: string; Departamento: number; fill: string }[]
   >([]);
+  const [pieChartData, setPieChartData] = useState<
+  { name: string; value: number }[]
+>([]);
+
+const introHTML = selecionarTexto(pieChartData[0]?.value)
+
+ 
+ 
   const [_totalPerguntas, setTotalPerguntas] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
@@ -273,12 +287,11 @@ useEffect(() => {
   }
 
   const getMaturidadeColor = (val: any) => {
-    if (val < 30) return "#ff0000"; // Vermelho
+    if (val < 37) return "#ff0000"; // Vermelho
     if (val < 70) return "#f59e0b"; // Amarelo
     return "#00ff00"; // Verde
   };
 
-  const introHTML = selecionarTexto(pieChartData[0]?.value)
 
   const departamentosUnicos = Array.from(
   new Set([
@@ -296,6 +309,8 @@ const areas = departamentosUnicos.length > 0
 const percentualGeral  = () => {
   return(pieChartData[0]?.value.toFixed(2))
 }
+
+const respNegativas = respostasNegativas
 
 
   return (
@@ -510,6 +525,11 @@ const percentualGeral  = () => {
 
        <div className="pl-10 pr-10">
          <Card id="diagResult" className="mt-5">
+          <Button onClick={() => {
+            handleGeneratePDF(introHTML, areas, respNegativas, percentualGeral())
+            toast.success("Relatório gerado com sucesso!")
+
+          }}>Gerar Relatório</Button>
           <ContentDiag
               htmlIntroducao={introHTML}
               areas={areas}
@@ -549,3 +569,4 @@ const percentualGeral  = () => {
     </div>
   );
 }
+
