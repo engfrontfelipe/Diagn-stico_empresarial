@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/lib/changeButton";
+import { handleGeneratePDF } from "../Client";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const components: { title: string; href: string; description: string }[] = [
@@ -200,7 +201,10 @@ export function HeaderPageResult() {
                   maturidade por área.
                 </ListItem>
                 <ListItem
-                  href="/docs/primitives/typography"
+                  onClick={() => {
+                    alert('exportando pdf');
+                    handleGeneratePDF()
+                    }}
                   title="Exportar Dados"
                 >
                   Exportar relatório completo do cliente.

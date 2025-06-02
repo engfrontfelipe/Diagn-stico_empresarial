@@ -31,7 +31,7 @@ import {
 // import ContentDiag from "./contetDiag";
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";
-import { ContentDiag, selecionarIntroducao } from "./contetDiag";
+import { ContentDiag, selecionarTexto } from "./contetDiag";
 
 interface Props {
   idCliente: string;
@@ -82,6 +82,10 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function PageResult({ idCliente }: Props) {
+  
+
+
+  
   const [respostasPositivas, setRespostasPositivas] = useState<Resposta[]>([]);
   const [respostasNegativas, setRespostasNegativas] = useState<Resposta[]>([]);
   const [pieChartData, setPieChartData] = useState<
@@ -274,7 +278,25 @@ useEffect(() => {
     return "#00ff00"; // Verde
   };
 
-  const introHTML = selecionarIntroducao(pieChartData[0]?.value)
+  const introHTML = selecionarTexto(pieChartData[0]?.value)
+
+  const departamentosUnicos = Array.from(
+  new Set([
+    ...respostasPositivas.map(r => r.departamento?.trim()),
+    ...respostasNegativas.map(r => r.departamento?.trim())
+  ])
+).filter(Boolean);
+const areas = departamentosUnicos.length > 0
+  ? departamentosUnicos.map(nome => ({
+      nome,
+      percentual: getPercentualSetor(nome),
+    }))
+  : [];
+
+const percentualGeral  = () => {
+  return(pieChartData[0]?.value.toFixed(2))
+}
+
 
   return (
     <div className=" w-full h-full mt-25 ">
@@ -480,17 +502,23 @@ useEffect(() => {
             </div>
           </Card>
         </div>
-
-       <div className="pl-10 pr-10">
-         <Card id="diagResult" className="pl-6 pr-6 w-auto  mt-5">
-          <ContentDiag htmlIntroducao={introHTML} />
-        </Card>
-       </div>
-         <Results
+                 <Results
                 onUpdateAnswers={function (_answers: any[]): void {
                   throw new Error("Function not implemented.");
                 }}
               />
+
+       <div className="pl-10 pr-10">
+         <Card id="diagResult" className="mt-5">
+          <ContentDiag
+              htmlIntroducao={introHTML}
+              areas={areas}
+              percentualGeral={percentualGeral()} 
+              clienteId={idCliente}
+            />        
+          </Card>
+       </div>
+
         <Card className="w-full max-w-[94%] m-auto mt-5" id="iceTable">
           <TableIceFrameWork
             clienteId={idCliente.toString()}

@@ -127,7 +127,9 @@ const getRespostasNegativasPorCliente = async (req, res) => {
         p.oportunidade,
         p.departamento,
         r.data_resposta,
-        r.id_usuario
+        r.id_usuario,
+        p.plano_acao,
+        r.priorizacao
       FROM respostas r
       JOIN perguntas p ON r.id_pergunta = p.id_pergunta
       WHERE r.resposta = 2 AND r.id_cliente = ${id_cliente}
