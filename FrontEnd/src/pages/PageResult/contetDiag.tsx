@@ -1,6 +1,7 @@
 import { JSX, useEffect, useState } from "react";
 import { introducoes, consideracoesFinais } from "../Client/StaticDictionary";
 
+const apiUrl = import.meta.env.VITE_API_URL;
 // Converte um número de 0 a 100 para o nível de maturidade (em dezenas: 0, 10, ..., 100)
 function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
   const nivel = Math.min(Math.ceil(pontuacao / 10) * 10, 100);
@@ -184,7 +185,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
   useEffect(() => {
     async function buscarRespostasNegativas() {
       try {
-        const response = await fetch(`http://localhost:3333/answers/negative/${clienteId}`);
+        const response = await fetch(`${apiUrl}/answers/negative/${clienteId}`);
         if (!response.ok) throw new Error("Erro ao buscar respostas negativas");
 
         const data = await response.json();

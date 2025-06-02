@@ -1,7 +1,9 @@
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
   export const handleGeneratePDF = async () => {
     try {
-      const response = await fetch('http://localhost:3333/generate-pdf', {
+      const response = await fetch(`${apiUrl}}/generate-pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
