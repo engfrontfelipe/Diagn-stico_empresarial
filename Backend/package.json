@@ -4,11 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "install": "puppeteer install",
-  "start": "node service.cjs",
-  "dev": "node --watch service.cjs",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
+    "install": "puppeteer install",
+    "start": "node service.cjs",
+    "dev": "node --watch service.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,7 +19,6 @@
     "bcryptjs": "^3.0.2",
     "body-parse": "^0.1.0",
     "body-parser": "^2.2.0",
-    "chromium": "^3.0.3",
     "client": "^0.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
