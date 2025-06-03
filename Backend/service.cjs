@@ -40,7 +40,6 @@ app.post('/generate-pdf', async (req, res) => {
     const htmlContent = generateHtml({ title, intro, introPorDp });
 
     const browser = await puppeteer.launch({
-      executablePath: puppeteer.executablePath(),
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
@@ -72,6 +71,7 @@ app.post('/generate-pdf', async (req, res) => {
     res.status(500).json({ error: 'Erro ao gerar PDF' });
   }
 });
+
 
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
