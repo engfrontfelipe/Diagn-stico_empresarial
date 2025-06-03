@@ -3,27 +3,30 @@ const cors = require("cors");
 require("dotenv").config();
 const puppeteer = require("puppeteer");
 const { generateHtml } = require('./src/routes/pdfGenerate.cjs');
-
 const app = express();
 
-// ⚠️ Aqui definimos os domínios permitidos
+const usuariosRoutes = require("./src/routes/usersRoute.cjs");
+const clientsRoutes = require("./src/routes/clientsRoute.cjs");
+const questionsRoutes = require("./src/routes/questionsRoute.cjs");
+const answersRoute = require("./src/routes/answersRoute.cjs");
+
 const allowedOrigins = [
   'https://diagn-stico-empresarial.vercel.app',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'https://diagn-stico-empresarial.vercel.app/cliente/result/75'
 ];
 
-// ✅ Configuração CORS correta
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // permite scripts internos sem Origin
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Permitir sem origin (ex: curl local ou navegador localhost)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
     return callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
 }));
-
 
 app.use(express.json({ limit: "10mb" }));
 app.use(usuariosRoutes);
