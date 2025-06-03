@@ -10,8 +10,11 @@ const clientsRoutes = require("./src/routes/clientsRoute.cjs");
 const questionsRoutes = require("./src/routes/questionsRoute.cjs");
 const answersRoute = require("./src/routes/answersRoute.cjs");
 
-app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(cors({
+  origin: 'https://diagn-stico-empresarial.vercel.app', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));app.use(express.json({ limit: "10mb" }));
 app.use(usuariosRoutes);
 app.use(clientsRoutes);
 app.use(questionsRoutes);
