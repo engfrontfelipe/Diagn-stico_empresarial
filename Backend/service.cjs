@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const puppeteer = require("puppeteer");
-const chromium = require('chromium');
+const chromium = require("chrome-aws-lambda");
 const app = express();
 
 const { generateHtml } = require('./src/routes/pdfGenerate.cjs');
