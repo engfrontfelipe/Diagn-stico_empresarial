@@ -2,9 +2,10 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const puppeteer = require("puppeteer");
-const { generateHtml } = require('./src/routes/pdfGenerate.cjs');
+const chromium = require('chromium');
 const app = express();
 
+const { generateHtml } = require('./src/routes/pdfGenerate.cjs');
 const usuariosRoutes = require("./src/routes/usersRoute.cjs");
 const clientsRoutes = require("./src/routes/clientsRoute.cjs");
 const questionsRoutes = require("./src/routes/questionsRoute.cjs");
@@ -39,10 +40,13 @@ app.post('/generate-pdf', async (req, res) => {
   try {
     const htmlContent = generateHtml({ title, intro, introPorDp });
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+
+const browser = await puppeteer.launch({
+  executablePath: chromium.path,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  headless: true,
+});
+
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
 

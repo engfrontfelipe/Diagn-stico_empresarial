@@ -25,5 +25,8 @@
     "jsonwebtoken": "^9.0.2",
     "neon": "^2.0.0",
     "puppeteer": "^24.9.0"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
