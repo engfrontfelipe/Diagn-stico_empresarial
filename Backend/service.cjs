@@ -10,11 +10,24 @@ const clientsRoutes = require("./src/routes/clientsRoute.cjs");
 const questionsRoutes = require("./src/routes/questionsRoute.cjs");
 const answersRoute = require("./src/routes/answersRoute.cjs");
 
+const allowedOrigins = [
+  'https://diagn-stico-empresarial.vercel.app',
+  'http://localhost:5173',
+];
+
 app.use(cors({
-  origin: 'https://diagn-stico-empresarial.vercel.app', 
+  origin: function (origin, callback) {
+    // Permitir sem origin (ex: curl local ou navegador localhost)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
-}));app.use(express.json({ limit: "10mb" }));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+app.use(express.json({ limit: "10mb" }));
 app.use(usuariosRoutes);
 app.use(clientsRoutes);
 app.use(questionsRoutes);
