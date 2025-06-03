@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const puppeteer = require("puppeteer");
-const chromium = require("chrome-aws-lambda");
 const app = express();
 
 const { generateHtml } = require('./src/routes/pdfGenerate.cjs');
@@ -40,12 +39,11 @@ app.post('/generate-pdf', async (req, res) => {
   try {
     const htmlContent = generateHtml({ title, intro, introPorDp });
 
-
-const browser = await puppeteer.launch({
-  executablePath: chromium.path,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: true,
-});
+    const browser = await puppeteer.launch({
+      executablePath: puppeteer.executablePath(),
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
@@ -79,4 +77,3 @@ const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-
