@@ -13,13 +13,12 @@ const answersRoute = require("./src/routes/answersRoute.cjs");
 const allowedOrigins = [
   'https://diagn-stico-empresarial.vercel.app',
   'http://localhost:5173',
-  'https://diagn-stico-empresarial.vercel.app/cliente/result/75'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir sem origin (ex: curl local ou navegador localhost)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error('Not allowed by CORS'));
@@ -37,35 +36,38 @@ app.use(answersRoute);
 app.post('/generate-pdf', async (req, res) => {
   const { title, intro, introPorDp } = req.body;
 
-  const htmlContent = generateHtml({ title, intro, introPorDp });
+  try {
+    const htmlContent = generateHtml({ title, intro, introPorDp });
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
 
-  const pdfBuffer = await page.pdf({
-    format: 'A4',
-    margin: {
-      top: '20mm',
-      bottom: '20mm',
-      left: '20mm',
-      right: '20mm',
-    }
-  });
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: {
+        top: '20mm',
+        bottom: '20mm',
+        left: '20mm',
+        right: '20mm',
+      },
+    });
 
-  await browser.close();
+    await browser.close();
 
-  res.set({
-    'Content-Type': 'application/pdf',
-    'Content-Disposition': 'attachment; filename=relatorio.pdf',
-    'Content-Length': pdfBuffer.length,
-  });
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename=relatorio.pdf',
+      'Content-Length': pdfBuffer.length,
+    });
 
-  res.end(pdfBuffer);
-});
-
-const port = process.env.PORT || 3333;
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta http://localhost:${port}`);
+    res.end(pdfBuffer);
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    res.status(500).json({ error: 'Erro ao gerar PDF' });
+  }
 });
 
