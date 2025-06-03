@@ -1,7 +1,7 @@
-# Imagem base oficial com Chromium e suporte ao Puppeteer
+# Imagem base oficial com Node.js e suporte ao Puppeteer
 FROM node:20-slim
 
-# Instala dependências essenciais
+# Instala dependências essenciais para o Chromium
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -19,22 +19,23 @@ RUN apt-get update && apt-get install -y \
     libxcomposite1 \
     libxdamage1 \
     libxrandr2 \
+    libgbm1 \                        
+    libxshmfence1 \                  
+    libgl1 \                     
     xdg-utils \
     --no-install-recommends \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# Define diretório de trabalho
 WORKDIR /app
 
-# Copia os arquivos do projeto
 COPY . .
 
-# Instala dependências do Node
+# Instala dependências do projeto Node.js
 RUN npm install
 
-# Expõe a porta usada pelo app
+# Expõe a porta usada pela aplicação
 EXPOSE 3333
 
-# Comando para iniciar o servidor
+# Comando padrão para iniciar o servidor
 CMD ["npm", "start"]
