@@ -4,10 +4,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch service.cjs",
-    "start": "node service.cjs"
-  },
+  "install": "puppeteer install",
+  "start": "node service.cjs",
+  "dev": "node --watch service.cjs",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
