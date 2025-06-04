@@ -325,10 +325,10 @@ export default function PageClient() {
           className="cursor-pointer bg-green-500 hover:bg-primary "
           onClick={() => {
             toast.success("Diagnóstico já concluído!");
-            navigate(`/cliente/result/${id}`);
+            navigate(`/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`);
           }}
         >
-          Concluído
+          Gerar link do Cliente
         </Button>
       );
     }

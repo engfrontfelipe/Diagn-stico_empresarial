@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {useParams } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 import {
@@ -11,7 +11,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/lib/changeButton";
@@ -75,7 +74,6 @@ interface Cliente {
 export function HeaderPageResult() {
   const { id } = useParams<{ id: string }>();
   const [cliente, setCliente] = useState<Cliente | null>(null);
-  const navigate = useNavigate();
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -126,19 +124,7 @@ export function HeaderPageResult() {
       <NavigationMenu className="ml-10 mt-4">
         <NavigationMenuList>
           <img src={getCurrentTheme()} alt="" className="h-auto w-30 mr-6" />
-          <NavigationMenuItem>
-            <Link to={"/dashboard"}>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Home
-              </NavigationMenuLink>
-            </Link>    
-          </NavigationMenuItem>
-            <NavigationMenuLink
-              onClick={() => navigate(`/clientes/${id}`)}
-              className={navigationMenuTriggerStyle()}
-            >
-               Cliente
-            </NavigationMenuLink>
+            
           <NavigationMenuItem>
             <NavigationMenuTrigger>Sobre o Cliente</NavigationMenuTrigger>
             <NavigationMenuContent>

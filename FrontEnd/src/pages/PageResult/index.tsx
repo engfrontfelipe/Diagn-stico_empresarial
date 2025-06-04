@@ -528,7 +528,7 @@ const respNegativas = respostasNegativas
          <Card id="diagResult" className="mt-5">
           <Button className="w-50 cursor-pointer ml-auto mr-7 bg-red-500 hover:bg-red-400" onClick={() => {
             handleGeneratePDF(introHTML, areas, respNegativas, percentualGeral())
-            toast.success("Relatório sendo gerado com sucesso, aguarde!", { duration: 4000})
+            toast.success("Relatório sendo gerado, aguarde!", { duration: 4000})
 
           }}>Gerar Relatório Em PDF <FileDown /></Button>
           <ContentDiag

@@ -215,10 +215,10 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
   }
 
   return (
-    <ul className="mt-4 list-disc pl-6 space-y-2">
+    <ul className="mt-4  grid grid-cols-2 gap-5">
       {planosDoDepartamento.map((resposta) => (
         <li key={resposta.id}>
-          <strong>{resposta.texto_afirmativa}</strong>
+          <strong className="text-[15px]">{resposta.texto_afirmativa}</strong>
           <div className="text-sm mt-2">
             {resposta.plano_acao
               ? Object.entries(resposta.plano_acao).map(([chave, valor]) => (
@@ -278,7 +278,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
 }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 mx-auto">
       <h1 className="text-center font-bold text-3xl mb-8">Relatório de Diagnóstico Empresarial</h1>
 
       <section className="mb-10" id="intro">
@@ -371,7 +371,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
           <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoFinanceiro }} />  
         </div>     
       </section>
-      <section>
+      {/* <section>
         <h2 className="font-semibold text-2xl mb-4 mt-5">Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
         <table className="min-w-full table-auto border border-accent">
           <thead>
@@ -421,7 +421,7 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
             })}
           </tbody>
         </table>
-      </section>
+      </section> */}
 
       <section>
         <h2 className="font-semibold text-2xl mt-10 mb-2">Considerações Finais</h2> 

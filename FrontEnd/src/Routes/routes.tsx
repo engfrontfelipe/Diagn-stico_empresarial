@@ -60,11 +60,9 @@ const Rotas = () => {
       />
 
       <Route
-        path="/cliente/result/:id"
+        path="/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/:id"
         element={
-          <PrivateRoutes>
             <PageResult idCliente={""} />
-          </PrivateRoutes>
         }
       />
 
