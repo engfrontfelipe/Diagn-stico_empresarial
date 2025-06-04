@@ -10,7 +10,6 @@ const clientsRoutes = require("./src/routes/clientsRoute.cjs");
 const questionsRoutes = require("./src/routes/questionsRoute.cjs");
 const answersRoute = require("./src/routes/answersRoute.cjs");
 
-
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -23,45 +22,66 @@ app.use(clientsRoutes);
 app.use(questionsRoutes);
 app.use(answersRoute);
 
-app.post('/generate-pdf', async (req, res) => {
+app.post("/generate-pdf", async (req, res) => {
   const { title, intro, introPorDp } = req.body;
 
-  try {
-    const htmlContent = generateHtml({ title, intro, introPorDp });
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  const page = await browser.newPage();
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  // Ajustar altura útil considerando margens (100px topo + 76px inferior)
+  const pageHeight = 1122 - 100 - 76; // 946 pixels
+
+  // Passo 1: Geração inicial, sem números no sumário
+  const html1 = generateHtml({ title, intro, introPorDp, pageMap: {} });
+  await page.setContent(html1, { waitUntil: 'networkidle0' });
+
+  // Passo 2: Captura da página de cada seção usando getBoundingClientRect
+  const pageMap = await page.evaluate((pageHeight) => {
+    const ids = ['intro', 'maturidade', 'marketing', 'operacoes', 'vendas', 'rh', 'estrategias', 'financeiro', 'tecnologia', 'conclusao'];
+    const map = {};
+
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const y = rect.top + window.scrollY; // Posição absoluta em relação ao topo do documento
+        map[id] = Math.floor(y / pageHeight) + 1; // Calcula a página com base na altura útil
+      }
     });
 
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+    return map;
+  }, pageHeight);
 
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '20mm',
-        bottom: '20mm',
-        left: '20mm',
-        right: '20mm',
-      },
-    });
+  console.log("Mapa de páginas capturado:", pageMap); // DEBUG
 
-    await browser.close();
+  // Passo 3: Geração final do HTML com o sumário atualizado
+  const htmlFinal = generateHtml({ title, intro, introPorDp, pageMap });
+  await page.setContent(htmlFinal, { waitUntil: 'networkidle0' });
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename=relatorio.pdf',
-      'Content-Length': pdfBuffer.length,
-    });
+  // Passo 4: Gerar PDF com margens consistentes
+  const pdfBuffer = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: { top: '2cm', right: '2cm', bottom: '2cm', left: '3cm' }, // Margens ABNT
+    displayHeaderFooter: true,
+    headerTemplate: `
+      <div style="font-size:10pt; font-family:'Times New Roman'; width:100%; text-align:right; padding-right:1.5cm; ">
+        <span class="pageNumber"></span>
+      </div>
+    `,
+    footerTemplate: `<div></div>`,
+  });
 
-    res.end(pdfBuffer);
-  } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
-    res.status(500).json({ error: 'Erro ao gerar PDF' });
-  }
+  await browser.close();
+
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': 'attachment; filename=relatorio.pdf',
+    'Content-Length': pdfBuffer.length,
+  });
+
+  res.end(pdfBuffer);
 });
-
 
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () => {
