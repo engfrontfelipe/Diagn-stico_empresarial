@@ -199,12 +199,7 @@ export function HeaderPageResult() {
                   Desempenho do cliente por área, com barra representando a
                   maturidade por área.
                 </ListItem>
-                <ListItem
-                  onClick={() => {
-                    alert('exportando pdf');
-                    }}
-                  title="Exportar Dados"
-                >
+                <ListItem href="#diagResult" title="Exportar Diagnóstico">          
                   Exportar relatório completo do cliente.
                 </ListItem>
               </ul>

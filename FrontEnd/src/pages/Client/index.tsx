@@ -253,8 +253,8 @@ export function selecionarTextoConclusao(pontuacao: number): string {
 export const handleGeneratePDF = async (
   introGeral: string,
   dadosPorDepartamento: { nome: string; percentual: number }[],
-  respostasNegativas: RespostaNegativa[],
-  pontuacaoFinal: number
+  respostasNegativas: any,
+  pontuacaoFinal: any
 ) => {
   try {
     const listaAreasHtml = renderizarListaDeAreasHtml(dadosPorDepartamento);

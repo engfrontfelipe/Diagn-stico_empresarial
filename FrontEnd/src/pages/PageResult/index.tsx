@@ -35,6 +35,7 @@ import { ContentDiag, selecionarTexto } from "./contetDiag";
 import { handleGeneratePDF } from "../Client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { FileDown } from "lucide-react";
 
 interface Props {
   idCliente: string;
@@ -525,11 +526,11 @@ const respNegativas = respostasNegativas
 
        <div className="pl-10 pr-10">
          <Card id="diagResult" className="mt-5">
-          <Button onClick={() => {
+          <Button className="w-50 cursor-pointer ml-auto mr-7 bg-red-500 hover:bg-red-400" onClick={() => {
             handleGeneratePDF(introHTML, areas, respNegativas, percentualGeral())
-            toast.success("Relatório gerado com sucesso!")
+            toast.success("Relatório sendo gerado com sucesso, aguarde!", { duration: 4000})
 
-          }}>Gerar Relatório</Button>
+          }}>Gerar Relatório Em PDF <FileDown /></Button>
           <ContentDiag
               htmlIntroducao={introHTML}
               areas={areas}
@@ -567,6 +568,7 @@ const respNegativas = respostasNegativas
         </div>
       </div>
     </div>
+
   );
 }
 
