@@ -2,7 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import TableQuestions from "./tableQuestions";
 import TableAnswers from "./tableAnswers";
 import {
@@ -66,7 +66,6 @@ export default function PageClient() {
   const [tempoRestante, setTempoRestante] = useState<number | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [expirado, setExpirado] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const verificarDiagnostico = async () => {
