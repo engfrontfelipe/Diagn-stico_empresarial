@@ -321,16 +321,16 @@ export default function PageClient() {
 
     if (porcentagem === 100) {
       return (
-        <Button
-          className="cursor-pointer bg-green-500 hover:bg-primary "
-          onClick={() => {
-            toast.success("Diagnóstico já concluído!");
-            navigate(`/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`);
-          }}
-        >
-          Gerar link do Cliente
-        </Button>
-      );
+   <Button
+  className="cursor-pointer bg-green-500 hover:bg-primary"
+  onClick={() => {
+    toast.success("Diagnóstico já concluído!");
+    window.open(`/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`, '_blank');
+  }}
+>
+  Gerar link do Cliente
+</Button>
+      )
     }
 
     return (
