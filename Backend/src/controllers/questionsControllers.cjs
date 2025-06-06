@@ -3,7 +3,7 @@ const sql = require("../config/db.cjs");
 const listQuest = async (_req, res) => {
   try {
     const result = await sql`
-      SELECT id_pergunta, texto_pergunta, departamento, oportunidade, plano_acao
+      SELECT id_pergunta, texto_pergunta, departamento, oportunidade, plano_acao, texto_afirmativa, texto_afirmativa_positiva
       FROM perguntas
     `;
     res.json(result);

@@ -61,9 +61,7 @@ const Rotas = () => {
 
       <Route
         path="/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/:id"
-        element={
-            <PageResult idCliente={""} />
-        }
+        element={<PageResult idCliente={""} />}
       />
 
       <Route path="/login" element={<Login />} />

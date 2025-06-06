@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
 import {
@@ -124,7 +124,7 @@ export function HeaderPageResult() {
       <NavigationMenu className="ml-10 mt-4">
         <NavigationMenuList>
           <img src={getCurrentTheme()} alt="" className="h-auto w-30 mr-6" />
-            
+
           <NavigationMenuItem>
             <NavigationMenuTrigger>Sobre o Cliente</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -185,7 +185,7 @@ export function HeaderPageResult() {
                   Desempenho do cliente por área, com barra representando a
                   maturidade por área.
                 </ListItem>
-                <ListItem href="#diagResult" title="Exportar Diagnóstico">          
+                <ListItem href="#diagResult" title="Exportar Diagnóstico">
                   Exportar relatório completo do cliente.
                 </ListItem>
               </ul>
@@ -209,10 +209,9 @@ export function HeaderPageResult() {
             </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
-   
       </NavigationMenu>
-         <div className="mt-5 mr-10">
-        <ThemeToggle/>
+      <div className="mt-5 mr-10">
+        <ThemeToggle />
       </div>
     </div>
   );

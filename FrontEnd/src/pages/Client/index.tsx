@@ -8,7 +8,7 @@ import {
   introducoesOperacoes,
   introducoesTecnologia,
   introducoesFinanceiro,
-  MaturidadeNivel
+  MaturidadeNivel,
 } from "../Client/StaticDictionary";
 
 import {
@@ -21,7 +21,10 @@ import {
   conclusoesFinanceiro,
 } from "../Client/StaticDictionary";
 
-import { obterNivelMaturidade, obterNivelTexto } from "../PageResult/contetDiag";
+import {
+  obterNivelMaturidade,
+  obterNivelTexto,
+} from "../PageResult/contetDiag";
 
 import { consideracoesFinais } from "../Client/StaticDictionary";
 
@@ -40,41 +43,49 @@ type AreaMaturidade = {
   percentual: number;
 };
 
-const introducoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
+const introducoesPorDepartamento: Record<
+  string,
+  Record<MaturidadeNivel, string[]>
+> = {
   estratégias: introducoesEstrategia,
   vendas: introducoesVendas,
   marketing: introducoesMarketing,
   rh: introducoesRH,
   operações: introducoesOperacoes,
   tecnologia: introducoesTecnologia,
-  financeiro: introducoesFinanceiro
+  financeiro: introducoesFinanceiro,
 };
 
-const conclusoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
+const conclusoesPorDepartamento: Record<
+  string,
+  Record<MaturidadeNivel, string[]>
+> = {
   estratégias: conclusoesEstrategia,
   vendas: conclusoesVendas,
   marketing: conclusoesMarketing,
   rh: conclusoesRH,
   operações: conclusoesOperacoes,
   tecnologia: conclusoesTecnologia,
-  financeiro: conclusoesFinanceiro
+  financeiro: conclusoesFinanceiro,
 };
 
 const capitalizeWords = (str: string) => {
   return str
     .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 function renderizarListaDeAreasHtml(areas: AreaMaturidade[]): string {
-  if (!Array.isArray(areas)) return '';
+  if (!Array.isArray(areas)) return "";
 
-  const itens = areas.map(
-    area =>
-      `<li><strong>${area.nome}</strong> — ${area.percentual}% (${obterNivelTexto(area.percentual)})</li>`
-  ).join('');
+  const itens = areas
+    .map(
+      (area) =>
+        `<li><strong>${area.nome}</strong> — ${area.percentual}% (${obterNivelTexto(area.percentual)})</li>`,
+    )
+    .join("");
 
   return `
     <section id="lista-de-areas">
@@ -87,7 +98,9 @@ function renderizarListaDeAreasHtml(areas: AreaMaturidade[]): string {
   `;
 }
 
-function gerarTabelaOportunidadesHtml(respostasNegativas: RespostaNegativa[]): string {
+function gerarTabelaOportunidadesHtml(
+  respostasNegativas: RespostaNegativa[],
+): string {
   if (!Array.isArray(respostasNegativas) || respostasNegativas.length === 0) {
     return `
       <section id="mapa-oportunidade">
@@ -99,16 +112,17 @@ function gerarTabelaOportunidadesHtml(respostasNegativas: RespostaNegativa[]): s
 
   const linhas = respostasNegativas
     .sort((a, b) => (b.priorizacao ?? 0) - (a.priorizacao ?? 0))
-    .map(resposta => {
+    .map((resposta) => {
       return `
       <tr>
         <td>${capitalizeWords(resposta.departamento)}</td>
-        <td>${resposta.priorizacao ?? '-'}</td>
-        <td>${resposta.oportunidade ?? '-'}</td>
+        <td>${resposta.priorizacao ?? "-"}</td>
+        <td>${resposta.oportunidade ?? "-"}</td>
         <td>${resposta.texto_pergunta}</td>
       </tr>
     `;
-    }).join('');
+    })
+    .join("");
 
   return `
     <section id="mapa-oportunidade">
@@ -130,7 +144,10 @@ function gerarTabelaOportunidadesHtml(respostasNegativas: RespostaNegativa[]): s
   `;
 }
 
-function selecionarTextoPorDepartamento(departamento: string, pontuacao: number): string {
+function selecionarTextoPorDepartamento(
+  departamento: string,
+  pontuacao: number,
+): string {
   const nivel = obterNivelMaturidade(pontuacao);
   const chaveDepto = departamento.toLowerCase();
   const intros = introducoesPorDepartamento[chaveDepto];
@@ -151,16 +168,19 @@ function selecionarTextoPorDepartamento(departamento: string, pontuacao: number)
     <section id="introducao-${chaveDepto}">
       <h3>${capitalizeWords(chaveDepto)}</h3>
       <h4>Introdução</h4>
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
 
-function renderizarPlanoAcaoHtml(departamento: string, respostas: RespostaNegativa[]): string {
+function renderizarPlanoAcaoHtml(
+  departamento: string,
+  respostas: RespostaNegativa[],
+): string {
   const planosDoDepartamento = respostas.filter(
-    resposta =>
-      typeof resposta.departamento === 'string' &&
-      resposta.departamento.toLowerCase() === departamento.toLowerCase()
+    (resposta) =>
+      typeof resposta.departamento === "string" &&
+      resposta.departamento.toLowerCase() === departamento.toLowerCase(),
   );
 
   if (planosDoDepartamento.length === 0) {
@@ -169,22 +189,26 @@ function renderizarPlanoAcaoHtml(departamento: string, respostas: RespostaNegati
     `;
   }
 
-  const listaItens = planosDoDepartamento.map(resposta => {
-    const planos = resposta.plano_acao
-      ? Object.entries(resposta.plano_acao).map(
-          ([chave, valor]) => `
+  const listaItens = planosDoDepartamento
+    .map((resposta) => {
+      const planos = resposta.plano_acao
+        ? Object.entries(resposta.plano_acao)
+            .map(
+              ([chave, valor]) => `
             <p><strong>${chave}:</strong> ${valor}</p>
-          `
-        ).join('')
-      : `<p>Sem plano de ação definido.</p>`;
+          `,
+            )
+            .join("")
+        : `<p>Sem plano de ação definido.</p>`;
 
-    return `
+      return `
       <div class="">
         <p><strong>${resposta.texto_afirmativa}</strong></p>
         ${planos}
       </div>
     `;
-  }).join('');
+    })
+    .join("");
 
   return `
     <div>
@@ -194,7 +218,10 @@ function renderizarPlanoAcaoHtml(departamento: string, respostas: RespostaNegati
   `;
 }
 
-export function selecionarConclusaoPorDepartamento(departamento: string, pontuacao: number): string {
+export function selecionarConclusaoPorDepartamento(
+  departamento: string,
+  pontuacao: number,
+): string {
   const nivel = obterNivelMaturidade(pontuacao);
   const conclusoes = conclusoesPorDepartamento[departamento.toLowerCase()];
   if (!conclusoes) {
@@ -220,7 +247,7 @@ export function selecionarConclusaoPorDepartamento(departamento: string, pontuac
   return `
     <section id="conclusao-${departamento}-${nivel}">
       <h4>Conclusão do Departamento</h4>
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
@@ -241,7 +268,7 @@ export function selecionarTextoConclusao(pontuacao: number): string {
     <div class="page">
       <section id="conclusao-geral" class="page-content">
         <h2>Conclusão Geral</h2>
-        <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+        <p>${texto.trim().replace(/\n/g, "<br>")}</p>
         <p>A pontuação final da empresa foi <strong>${pontuacao}</strong>, o que indica um nível de maturidade de <strong>${obterNivelTexto(pontuacao)}</strong>.</p>
         <p>Recomendamos que a empresa priorize as áreas com maior percentual de maturidade para alcançar um desempenho mais equilibrado e eficiente.</p>
         <p><strong>"O segredo da mudança é focar toda a sua energia não em lutar contra o velho, mas em construir o novo." - Sócrates</strong></p>
@@ -254,15 +281,18 @@ export const handleGeneratePDF = async (
   introGeral: string,
   dadosPorDepartamento: { nome: string; percentual: number }[],
   respostasNegativas: any,
-  pontuacaoFinal: any
+  pontuacaoFinal: any,
 ) => {
   try {
     const listaAreasHtml = renderizarListaDeAreasHtml(dadosPorDepartamento);
-    const tabelaOportunidadesHtml = gerarTabelaOportunidadesHtml(respostasNegativas);
+    const tabelaOportunidadesHtml =
+      gerarTabelaOportunidadesHtml(respostasNegativas);
     const conclusaoGeralHtml = selecionarTextoConclusao(pontuacaoFinal);
 
     const getDepartamentoHtml = (nome: string, id: string) => {
-      const area = dadosPorDepartamento.find(a => a.nome.toLowerCase() === id);
+      const area = dadosPorDepartamento.find(
+        (a) => a.nome.toLowerCase() === id,
+      );
       const pontuacao = area ? area.percentual : 0;
       const introducao = selecionarTextoPorDepartamento(id, pontuacao);
       const planosHtml = renderizarPlanoAcaoHtml(id, respostasNegativas);
@@ -299,13 +329,13 @@ export const handleGeneratePDF = async (
             ${listaAreasHtml}
           </div>
         </section>
-        ${getDepartamentoHtml('Marketing', 'marketing')}
-        ${getDepartamentoHtml('Operações', 'operações')}
-        ${getDepartamentoHtml('Vendas', 'vendas')}
-        ${getDepartamentoHtml('RH', 'rh')}
-        ${getDepartamentoHtml('Estratégias', 'estratégias')}
-        ${getDepartamentoHtml('Financeiro', 'financeiro')}
-        ${getDepartamentoHtml('Tecnologia', 'tecnologia')}
+        ${getDepartamentoHtml("Marketing", "marketing")}
+        ${getDepartamentoHtml("Operações", "operações")}
+        ${getDepartamentoHtml("Vendas", "vendas")}
+        ${getDepartamentoHtml("RH", "rh")}
+        ${getDepartamentoHtml("Estratégias", "estratégias")}
+        ${getDepartamentoHtml("Financeiro", "financeiro")}
+        ${getDepartamentoHtml("Tecnologia", "tecnologia")}
         <section class="page" id="mapa-oportunidade">
           <div class="page-content">
             <h2>3. Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
@@ -321,29 +351,29 @@ export const handleGeneratePDF = async (
     `;
 
     const response = await fetch(`${apiUrl}/generate-pdf`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        title: 'Relatório De Diagnóstico Empresarial',
+        title: "Relatório De Diagnóstico Empresarial",
         intro: introGeral,
         introPorDp: htmlFinal,
       }),
     });
 
-    if (!response.ok) throw new Error('Erro ao gerar o PDF');
+    if (!response.ok) throw new Error("Erro ao gerar o PDF");
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'relatorio.pdf';
+    a.download = "relatorio.pdf";
     document.body.appendChild(a);
     a.click();
     a.remove();
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
+    console.error("Erro ao gerar PDF:", error);
   }
 };

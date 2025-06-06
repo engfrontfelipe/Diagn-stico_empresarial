@@ -14,7 +14,7 @@ import { Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { toast, Toaster } from "sonner";
-
+import { ThemeToggle } from "@/lib/changeButton";
 import {
   Dialog,
   DialogHeader,
@@ -58,6 +58,27 @@ function QuestionManagement() {
       toast.error("Erro ao buscar perguntas!");
     }
   };
+
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY) {
+      setShowHeader(false);
+    } else {
+      setShowHeader(true);
+    }
+    setLastScrollY(currentScrollY);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
 
   useEffect(() => {
     fetchPerguntas();
@@ -167,7 +188,7 @@ function QuestionManagement() {
 
   const renderLoading = () => (
     <div className="flex justify-center items-center h-screen">
-      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+      <div className="w-16 h-16 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
     </div>
   );
 
@@ -177,9 +198,41 @@ function QuestionManagement() {
 
   return (
     <>
+      <div
+        className={`flex justify-between align-middle mb-4 p-5 bg-background fixed z-10 w-full top-0 left-0 border-b-2 border-accent transition-transform duration-300 ${
+          showHeader ? "translate-y-0" : "-translate-y-full"
+        }`}
+      >
+        <h1 className="text-2xl font-semibold ml-3">
+          Gerenciamento de Perguntas
+        </h1>
+        <div className="flex items-center gap-4">
+          <ThemeToggle /> 
+          <Link
+            to={"/dashboard"}
+            className=" w-5 h-5 flex items-center mt-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              className="lucide lucide-house-icon lucide-house"
+            >
+              <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+              <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            </svg>{" "}
+          </Link>
+        </div>
+      </div>
       <div className="flex flex-col px-4 lg:px-6 gap-4 mt-4">
-        <Card className="p-4 w-full">
-          <h1 className="text-center mb-1 text-2xl font-medium">
+        <Card className="p-4 w-full mt-20">
+          <h1 className="text-center font-medium text-[19px]">
             Criar Pergunta
           </h1>
           <div className="grid  gap-4">
@@ -252,6 +305,9 @@ function QuestionManagement() {
         </Card>
 
         <Card className="p-4 w-full overflow-x-auto">
+          <h1 className="text-center font-medium text-[19px]">
+            Tabela de Perguntas
+          </h1>
           <Table>
             <TableHeader>
               <TableRow>
@@ -389,26 +445,7 @@ function QuestionManagement() {
           </Table>
         </Card>
       </div>
-      <Link
-        to={"/dashboard"}
-        className="fixed bottom-4 end-4 rounded-full w-13 h-13 flex items-center justify-center "
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="36"
-          height="36"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.3333333333333333"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          className="lucide lucide-house-icon lucide-house bg-muted p-3 rounded-full h-auto w-15 "
-        >
-          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-          <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        </svg>{" "}
-      </Link>
+
       <Toaster position="bottom-center" richColors closeButton />
     </>
   );

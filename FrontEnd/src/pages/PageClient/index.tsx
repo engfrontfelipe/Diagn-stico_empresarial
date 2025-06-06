@@ -190,7 +190,7 @@ export default function PageClient() {
 
   const renderLoading = () => (
     <div className="flex justify-center items-center h-screen">
-      <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+      <div className="w-16 h-16 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
     </div>
   );
 
@@ -278,7 +278,7 @@ export default function PageClient() {
     const tempoPorDP = 345600;
 
     const limites = [
-      { limite: 14, fator: 1 }, 
+      { limite: 14, fator: 1 },
       { limite: 29, fator: 2 },
       { limite: 43, fator: 3 },
       { limite: 57, fator: 4 },
@@ -320,16 +320,19 @@ export default function PageClient() {
 
     if (porcentagem === 100) {
       return (
-   <Button
-  className="cursor-pointer bg-green-500 hover:bg-primary"
-  onClick={() => {
-    toast.success("Diagnóstico já concluído!");
-    window.open(`/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`, '_blank');
-  }}
->
-  Gerar link do Cliente
-</Button>
-      )
+        <Button
+          className="cursor-pointer bg-green-500 hover:bg-primary"
+          onClick={() => {
+            toast.success("Diagnóstico já concluído!");
+            window.open(
+              `/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`,
+              "_blank",
+            );
+          }}
+        >
+          Gerar link do Cliente
+        </Button>
+      );
     }
 
     return (
@@ -501,17 +504,16 @@ export default function PageClient() {
               </div>
 
               <div className="px-4 lg:px-6 grid grid-cols-1 gap-5 align-center justify-center -mb-5">
-               <Card className="p-6">
-                 <TableQuestions
-                  onUpdateAnswers={(updatedAnswers: any[]) => {
-                    setReloadAnswers((prev) => !prev);
-                    setAnswers(updatedAnswers);
-                  }}
-                />
-               </Card>
+                <Card className="p-6">
+                  <TableQuestions
+                    onUpdateAnswers={(updatedAnswers: any[]) => {
+                      setReloadAnswers((prev) => !prev);
+                      setAnswers(updatedAnswers);
+                    }}
+                  />
+                </Card>
                 <TableAnswers clienteId={id!} reloadTrigger={reloadAnswers} />
               </div>
-             
             </div>
           </div>
         </div>

@@ -12,7 +12,7 @@ const answersRoute = require("./src/routes/answersRoute.cjs");
 
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
@@ -28,14 +28,11 @@ app.post("/generate-pdf", async (req, res) => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
 
-  // Ajustar altura útil considerando margens (100px topo + 76px inferior)
   const pageHeight = 1122 - 100 - 76; // 946 pixels
 
-  // Passo 1: Geração inicial, sem números no sumário
   const html1 = generateHtml({ title, intro, introPorDp, pageMap: {} });
   await page.setContent(html1, { waitUntil: 'networkidle0' });
 
-  // Passo 2: Captura da página de cada seção usando getBoundingClientRect
   const pageMap = await page.evaluate((pageHeight) => {
     const ids = ['intro', 'maturidade', 'marketing', 'operacoes', 'vendas', 'rh', 'estrategias', 'financeiro', 'tecnologia', 'conclusao'];
     const map = {};
@@ -44,21 +41,19 @@ app.post("/generate-pdf", async (req, res) => {
       const el = document.getElementById(id);
       if (el) {
         const rect = el.getBoundingClientRect();
-        const y = rect.top + window.scrollY; // Posição absoluta em relação ao topo do documento
-        map[id] = Math.floor(y / pageHeight) + 1; // Calcula a página com base na altura útil
+        const y = rect.top + window.scrollY; 
+        map[id] = Math.floor(y / pageHeight) + 1; 
       }
     });
 
     return map;
   }, pageHeight);
 
-  console.log("Mapa de páginas capturado:", pageMap); // DEBUG
 
-  // Passo 3: Geração final do HTML com o sumário atualizado
+
   const htmlFinal = generateHtml({ title, intro, introPorDp, pageMap });
   await page.setContent(htmlFinal, { waitUntil: 'networkidle0' });
 
-  // Passo 4: Gerar PDF com margens consistentes
   const pdfBuffer = await page.pdf({
     format: 'A4',
     printBackground: true,

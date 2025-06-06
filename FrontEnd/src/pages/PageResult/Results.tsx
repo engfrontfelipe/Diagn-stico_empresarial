@@ -19,11 +19,20 @@ import { useParams } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const COLORS = [
-  "#FF5733", "#FF8D1A", "#FFC300", "#33B5FF",
-  "#9C27B0", "#8BC34A", "#FF4081",
+  "#FF5733",
+  "#FF8D1A",
+  "#FFC300",
+  "#33B5FF",
+  "#9C27B0",
+  "#8BC34A",
+  "#FF4081",
 ];
 
-function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => void }) {
+function Results({
+  onUpdateAnswers,
+}: {
+  onUpdateAnswers: (answers: any[]) => void;
+}) {
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [chartData, setChartData] = useState<any[]>([]);
   const [chartDataPie, setChartDataPie] = useState<any[]>([]);
@@ -43,7 +52,7 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
     const interval = setInterval(() => {
       const theme = localStorage.getItem("theme");
       const newColor = theme === "dark" ? "white" : "black";
-      setLabelColor(prev => (prev !== newColor ? newColor : prev));
+      setLabelColor((prev) => (prev !== newColor ? newColor : prev));
     }, 1000);
 
     return () => clearInterval(interval);
@@ -61,7 +70,7 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
       try {
         const [resAnswers, resQuestions] = await Promise.all([
           fetch(`${apiUrl}/answers/${id_cliente}`),
-          fetch(`${apiUrl}/questions/list`)
+          fetch(`${apiUrl}/questions/list`),
         ]);
 
         if (!resAnswers.ok || !resQuestions.ok) {
@@ -72,9 +81,11 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
         const questionsData = await resQuestions.json();
 
         const booleanAnswers: Record<string, boolean> = {};
-        answersData.forEach((item: { id_pergunta: number; resposta: number }) => {
-          booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
-        });
+        answersData.forEach(
+          (item: { id_pergunta: number; resposta: number }) => {
+            booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
+          },
+        );
 
         setAnswers(booleanAnswers);
         answersRef.current = booleanAnswers;
@@ -98,7 +109,9 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
   }, [id_cliente]);
 
   const tabsData = questions.reduce((acc: any[], question) => {
-    const tab = acc.find((t: { label: string }) => t.label === question.departamento);
+    const tab = acc.find(
+      (t: { label: string }) => t.label === question.departamento,
+    );
     const field = { id: question.id_pergunta, label: question.texto_pergunta };
 
     if (tab) {
@@ -135,9 +148,12 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
 
   useEffect(() => {
     const totalSim = tabsData.reduce((total, tab) => {
-      return total + tab.fields.reduce((acc: any, field: any) => {
-        return acc + (answersRef.current[field.id] ? 1 : 0);
-      }, 0);
+      return (
+        total +
+        tab.fields.reduce((acc: any, field: any) => {
+          return acc + (answersRef.current[field.id] ? 1 : 0);
+        }, 0)
+      );
     }, 0);
 
     const updatedChartData = tabsData.map((tab) => {
@@ -186,7 +202,9 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
                     />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
+                <Tooltip
+                  formatter={(value: number) => `${value.toFixed(1)}%`}
+                />
               </PieChart>
             </div>
 
@@ -195,11 +213,14 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
                 Respostas Sim X Respostas Não
               </h3>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart margin={{ top: 10 }} data={chartData}>
+                <BarChart margin={{ top: 20 }} data={chartData}>
                   <XAxis dataKey="nome" tick={{ fontSize: 14 }} />
                   <YAxis allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ fontSize: "0.875rem", borderRadius: "0.5rem" }}
+                    contentStyle={{
+                      fontSize: "0.875rem",
+                      borderRadius: "0.5rem",
+                    }}
                     cursor={false}
                   />
                   <Legend iconType="star" />
@@ -226,7 +247,12 @@ function Results({ onUpdateAnswers }: { onUpdateAnswers: (answers: any[]) => voi
         )
       )}
 
-      <Toaster richColors position="bottom-center" closeButton duration={1000} />
+      <Toaster
+        richColors
+        position="bottom-center"
+        closeButton
+        duration={1000}
+      />
     </div>
   );
 }

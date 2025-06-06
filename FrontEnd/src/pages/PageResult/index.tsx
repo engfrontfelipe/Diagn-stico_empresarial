@@ -21,14 +21,12 @@ import {
   // ChartTooltipContent,
 } from "@/components/ui/chart";
 
-
 const apiUrl = import.meta.env.VITE_API_URL;
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-// import ContentDiag from "./contetDiag";
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";
 import { ContentDiag, selecionarTexto } from "./contetDiag";
@@ -44,42 +42,28 @@ interface Props {
 interface Resposta {
   id: number;
   departamento: string;
-  resposta: string; // "sim" ou "não"
+  resposta: string;
   texto_pergunta: string;
-  plano_acao: JSON
+  plano_acao: JSON;
   oportunidade: string;
-  priorizacao: number
+  priorizacao: number;
   texto_afirmativa?: string;
 }
 
 const COLORS = ["#12d300", "#fc1a1a"];
 
-// const getNivelBgColor = (nivel: string) => {
-//   switch (nivel.toLowerCase()) {
-//     case "básico":
-//       return "bg-blue-800"; // Azul escuro
-//     case "intermediário":
-//       return "bg-blue-600"; // Azul médio
-//     case "avançado":
-//       return "bg-blue-400"; // Azul claro
-//     default:
-//       return "bg-gray-300 text-black";
-//   }
-// };
-
 const getNivelBgColor = (nivel: string) => {
   switch (nivel.toLowerCase()) {
     case "básico":
-      return "bg-red-600"; // Verde médio
+      return "bg-red-600";
     case "intermediário":
-      return "bg-yellow-500"; // Laranja médio
+      return "bg-yellow-500";
     case "avançado":
-      return "bg-green-600"; // Vermelho médio
+      return "bg-green-600";
     default:
-      return "bg-gray-300 text-black"; // Cinza para o caso de valor desconhecido
+      return "bg-gray-300 text-black";
   }
 };
-
 
 const chartConfig = {
   Tecnologia: { label: "Tecnologia" },
@@ -91,49 +75,46 @@ const chartConfig = {
   Financeiro: { label: "Financeiro " },
 } satisfies ChartConfig;
 
-
-
-
 export default function PageResult({ idCliente }: Props) {
-  
   const [respostasPositivas, setRespostasPositivas] = useState<Resposta[]>([]);
   const [respostasNegativas, setRespostasNegativas] = useState<Resposta[]>([]);
   const [barChartData, setBarChartData] = useState<
     { departamento: string; Departamento: number; fill: string }[]
   >([]);
   const [pieChartData, setPieChartData] = useState<
-  { name: string; value: number }[]
->([]);
+    { name: string; value: number }[]
+  >([]);
 
-const introHTML = selecionarTexto(pieChartData[0]?.value)
+  const introHTML = selecionarTexto(pieChartData[0]?.value);
 
- 
- 
   const [_totalPerguntas, setTotalPerguntas] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   idCliente = id || "";
   const [logoUrl, setLogoUrl] = useState<string>("");
 
-// Função para definir o logo com base no tema
-const verificarTemaEAtualizarLogo = () => {
-  const theme = localStorage.getItem("theme");
-  if (theme === "dark") {
-    setLogoUrl("https://assinaturas.grovehost.com.br/imagesClientes/consultingWhite.png");
-  } else {
-    setLogoUrl("https://assinaturas.grovehost.com.br/imagesClientes/consultingDark.png");
-  }
-};
+  // Função para definir o logo com base no tema
+  const verificarTemaEAtualizarLogo = () => {
+    const theme = localStorage.getItem("theme");
+    if (theme === "dark") {
+      setLogoUrl(
+        "https://assinaturas.grovehost.com.br/imagesClientes/consultingWhite.png",
+      );
+    } else {
+      setLogoUrl(
+        "https://assinaturas.grovehost.com.br/imagesClientes/consultingDark.png",
+      );
+    }
+  };
 
-useEffect(() => {
-  verificarTemaEAtualizarLogo(); // Chama ao carregar
-  const interval = setInterval(() => {
-    verificarTemaEAtualizarLogo(); // Atualiza a cada 1s
-  }, 1000);
+  useEffect(() => {
+    verificarTemaEAtualizarLogo();
+    const interval = setInterval(() => {
+      verificarTemaEAtualizarLogo();
+    }, 1000);
 
-  return () => clearInterval(interval); // Limpa quando o componente for desmontado
-}, []);
-
+    return () => clearInterval(interval);
+  }, []);
 
   function agruparPorDepartamento(respostas: Resposta[]) {
     return respostas.reduce(
@@ -167,14 +148,7 @@ useEffect(() => {
         totaisData.forEach(({ departamento, total }) => {
           totalPorDepartamento[departamento] = total;
         });
-        // const getCorPorMaturidade = (valor: number) => {
-        //   if (valor < 30) return "#1e3a8a"; // Azul escuro
-        //   if (valor < 70) return "#3b82f6"; // Azul médio
-        //   return "#60a5fa"; // Azul claro
-        // };
 
-        //gráfico de barras
-       
         const getCorPorMaturidade = (valor: number) => {
           if (valor < 37) return "#dc2626"; // Vermelho (baixo)
           if (valor < 70) return "#f59e0b"; // Amarelo (médio)
@@ -281,38 +255,37 @@ useEffect(() => {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <div className="flex justify-center items-center">
-          <div className="w-16 h-16 mt-70 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+          <div className="w-16 h-16 mt-70 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
         </div>
       </div>
     );
   }
 
   const getMaturidadeColor = (val: any) => {
-    if (val < 37) return "#ff0000"; // Vermelho
-    if (val < 70) return "#f59e0b"; // Amarelo
-    return "#00ff00"; // Verde
+    if (val < 37) return "#ff0000";
+    if (val < 70) return "#f59e0b";
+    return "#00ff00";
   };
 
-
   const departamentosUnicos = Array.from(
-  new Set([
-    ...respostasPositivas.map(r => r.departamento?.trim()),
-    ...respostasNegativas.map(r => r.departamento?.trim())
-  ])
-).filter(Boolean);
-const areas = departamentosUnicos.length > 0
-  ? departamentosUnicos.map(nome => ({
-      nome,
-      percentual: getPercentualSetor(nome),
-    }))
-  : [];
+    new Set([
+      ...respostasPositivas.map((r) => r.departamento?.trim()),
+      ...respostasNegativas.map((r) => r.departamento?.trim()),
+    ]),
+  ).filter(Boolean);
+  const areas =
+    departamentosUnicos.length > 0
+      ? departamentosUnicos.map((nome) => ({
+          nome,
+          percentual: getPercentualSetor(nome),
+        }))
+      : [];
 
-const percentualGeral  = () => {
-  return(pieChartData[0]?.value.toFixed(2))
-}
+  const percentualGeral = () => {
+    return pieChartData[0]?.value.toFixed(2);
+  };
 
-const respNegativas = respostasNegativas
-
+  const respNegativas = respostasNegativas;
 
   return (
     <div className=" w-full h-full mt-25 ">
@@ -433,12 +406,7 @@ const respNegativas = respostasNegativas
                   </Pie>
 
                   <foreignObject x="24%" y="39%" width="200" height="200">
-                    <img
-                      src={logoUrl}
-                      alt="Central"
-                      width="140"
-                      height="80"
-                    />
+                    <img src={logoUrl} alt="Central" width="140" height="80" />
                   </foreignObject>
 
                   <Tooltip
@@ -518,27 +486,38 @@ const respNegativas = respostasNegativas
             </div>
           </Card>
         </div>
-                 <Results
-                onUpdateAnswers={function (_answers: any[]): void {
-                  throw new Error("Function not implemented.");
-                }}
-              />
+        <Results
+          onUpdateAnswers={function (_answers: any[]): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
 
-       <div className="pl-10 pr-10">
-         <Card id="diagResult" className="mt-5">
-          <Button className="w-50 cursor-pointer ml-auto mr-7 bg-red-500 hover:bg-red-400" onClick={() => {
-            handleGeneratePDF(introHTML, areas, respNegativas, percentualGeral())
-            toast.success("Relatório sendo gerado, aguarde!", { duration: 4000})
-
-          }}>Gerar Relatório Em PDF <FileDown /></Button>
-          <ContentDiag
+        <div className="pl-10 pr-10">
+          <Card id="diagResult" className="mt-5">
+            <Button
+              className="w-50 cursor-pointer ml-auto mr-7 bg-red-500 hover:bg-red-400"
+              onClick={() => {
+                handleGeneratePDF(
+                  introHTML,
+                  areas,
+                  respNegativas,
+                  percentualGeral(),
+                );
+                toast.success("Relatório sendo gerado, aguarde!", {
+                  duration: 4000,
+                });
+              }}
+            >
+              Gerar Relatório Em PDF <FileDown />
+            </Button>
+            <ContentDiag
               htmlIntroducao={introHTML}
               areas={areas}
-              percentualGeral={percentualGeral()} 
+              percentualGeral={percentualGeral()}
               clienteId={idCliente}
-            />        
+            />
           </Card>
-       </div>
+        </div>
 
         <Card className="w-full max-w-[94%] m-auto mt-5" id="iceTable">
           <TableIceFrameWork
@@ -568,7 +547,5 @@ const respNegativas = respostasNegativas
         </div>
       </div>
     </div>
-
   );
 }
-

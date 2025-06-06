@@ -40,7 +40,6 @@ export default function GeneralDashHome() {
         const res = await fetch(`${apiUrl}/clientes/list`);
         const data: Cliente[] = await res.json();
         setClientes(data);
-        console.log("Clientes:", data);
 
         const statusPromises = data
           .filter((cliente) => !!cliente.id_cliente)

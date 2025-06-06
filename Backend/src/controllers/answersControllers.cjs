@@ -156,6 +156,7 @@ const getRespostasPositivasPorCliente = async (req, res) => {
           r.id_cliente,
           p.texto_pergunta,
           p.departamento,
+          p.texto_afirmativa_positiva,
           r.data_resposta,
           r.id_usuario
         FROM respostas r

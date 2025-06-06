@@ -32,49 +32,48 @@ function TableQuestions({
 
   const answersRef = useRef(answers);
 
-useEffect(() => {
-  if (!id_cliente) return;
+  useEffect(() => {
+    if (!id_cliente) return;
 
-  fetch(`${apiUrl}/answers/${id_cliente}`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
-      return res.json();
-    })
-    .then((data) => {
-      const booleanAnswers: Record<string, boolean> = {};
+    fetch(`${apiUrl}/answers/${id_cliente}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
+        return res.json();
+      })
+      .then((data) => {
+        const booleanAnswers: Record<string, boolean> = {};
 
-      data.forEach((item: { id_pergunta: number; resposta: number }) => {
-        booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
-      });
+        data.forEach((item: { id_pergunta: number; resposta: number }) => {
+          booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
+        });
 
-      setAnswers(booleanAnswers);
-      answersRef.current = booleanAnswers;
+        setAnswers(booleanAnswers);
+        answersRef.current = booleanAnswers;
 
-      const respostasValidas = Object.entries(booleanAnswers).map(
-        ([id_pergunta, resposta]) => ({
-          id_pergunta: Number(id_pergunta),
-          resposta: resposta ? 1 : 2,
-        }),
-      );
-      onUpdateAnswers(respostasValidas);
-    })
-    .catch((error) => {
-      console.error("Erro ao carregar respostas salvas:", error);
-    })
-    .finally(() => setLoading(false)); // <-- aqui
-}, [id_cliente]);
+        const respostasValidas = Object.entries(booleanAnswers).map(
+          ([id_pergunta, resposta]) => ({
+            id_pergunta: Number(id_pergunta),
+            resposta: resposta ? 1 : 2,
+          }),
+        );
+        onUpdateAnswers(respostasValidas);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar respostas salvas:", error);
+      })
+      .finally(() => setLoading(false)); // <-- aqui
+  }, [id_cliente]);
 
-useEffect(() => {
-  fetch(`${apiUrl}/questions/list`)
-    .then((res) => {
-      if (!res.ok) throw new Error("Erro ao buscar as perguntas");
-      return res.json();
-    })
-    .then((data) => setQuestions(data))
-    .catch((error) => console.error("Erro ao buscar as perguntas:", error))
-    .finally(() => setLoading(false)); // <-- aqui também
-}, []);
-
+  useEffect(() => {
+    fetch(`${apiUrl}/questions/list`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
+        return res.json();
+      })
+      .then((data) => setQuestions(data))
+      .catch((error) => console.error("Erro ao buscar as perguntas:", error))
+      .finally(() => setLoading(false)); // <-- aqui também
+  }, []);
 
   const tabsData = questions.reduce((acc: any[], question) => {
     const tab = acc.find(
@@ -164,132 +163,129 @@ useEffect(() => {
   };
 
   if (loading) {
-  return (
-    <div className="flex justify-center items-center h-[400px] w-full">
-          <div className="w-16 h-16 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
-        </div>
-  );
-}
+    return (
+      <div className="flex justify-center items-center h-[400px] w-full">
+        <div className="w-16 h-16 border-4 border-t-transparent border-accent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-8xl mx-auto space-y-2">
+      <Tabs defaultValue="estratégias">
+        <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
+          {tabsData.map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="text-xs sm:text-sm cursor-pointer"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-          <Tabs defaultValue="estratégias">
-            <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
-              {tabsData.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className="text-xs sm:text-sm cursor-pointer"
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+        {tabsData.map((tab) => (
+          <TabsContent
+            key={tab.value}
+            value={tab.value}
+            className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-3 p-6"
+          >
+            {(() => {
+              const currentPage = currentPageByTab[tab.value] || 1;
+              const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
+              const endIndex = startIndex + QUESTIONS_PER_PAGE;
+              const paginatedFields = tab.fields.slice(startIndex, endIndex);
 
-            {tabsData.map((tab) => (
-              <TabsContent
-                key={tab.value}
-                value={tab.value}
-                className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-3 p-6"
-              >
-                {(() => {
-                  const currentPage = currentPageByTab[tab.value] || 1;
-                  const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
-                  const endIndex = startIndex + QUESTIONS_PER_PAGE;
-                  const paginatedFields = tab.fields.slice(
-                    startIndex,
-                    endIndex,
-                  );
+              return paginatedFields.map((field: any) => {
+                const isChecked = answersRef.current.hasOwnProperty(field.id)
+                  ? answersRef.current[field.id]
+                  : null;
 
-                  return paginatedFields.map((field: any) => {
-                    const isChecked = answersRef.current.hasOwnProperty(
-                      field.id,
-                    )
-                      ? answersRef.current[field.id]
-                      : null;
-
-                    return (
-                      <div
-                        key={field.id}
-                        className=" flex items-center justify-between gap-4 border-b pb-3"
+                return (
+                  <div
+                    key={field.id}
+                    className=" flex items-center justify-between gap-4 border-b pb-3"
+                  >
+                    <Label
+                      htmlFor={field.id}
+                      className="text-sm leading-snug max-w-[80%]"
+                    >
+                      {field.label}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                          isChecked === true ? "bg-emerald-600" : "bg-gray-600"
+                        }`}
+                        onClick={() => handleSwitchChange(field.id, true)}
                       >
-                        <Label
-                          htmlFor={field.id}
-                          className="text-sm leading-snug max-w-[80%]"
-                        >
-                          {field.label}
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                              isChecked === true
-                                ? "bg-emerald-600"
-                                : "bg-gray-600"
-                            }`}
-                            onClick={() => handleSwitchChange(field.id, true)}
-                          >
-                            Sim
-                          </button>
-                          <button
-                            type="button"
-                            className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                              isChecked === false ? "bg-red-600" : "bg-gray-600"
-                            }`}
-                            onClick={() => handleSwitchChange(field.id, false)}
-                          >
-                            Não
-                          </button>
-                          {isChecked === null && (
-                            <span className="text-sm text-gray-500 font-medium">
-                              Não respondida.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
+                        Sim
+                      </button>
+                      <button
+                        type="button"
+                        className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
+                          isChecked === false ? "bg-red-600" : "bg-gray-600"
+                        }`}
+                        onClick={() => handleSwitchChange(field.id, false)}
+                      >
+                        Não
+                      </button>
+                      {isChecked === null && (
+                        <span className="text-sm text-gray-500 font-medium">
+                          Não respondida.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
 
-                <div className="flex justify-center gap-x-6 mt-4">
-                  <Button
-                    size="sm"
-                    disabled={(currentPageByTab[tab.value] || 1) === 1}
-                    onClick={() =>
-                      setCurrentPageByTab((prev) => ({
-                        ...prev,
-                        [tab.value]: (prev[tab.value] || 1) - 1,
-                      }))
-                    }
-                  >
-                    Anterior
-                  </Button>
-                  <span className="text-sm self-center">
-                    Página {currentPageByTab[tab.value] || 1} de{" "}
-                    {Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)}
-                  </span>
-                  <Button
-                    size="sm"
-                    disabled={
-                      (currentPageByTab[tab.value] || 1) >=
-                      Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)
-                    }
-                    onClick={() =>
-                      setCurrentPageByTab((prev) => ({
-                        ...prev,
-                        [tab.value]: (prev[tab.value] || 1) + 1,
-                      }))
-                    }
-                  >
-                    Próxima
-                  </Button>
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-    
-      <Toaster richColors position="bottom-center" closeButton duration={1000} />
+            <div className="flex justify-center gap-x-6 mt-4">
+              <Button
+                size="sm"
+                disabled={(currentPageByTab[tab.value] || 1) === 1}
+                onClick={() =>
+                  setCurrentPageByTab((prev) => ({
+                    ...prev,
+                    [tab.value]: (prev[tab.value] || 1) - 1,
+                  }))
+                }
+              >
+                Anterior
+              </Button>
+              <span className="text-sm self-center">
+                Página {currentPageByTab[tab.value] || 1} de{" "}
+                {Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)}
+              </span>
+              <Button
+                size="sm"
+                disabled={
+                  (currentPageByTab[tab.value] || 1) >=
+                  Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)
+                }
+                onClick={() =>
+                  setCurrentPageByTab((prev) => ({
+                    ...prev,
+                    [tab.value]: (prev[tab.value] || 1) + 1,
+                  }))
+                }
+              >
+                Próxima
+              </Button>
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      <Toaster
+        richColors
+        position="bottom-center"
+        closeButton
+        duration={1000}
+      />
     </div>
   );
 }

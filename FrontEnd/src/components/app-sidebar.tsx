@@ -24,7 +24,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <img src="https://assinaturas.grovehost.com.br/imagesClientes/Grove-favicon.png" className="!size-8" />
+                <img
+                  src="https://assinaturas.grovehost.com.br/imagesClientes/Grove-favicon.png"
+                  className="!size-8"
+                />
                 <span className="text-base font-semibold">Grove Tech</span>
               </a>
             </SidebarMenuButton>

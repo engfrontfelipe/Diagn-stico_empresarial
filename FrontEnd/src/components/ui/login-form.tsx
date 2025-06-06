@@ -120,7 +120,7 @@ export function LoginForm({
           className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white disabled:opacity-70"
         >
           {isLoading ? (
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
           ) : (
             "Login"
           )}

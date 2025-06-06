@@ -7,7 +7,6 @@ export function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
   return nivel.toString() as MaturidadeNivel;
 }
 
-
 export function selecionarTextoConclusao(pontuacao: number): string {
   const nivel = obterNivelMaturidade(pontuacao);
   const texto = consideracoesFinais[nivel];
@@ -18,7 +17,7 @@ export function selecionarTextoConclusao(pontuacao: number): string {
 
   return `
     <section id="conclusao-${nivel}">
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
@@ -36,12 +35,10 @@ export function selecionarTexto(pontuacao: number): string {
 
   return `
     <section id="introducao-${nivel}">
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
-
-
 
 // Importar intros específicas por área e o tipo MaturidadeNivel
 import {
@@ -52,28 +49,33 @@ import {
   introducoesOperacoes,
   introducoesTecnologia,
   introducoesFinanceiro,
-  MaturidadeNivel
+  MaturidadeNivel,
 } from "../Client/StaticDictionary";
 
-
-
 // Mapeamento das áreas para seus respectivos textos de introdução
-const introducoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
+const introducoesPorDepartamento: Record<
+  string,
+  Record<MaturidadeNivel, string[]>
+> = {
   estrategias: introducoesEstrategia,
   vendas: introducoesVendas,
   marketing: introducoesMarketing,
   rh: introducoesRH,
   operacoes: introducoesOperacoes,
   tecnologia: introducoesTecnologia,
-  financeiro: introducoesFinanceiro
+  financeiro: introducoesFinanceiro,
 };
 
 // Função que recebe o departamento e a pontuação e retorna o texto correspondente
-export function selecionarTextoPorDepartamento(departamento: string, pontuacao: number): string {
+export function selecionarTextoPorDepartamento(
+  departamento: string,
+  pontuacao: number,
+): string {
   const nivel = obterNivelMaturidade(pontuacao);
 
   // Pega o objeto de intros da área ou usa introducoes padrão como fallback
-  const intros = introducoesPorDepartamento[departamento.toLowerCase()] || introducoes;
+  const intros =
+    introducoesPorDepartamento[departamento.toLowerCase()] || introducoes;
 
   const opcoes = intros[nivel];
   if (!opcoes || opcoes.length === 0) {
@@ -85,7 +87,7 @@ export function selecionarTextoPorDepartamento(departamento: string, pontuacao: 
 
   return `
     <section id="introducao-${departamento}-${nivel}">
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
@@ -101,17 +103,23 @@ import {
   conclusoesFinanceiro,
 } from "../Client/StaticDictionary";
 
-const conclusoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
+const conclusoesPorDepartamento: Record<
+  string,
+  Record<MaturidadeNivel, string[]>
+> = {
   estrategias: conclusoesEstrategia,
   vendas: conclusoesVendas,
   marketing: conclusoesMarketing,
   rh: conclusoesRH,
   operacoes: conclusoesOperacoes,
   tecnologia: conclusoesTecnologia,
-  financeiro: conclusoesFinanceiro
+  financeiro: conclusoesFinanceiro,
 };
 
-export function selecionarConclusaoPorDepartamento(departamento: string, pontuacao: number): string {
+export function selecionarConclusaoPorDepartamento(
+  departamento: string,
+  pontuacao: number,
+): string {
   const nivel = obterNivelMaturidade(pontuacao);
 
   const conclusoes = conclusoesPorDepartamento[departamento.toLowerCase()];
@@ -129,11 +137,10 @@ export function selecionarConclusaoPorDepartamento(departamento: string, pontuac
 
   return `
     <section id="conclusao-${departamento}-${nivel}">
-      <p>${texto.trim().replace(/\n/g, '<br>')}</p>
+      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
-
 
 type AreaMaturidade = {
   nome: string;
@@ -144,23 +151,23 @@ type ContentDiagProps = {
   htmlIntroducao: string;
   areas: AreaMaturidade[];
   percentualGeral: any;
-  clienteId: any
+  clienteId: any;
 };
 
 type RespostaNegativa = {
   id: string;
   texto_pergunta: string;
   departamento: string;
-  plano_acao: JSON
+  plano_acao: JSON;
   oportunidade: string;
-  priorizacao: number
+  priorizacao: number;
   texto_afirmativa: string;
 };
 // Função utilitária para obter o texto do nível com base no percentual
 export function obterNivelTexto(porcentagem: number): string {
-  if (porcentagem <= 37) return 'Básico';
-  if (porcentagem <= 70) return 'Intermediário';
-  return 'Avançado';
+  if (porcentagem <= 37) return "Básico";
+  if (porcentagem <= 70) return "Intermediário";
+  return "Avançado";
 }
 
 // Renderiza lista de áreas com seus percentuais
@@ -171,20 +178,24 @@ function renderizarListaDeAreas(areas: AreaMaturidade[]) {
     <ul className="list-disc pl-6 space-y-2">
       {areas.map((area, index) => (
         <li key={index}>
-          <span className="font-medium">{area.nome}</span>{' '}
-          — {area.percentual}% ({obterNivelTexto(area.percentual)})
+          <span className="font-medium">{area.nome}</span> — {area.percentual}%
+          ({obterNivelTexto(area.percentual)})
         </li>
       ))}
     </ul>
   );
 }
 
-
 // Componente principal
-export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId }: ContentDiagProps) {
-  
-  const [respostasNegativas, setRespostasNegativas] = useState<RespostaNegativa[]>([]);
-
+export function ContentDiag({
+  htmlIntroducao,
+  areas,
+  percentualGeral,
+  clienteId,
+}: ContentDiagProps) {
+  const [respostasNegativas, setRespostasNegativas] = useState<
+    RespostaNegativa[]
+  >([]);
 
   useEffect(() => {
     async function buscarRespostasNegativas() {
@@ -198,88 +209,145 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
         console.error("Erro ao carregar respostas negativas:", error);
       }
     }
-    
+
     if (clienteId) {
       buscarRespostasNegativas();
     }
   }, [clienteId]);
-  
 
-  function renderizarPlanoAcao(departamento: string, respostas: RespostaNegativa[]) {
-  const planosDoDepartamento = respostas.filter(
-    resposta => resposta.departamento.toLowerCase() === departamento.toLowerCase()
-  );
+  function renderizarPlanoAcao(
+    departamento: string,
+    respostas: RespostaNegativa[],
+  ) {
+    const planosDoDepartamento = respostas.filter(
+      (resposta) =>
+        resposta.departamento.toLowerCase() === departamento.toLowerCase(),
+    );
 
-  if (planosDoDepartamento.length === 0) {
-    return <p className="italic  mt-2">Nenhum plano de ação registrado para esta área.</p>;
+    if (planosDoDepartamento.length === 0) {
+      return (
+        <p className="italic  mt-2">
+          Nenhum plano de ação registrado para esta área.
+        </p>
+      );
+    }
+
+    return (
+      <ul className="mt-4  grid grid-cols-2 gap-5">
+        {planosDoDepartamento.map((resposta) => (
+          <li key={resposta.id}>
+            <strong className="text-[15px]">{resposta.texto_afirmativa}</strong>
+            <div className="text-sm mt-2">
+              {resposta.plano_acao
+                ? Object.entries(resposta.plano_acao).map(([chave, valor]) => (
+                    <p key={chave} className="mb-1">
+                      <strong>{chave}:</strong> {valor as string}
+                    </p>
+                  ))
+                : "Sem plano de ação definido."}
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
-  return (
-    <ul className="mt-4  grid grid-cols-2 gap-5">
-      {planosDoDepartamento.map((resposta) => (
-        <li key={resposta.id}>
-          <strong className="text-[15px]">{resposta.texto_afirmativa}</strong>
-          <div className="text-sm mt-2">
-            {resposta.plano_acao
-              ? Object.entries(resposta.plano_acao).map(([chave, valor]) => (
-                  <p key={chave} className="mb-1">
-                    <strong>{chave}:</strong> {valor as string}
-                  </p>
-                ))
-              : "Sem plano de ação definido."}
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}  
- 
   const nivelGeral = obterNivelTexto(percentualGeral);
 
   // Busca o percentual da área "estrategias"
-  const percentualEstrategias = areas.find(area => area.nome.toLowerCase() === 'estratégias')?.percentual ?? 0;
-  const textoEstrategias = selecionarTextoPorDepartamento('estrategias', percentualEstrategias);
+  const percentualEstrategias =
+    areas.find((area) => area.nome.toLowerCase() === "estratégias")
+      ?.percentual ?? 0;
+  const textoEstrategias = selecionarTextoPorDepartamento(
+    "estrategias",
+    percentualEstrategias,
+  );
 
   // Busca o percentual da área "Vendas"
-  const percentualVendas = areas.find(area => area.nome.toLowerCase() === 'vendas')?.percentual ?? 0;
-  const textoVendas = selecionarTextoPorDepartamento('vendas', percentualVendas);
+  const percentualVendas =
+    areas.find((area) => area.nome.toLowerCase() === "vendas")?.percentual ?? 0;
+  const textoVendas = selecionarTextoPorDepartamento(
+    "vendas",
+    percentualVendas,
+  );
 
-    // Busca o percentual da área "Marketing"
-  const percentualMarketing = areas.find(area => area.nome.toLowerCase() === 'marketing')?.percentual ?? 0;
-  const textoMarketing = selecionarTextoPorDepartamento('marketing', percentualMarketing);
+  // Busca o percentual da área "Marketing"
+  const percentualMarketing =
+    areas.find((area) => area.nome.toLowerCase() === "marketing")?.percentual ??
+    0;
+  const textoMarketing = selecionarTextoPorDepartamento(
+    "marketing",
+    percentualMarketing,
+  );
 
-    // Busca o percentual da área "RH"  
-  const percentualRH = areas.find(area => area.nome.toLowerCase() === 'rh')?.percentual ?? 0;
-  const textoRH = selecionarTextoPorDepartamento('RH', percentualRH); 
+  // Busca o percentual da área "RH"
+  const percentualRH =
+    areas.find((area) => area.nome.toLowerCase() === "rh")?.percentual ?? 0;
+  const textoRH = selecionarTextoPorDepartamento("RH", percentualRH);
 
-    // Busca o percentual da área "Operações"
-  const percentualOperacoes = areas.find(area => area.nome.toLowerCase() === 'operações')?.percentual ?? 0;
-  const textoOperacoes = selecionarTextoPorDepartamento('operações', percentualOperacoes);
+  // Busca o percentual da área "Operações"
+  const percentualOperacoes =
+    areas.find((area) => area.nome.toLowerCase() === "operações")?.percentual ??
+    0;
+  const textoOperacoes = selecionarTextoPorDepartamento(
+    "operações",
+    percentualOperacoes,
+  );
 
-    // Busca o percentual da área "Tecnologia"
-  const percentualTecnologia = areas.find(area => area.nome.toLowerCase() === 'tecnologia')?.percentual ?? 0;
-  const textoTecnologia = selecionarTextoPorDepartamento('Tecnologia', percentualTecnologia);
+  // Busca o percentual da área "Tecnologia"
+  const percentualTecnologia =
+    areas.find((area) => area.nome.toLowerCase() === "tecnologia")
+      ?.percentual ?? 0;
+  const textoTecnologia = selecionarTextoPorDepartamento(
+    "Tecnologia",
+    percentualTecnologia,
+  );
 
-      // Busca o percentual da área "Finaceiro"
-  const percentualFinanceiro = areas.find(area => area.nome.toLowerCase() === 'financeiro')?.percentual ?? 0;
-  const textoFinanceiro = selecionarTextoPorDepartamento('Financeiro', percentualFinanceiro);
+  // Busca o percentual da área "Finaceiro"
+  const percentualFinanceiro =
+    areas.find((area) => area.nome.toLowerCase() === "financeiro")
+      ?.percentual ?? 0;
+  const textoFinanceiro = selecionarTextoPorDepartamento(
+    "Financeiro",
+    percentualFinanceiro,
+  );
 
-  const conclusaoEstrategias = selecionarConclusaoPorDepartamento('estrategias', percentualEstrategias);
-  const conclusaoVendas = selecionarConclusaoPorDepartamento('vendas', percentualVendas);
-  const conclusaoMarketing = selecionarConclusaoPorDepartamento('marketing', percentualMarketing);
-  const conclusaoRH = selecionarConclusaoPorDepartamento('rh', percentualRH);
-  const conclusaoOperacoes = selecionarConclusaoPorDepartamento('operacoes', percentualOperacoes);
-  const conclusaoTecnologia = selecionarConclusaoPorDepartamento('tecnologia', percentualTecnologia);
-  const conclusaoFinanceiro = selecionarConclusaoPorDepartamento('financeiro', percentualFinanceiro);
+  const conclusaoEstrategias = selecionarConclusaoPorDepartamento(
+    "estrategias",
+    percentualEstrategias,
+  );
+  const conclusaoVendas = selecionarConclusaoPorDepartamento(
+    "vendas",
+    percentualVendas,
+  );
+  const conclusaoMarketing = selecionarConclusaoPorDepartamento(
+    "marketing",
+    percentualMarketing,
+  );
+  const conclusaoRH = selecionarConclusaoPorDepartamento("rh", percentualRH);
+  const conclusaoOperacoes = selecionarConclusaoPorDepartamento(
+    "operacoes",
+    percentualOperacoes,
+  );
+  const conclusaoTecnologia = selecionarConclusaoPorDepartamento(
+    "tecnologia",
+    percentualTecnologia,
+  );
+  const conclusaoFinanceiro = selecionarConclusaoPorDepartamento(
+    "financeiro",
+    percentualFinanceiro,
+  );
 
   function ComponenteConclusao({ pontuacao }: { pontuacao: any }) {
-  const conclusaoHtml = selecionarTextoConclusao(pontuacao);
-  return <div dangerouslySetInnerHTML={{ __html: conclusaoHtml }} />;
-}
+    const conclusaoHtml = selecionarTextoConclusao(pontuacao);
+    return <div dangerouslySetInnerHTML={{ __html: conclusaoHtml }} />;
+  }
 
   return (
     <div className="p-6 mx-auto">
-      <h1 className="text-center font-bold text-3xl mb-8">Relatório de Diagnóstico Empresarial</h1>
+      <h1 className="text-center font-bold text-3xl mb-8">
+        Relatório de Diagnóstico Empresarial
+      </h1>
 
       <section className="mb-10" id="intro">
         <h2 className="font-semibold text-2xl mb-4">Introdução</h2>
@@ -290,86 +358,133 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
       </section>
 
       <section id="grau-por-area">
-        <h2 className="font-semibold text-2xl mb-4">Grau de Maturidade das Áreas</h2>
+        <h2 className="font-semibold text-2xl mb-4">
+          Grau de Maturidade das Áreas
+        </h2>
         <p className="mb-4 ">
-          A empresa foi avaliada em diferentes aspectos e apresenta o seguinte nível de maturidade por área:
+          A empresa foi avaliada em diferentes aspectos e apresenta o seguinte
+          nível de maturidade por área:
         </p>
 
         {renderizarListaDeAreas(areas)}
 
         <p className="mt-6 ">
-          A avaliação geral indica um nível <strong>{nivelGeral}</strong> de maturidade empresarial,
-          com oportunidades significativas de melhoria. Atingindo um nível médio de maturidade de <strong>{percentualGeral}%</strong>.
+          A avaliação geral indica um nível <strong>{nivelGeral}</strong> de
+          maturidade empresarial, com oportunidades significativas de melhoria.
+          Atingindo um nível médio de maturidade de{" "}
+          <strong>{percentualGeral}%</strong>.
         </p>
 
         <div>
           <h3 className="text-[17px] font-medium mt-5">Estratégias</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className="mt-2 " dangerouslySetInnerHTML={{ __html: textoEstrategias }} />
+          <div
+            className="mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoEstrategias }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('estratégias', respostasNegativas)}
+          {renderizarPlanoAcao("estratégias", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoEstrategias }} />
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoEstrategias }}
+          />
         </div>
 
         <div>
           <h3 className="text-[17px] font-medium mt-5">Vendas</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoVendas }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoVendas }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('vendas', respostasNegativas)}
+          {renderizarPlanoAcao("vendas", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoVendas }} />
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoVendas }}
+          />
         </div>
 
-         <div>
+        <div>
           <h3 className="text-[17px] font-medium mt-5">Marketing</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoMarketing }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoMarketing }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('marketing', respostasNegativas)}
+          {renderizarPlanoAcao("marketing", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoMarketing }} />
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoMarketing }}
+          />
         </div>
 
-         <div>
+        <div>
           <h3 className="text-[17px] font-medium mt-5">RH</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoRH }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoRH }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('rh', respostasNegativas)}
+          {renderizarPlanoAcao("rh", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoRH }} />
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoRH }}
+          />
         </div>
 
-         <div>
+        <div>
           <h3 className="text-[17px] font-medium mt-5">Operações</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoOperacoes }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoOperacoes }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('operações', respostasNegativas)}  
+          {renderizarPlanoAcao("operações", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoOperacoes }} /> 
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoOperacoes }}
+          />
         </div>
 
-         <div>
+        <div>
           <h3 className="text-[17px] font-medium mt-5">Tecnologia</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoTecnologia }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoTecnologia }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('tecnologia', respostasNegativas)}
+          {renderizarPlanoAcao("tecnologia", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoTecnologia }} />
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoTecnologia }}
+          />
         </div>
-           <div>
+        <div>
           <h3 className="text-[17px] font-medium mt-5">Financeiro</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
-          <div className=" mt-2 " dangerouslySetInnerHTML={{ __html: textoFinanceiro }} />
+          <div
+            className=" mt-2 "
+            dangerouslySetInnerHTML={{ __html: textoFinanceiro }}
+          />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
-          {renderizarPlanoAcao('financeiro', respostasNegativas)}
+          {renderizarPlanoAcao("financeiro", respostasNegativas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
-          <div className="border-b pb-5 " dangerouslySetInnerHTML={{ __html: conclusaoFinanceiro }} />  
-        </div>     
+          <div
+            className="border-b pb-5 "
+            dangerouslySetInnerHTML={{ __html: conclusaoFinanceiro }}
+          />
+        </div>
       </section>
       {/* <section>
         <h2 className="font-semibold text-2xl mb-4 mt-5">Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
@@ -424,13 +539,16 @@ export function ContentDiag({ htmlIntroducao, areas, percentualGeral, clienteId 
       </section> */}
 
       <section>
-        <h2 className="font-semibold text-2xl mt-10 mb-2">Considerações Finais</h2> 
-        <ComponenteConclusao pontuacao={percentualGeral}/>
+        <h2 className="font-semibold text-2xl mt-10 mb-2">
+          Considerações Finais
+        </h2>
+        <ComponenteConclusao pontuacao={percentualGeral} />
       </section>
 
-      <h3 className="font-medium mt-10">"O segredo da mudança é focar toda a sua energia não em lutar contra o velho, mas em construir o novo." - Sócrates</h3>
+      <h3 className="font-medium mt-10">
+        "O segredo da mudança é focar toda a sua energia não em lutar contra o
+        velho, mas em construir o novo." - Sócrates
+      </h3>
     </div>
   );
 }
-
-
