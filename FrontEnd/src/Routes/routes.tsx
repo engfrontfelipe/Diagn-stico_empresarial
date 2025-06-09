@@ -26,7 +26,7 @@ const Rotas = () => {
       <Route
         path="/register_user"
         element={
-          <PrivateRoutes>
+          <PrivateRoutes allowedRoles={['admin']}>
             <RegisterUser />
           </PrivateRoutes>
         }
@@ -35,7 +35,7 @@ const Rotas = () => {
       <Route
         path="/register_client"
         element={
-          <PrivateRoutes>
+          <PrivateRoutes allowedRoles={['admin']}>
             <RegisterClient />
           </PrivateRoutes>
         }
@@ -44,7 +44,7 @@ const Rotas = () => {
       <Route
         path="/register_quest"
         element={
-          <PrivateRoutes>
+          <PrivateRoutes allowedRoles={['admin']}>
             <RegisterQuest />
           </PrivateRoutes>
         }

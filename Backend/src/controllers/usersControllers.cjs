@@ -1,8 +1,9 @@
 const sql = require("../config/db.cjs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const cors = require("cors");
-const JWT_SECRET = "JEISOQFJMCEOIOCMCECIOEFCEMCJ";
+const JWT_SECRET = process.env.JWT_SECRET
 const express = require("express");
 
 const app = express();
@@ -114,6 +115,7 @@ function generateToken(usuario) {
     id: usuario.id_usuario,
     nome: usuario.nome,
     email: usuario.email,
+    role: usuario.role
   };
 
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });

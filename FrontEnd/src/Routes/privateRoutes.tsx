@@ -1,25 +1,58 @@
-import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import AccessDenied from "@/pages/AcessDenied";
 
 interface PrivateRoutesProps {
   children: ReactNode;
+  allowedRoles?: string[];
 }
 
-const isAuthenticated = (): boolean => {
-  const token = localStorage.getItem("token");
+interface DecodedToken {
+  exp: number;
+  role: string;
+}
 
-  if (!token) return false;
+export function PrivateRoutes({ children, allowedRoles }: PrivateRoutesProps) {
+  const [authorized, setAuthorized] = useState<null | boolean>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const navigate = useNavigate();
 
-  try {
-    const decoded: { exp: number } = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp > currentTime;
-  } catch (error) {
-    return false;
-  }
-};
+  useEffect(() => {
+    const checkAccess = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setAuthorized(false);
+        return;
+      }
 
-export function PrivateRoutes({ children }: PrivateRoutesProps) {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+
+        if (decoded.exp < currentTime) {
+          localStorage.removeItem("token");
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        if (allowedRoles && !allowedRoles.includes(decoded.role)) {
+          setAccessDenied(true);
+          return;
+        }
+
+        setAuthorized(true);
+      } catch (error) {
+        localStorage.removeItem("token");
+        navigate("/login", { replace: true });
+      }
+    };
+
+    checkAccess();
+  }, [allowedRoles, navigate]);
+
+  if (authorized === null && !accessDenied) return null;
+  if (accessDenied) return <AccessDenied />;
+
+  return authorized ? <>{children}</> : null;
 }

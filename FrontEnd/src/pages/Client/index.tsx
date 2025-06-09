@@ -454,23 +454,23 @@ export const GeradorRelatorioPDF: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-5 flex justify-end mr-5">
-      <button
-        onClick={gerarPDF}
-        disabled={loading}
-        className="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 transition disabled:opacity-50"
-      >
-        {loading ? (
-          <span className="flex items-center gap-2">
-            <Loader2 className="animate-spin" size={20} />
-            Gerando PDF...
-          </span>
-        ) : (
-           <>
-            <p className="flex gap-2 items-center">Baixar Relatório <FileDown size={20} /></p>
-           </>
-        )}
-      </button>
-    </div>
+<div className="mt-5 flex justify-end mr-5 relative group">
+  <button
+    onClick={gerarPDF}
+    disabled={loading}
+    className="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 hover:scale-110 transition disabled:opacity-50"
+    title="Baixar relatório"
+  >
+    {loading ? (
+      <span className="flex items-center gap-2">
+        <Loader2 className="animate-spin" size={20} />
+        Gerando PDF...
+      </span>
+    ) : (
+      <p className="flex gap-2 items-center"><FileDown size={20} /></p>
+    )}
+  </button>
+</div>
+
   );
 };
