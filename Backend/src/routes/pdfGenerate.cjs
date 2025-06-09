@@ -1,4 +1,4 @@
-function generateHtml({ title, intro, introPorDp }) {
+function generateHtml({ title, intro, introPorDp, logoCliente }) {
   return `
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -84,7 +84,7 @@ function generateHtml({ title, intro, introPorDp }) {
             font-size: 8pt;
             display: flex;
             justify-content: space-between;
-            margin-top: 64%;
+            margin-top: 55%;
           }
 
           .footer-left,
@@ -199,7 +199,7 @@ function generateHtml({ title, intro, introPorDp }) {
                 <img src="https://assinaturas.grovehost.com.br/imagesClientes/azul.png" alt="Logo Grove" style="max-height: 60px;" />
                 <div class="title">DIAGNÓSTICO EMPRESARIAL</div>
                 <div class="subtitle">ANO 2025 / VERSÃO 001</div>
-                <img src="https://assinaturas.grovehost.com.br/imagesClientes/hidropartesImg/Logo.png" alt="Logo Cliente" style="max-height: 80px; margin-top: 3rem;" />
+                <img src="${logoCliente}" alt="Logo Cliente" style="max-height: 80px; margin-top: 3rem;" />
               </div>
             <div class="footer">
               <div class="footer-left">

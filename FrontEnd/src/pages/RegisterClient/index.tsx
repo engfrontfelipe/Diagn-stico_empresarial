@@ -37,6 +37,7 @@ export default function RegisterUser() {
     consultor: "",
     linkedin: "",
     site: "",
+    logo_url: "",
   });
 
   const [clientes, setClientes] = useState<
@@ -51,6 +52,7 @@ export default function RegisterUser() {
       consultor: string;
       linkedin: string;
       site: string;
+      logo_url: string,
     }[]
   >([]);
 
@@ -91,6 +93,7 @@ export default function RegisterUser() {
     consultor: "",
     linkedin: "",
     site: "",
+    logo_url: ""
   });
 
   type InputOrSelectEventEdit =
@@ -122,6 +125,7 @@ export default function RegisterUser() {
       consultor,
       linkedin,
       site,
+      logo_url
     } = client;
 
     if (
@@ -132,7 +136,8 @@ export default function RegisterUser() {
       !cargo_responsavel ||
       !consultor ||
       !linkedin ||
-      !site
+      !site ||
+      !logo_url
     ) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
@@ -152,6 +157,7 @@ export default function RegisterUser() {
         consultor,
         linkedin,
         site,
+        logo_url,
       }),
     })
       .then((response) => {
@@ -229,6 +235,7 @@ export default function RegisterUser() {
       consultor: string;
       linkedin: string;
       site: string;
+      logo_url: string; 
     },
   ) => {
     try {
@@ -266,6 +273,7 @@ export default function RegisterUser() {
       consultor,
       linkedin,
       site,
+      logo_url,
     } = editClientData;
 
     if (!nome_empresa || !nome_responsavel) {
@@ -282,6 +290,7 @@ export default function RegisterUser() {
       consultor,
       linkedin: linkedin,
       site: site,
+      logo_url: logo_url,
     });
     toast.success("Cliente atualizado com sucesso!");
   };
@@ -386,6 +395,17 @@ export default function RegisterUser() {
                       onChange={handleChange}
                     />
 
+                       <Label htmlFor="logo_url">
+                      Logo :
+                    </Label>
+                    <Input
+                      id="logo_url"
+                      type="text"
+                      placeholder="Insira a URL da logo do cliente"
+                      value={client.logo_url}
+                      onChange={handleChange}
+                    />
+
                     <Label>CNPJ:</Label>
                     <Input
                       id="cnpj"
@@ -450,10 +470,11 @@ export default function RegisterUser() {
                                     cnpj: cliente.cnpj,
                                     ramo_empresa: cliente.ramo_empresa,
                                     cargo_responsavel:
-                                      cliente.cargo_responsavel,
+                                    cliente.cargo_responsavel,
                                     consultor: cliente.consultor,
                                     linkedin: cliente.linkedin,
                                     site: cliente.site,
+                                    logo_url: cliente.logo_url
                                   });
                                 }}
                               >
@@ -596,6 +617,27 @@ export default function RegisterUser() {
                                     />
                                   </div>
 
+                                   <div>
+                                    <Label
+                                      htmlFor="linkedin"
+                                      className="mb-1 font-medium"
+                                    >
+                                      Logo
+                                    </Label>
+                                    <Input
+                                      id="logo_url"
+                                      type="text"
+                                      placeholder="Digite o URL da nova Logo"
+                                      value={editClientData.logo_url}
+                                      onChange={(e) =>
+                                        handleChangeEdit({
+                                          id: "logo_url",
+                                          value: e.target.value,
+                                        })
+                                      }
+                                    />
+                                  </div>
+
                                   <div>
                                     <Label
                                       htmlFor="site"
@@ -614,7 +656,7 @@ export default function RegisterUser() {
                                           value: e.target.value,
                                         })
                                       }
-                                    />
+                                    />to
                                   </div>
                                 </div>
 

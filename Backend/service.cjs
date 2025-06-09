@@ -23,7 +23,7 @@ app.use(questionsRoutes);
 app.use(answersRoute);
 
 app.post("/generate-pdf", async (req, res) => {
-  const { title, intro, introPorDp } = req.body;
+  const { title, intro, introPorDp, logoCliente } = req.body;
 
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
@@ -51,7 +51,7 @@ app.post("/generate-pdf", async (req, res) => {
 
 
 
-  const htmlFinal = generateHtml({ title, intro, introPorDp, pageMap });
+  const htmlFinal = generateHtml({ title, intro, introPorDp, pageMap, logoCliente });
   await page.setContent(htmlFinal, { waitUntil: 'networkidle0' });
 
   const pdfBuffer = await page.pdf({

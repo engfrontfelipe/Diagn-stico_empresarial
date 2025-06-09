@@ -27,6 +27,8 @@ import {
 } from "../PageResult/contetDiag";
 
 import { consideracoesFinais } from "../Client/StaticDictionary";
+import { useState } from "react";
+import { FileDown, Loader2 } from "lucide-react";
 
 type RespostaNegativa = {
   id: string;
@@ -36,6 +38,7 @@ type RespostaNegativa = {
   oportunidade: string;
   priorizacao: number;
   texto_afirmativa: string;
+  texto_afirmativa_positiva: string;
 };
 
 type AreaMaturidade = {
@@ -218,6 +221,41 @@ function renderizarPlanoAcaoHtml(
   `;
 }
 
+function renderizarPontosHtml(
+  departamento: string,
+  respostas: RespostaNegativa[],
+): string {
+  const planosDoDepartamento = respostas.filter(
+    (resposta) =>
+      typeof resposta.departamento === "string" &&
+      resposta.departamento.toLowerCase() === departamento.toLowerCase(),
+  );
+
+  if (planosDoDepartamento.length === 0) {
+    return `<p>Nenhum plano de ação registrado para esta área.</p>`;
+  }
+
+  const listaPontos = planosDoDepartamento
+    .map((resposta) => {
+      const ponto = resposta.texto_afirmativa_positiva;
+
+      return `
+        <ul>
+          <li>${ponto || "Sem ponto forte definido."}</li>
+        </ul>
+      `;
+    })
+    .join("");
+
+  return `
+    <div>
+      <h4>Pontos fortes Identificados</h4>
+      ${listaPontos}
+    </div>
+  `;
+}
+
+
 export function selecionarConclusaoPorDepartamento(
   departamento: string,
   pontuacao: number,
@@ -282,98 +320,157 @@ export const handleGeneratePDF = async (
   dadosPorDepartamento: { nome: string; percentual: number }[],
   respostasNegativas: any,
   pontuacaoFinal: any,
+  respostasPositivas: any,
+  logoCliente2: string
 ) => {
-  try {
-    const listaAreasHtml = renderizarListaDeAreasHtml(dadosPorDepartamento);
-    const tabelaOportunidadesHtml =
-      gerarTabelaOportunidadesHtml(respostasNegativas);
-    const conclusaoGeralHtml = selecionarTextoConclusao(pontuacaoFinal);
+  const listaAreasHtml = renderizarListaDeAreasHtml(dadosPorDepartamento);
+  const tabelaOportunidadesHtml = gerarTabelaOportunidadesHtml(respostasNegativas);
+  const conclusaoGeralHtml = selecionarTextoConclusao(pontuacaoFinal);
+  const logoCliente = logoCliente2
 
-    const getDepartamentoHtml = (nome: string, id: string) => {
-      const area = dadosPorDepartamento.find(
-        (a) => a.nome.toLowerCase() === id,
-      );
-      const pontuacao = area ? area.percentual : 0;
-      const introducao = selecionarTextoPorDepartamento(id, pontuacao);
-      const planosHtml = renderizarPlanoAcaoHtml(id, respostasNegativas);
-      const conclusaoHtml = selecionarConclusaoPorDepartamento(id, pontuacao);
 
-      return introducao || planosHtml || conclusaoHtml
-        ? `
+  const getDepartamentoHtml = (nome: string, id: string) => {
+    const area = dadosPorDepartamento.find((a) => a.nome.toLowerCase() === id);
+    const pontuacao = area ? area.percentual : 0;
+    const introducao = selecionarTextoPorDepartamento(id, pontuacao);
+    const planosHtml = renderizarPlanoAcaoHtml(id, respostasNegativas);
+    const pontosHtml = renderizarPontosHtml(id, respostasPositivas);
+    const conclusaoHtml = selecionarConclusaoPorDepartamento(id, pontuacao);
+
+    return introducao || planosHtml || conclusaoHtml || logoCliente
+      ? `
         <div class="page">
           <section class="page-content" id="${id}">
-            ${introducao}${planosHtml}${conclusaoHtml}
+            ${introducao}${planosHtml}${pontosHtml}${conclusaoHtml}
           </section>
         </div>
       `
-        : `
+      : `
         <div class="page">
           <section class="page-content" id="${id}">
             <p>Conteúdo não disponível para ${nome}.</p>
           </section>
         </div>
       `;
-    };
+  };
 
-    const htmlFinal = `
-      <div>
-        <section id="intro" class="page">
-          <div class="page-content">
-            <h2>1. Introdução Geral</h2>
-            <p>${introGeral}</p>
-          </div>
-        </section>
-        <section class="page" id="maturidade">
-          <div class="page-content">
-            <h2>2. Grau de Maturidade das Áreas</h2>
-            ${listaAreasHtml}
-          </div>
-        </section>
-        ${getDepartamentoHtml("Marketing", "marketing")}
-        ${getDepartamentoHtml("Operações", "operações")}
-        ${getDepartamentoHtml("Vendas", "vendas")}
-        ${getDepartamentoHtml("RH", "rh")}
-        ${getDepartamentoHtml("Estratégias", "estratégias")}
-        ${getDepartamentoHtml("Financeiro", "financeiro")}
-        ${getDepartamentoHtml("Tecnologia", "tecnologia")}
-        <section class="page" id="mapa-oportunidade">
-          <div class="page-content">
-            <h2>3. Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
-            ${tabelaOportunidadesHtml}
-          </div>
-        </section>
-        <section class="page" id="conclusao">
-          <div class="page-content">
-            ${conclusaoGeralHtml}
-          </div>
-        </section>
-      </div>
-    `;
+  const htmlFinal = `
+    <div>
+      <section id="intro" class="page">
+        <div class="page-content">
+          <h2>1. Introdução Geral</h2>
+          <p>${introGeral}</p>
+        </div>
+      </section>
+      <section class="page" id="maturidade">
+        <div class="page-content">
+          <h2>2. Grau de Maturidade das Áreas</h2>
+          ${listaAreasHtml}
+        </div>
+      </section>
+      ${getDepartamentoHtml("Marketing", "marketing")}
+      ${getDepartamentoHtml("Operações", "operações")}
+      ${getDepartamentoHtml("Vendas", "vendas")}
+      ${getDepartamentoHtml("RH", "rh")}
+      ${getDepartamentoHtml("Estratégias", "estratégias")}
+      ${getDepartamentoHtml("Financeiro", "financeiro")}
+      ${getDepartamentoHtml("Tecnologia", "tecnologia")}
+      <section class="page" id="mapa-oportunidade">
+        <div class="page-content">
+          <h2>3. Mapa de Oportunidade | Tabela de Ice FrameWork</h2>
+          ${tabelaOportunidadesHtml}
+        </div>
+      </section>
+      <section class="page" id="conclusao">
+        <div class="page-content">
+          ${conclusaoGeralHtml}
+        </div>
+      </section>
+    </div>
+  `;
 
-    const response = await fetch(`${apiUrl}/generate-pdf`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: "Relatório De Diagnóstico Empresarial",
-        intro: introGeral,
-        introPorDp: htmlFinal,
-      }),
-    });
+  const response = await fetch(`${apiUrl}/generate-pdf`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Relatório De Diagnóstico Empresarial",
+      intro: introGeral,
+      introPorDp: htmlFinal,
+      logoCliente: logoCliente
+    }),
+  });
+  
 
-    if (!response.ok) throw new Error("Erro ao gerar o PDF");
+  if (!response.ok) throw new Error("Erro ao gerar o PDF");
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "relatorio.pdf";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao gerar PDF:", error);
-  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "relatorio.pdf";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+type Props = {
+  introGeral: string;
+  dadosPorDepartamento: { nome: string; percentual: number }[];
+  respostasNegativas: any;
+  pontuacaoFinal: any;
+  respostasPositivas: any;
+  logoCliente: any;
+};
+
+export const GeradorRelatorioPDF: React.FC<Props> = ({
+  introGeral,
+  dadosPorDepartamento,
+  respostasNegativas,
+  pontuacaoFinal,
+  respostasPositivas,
+  logoCliente
+}) => {
+  const [loading, setLoading] = useState(false);
+
+  const gerarPDF = async () => {
+    setLoading(true);
+    try {
+      await handleGeneratePDF(
+        introGeral,
+        dadosPorDepartamento,
+        respostasNegativas,
+        pontuacaoFinal,
+        respostasPositivas,
+        logoCliente
+      );
+
+      
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mt-5 flex justify-end mr-5">
+      <button
+        onClick={gerarPDF}
+        disabled={loading}
+        className="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 transition disabled:opacity-50"
+      >
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="animate-spin" size={20} />
+            Gerando PDF...
+          </span>
+        ) : (
+           <>
+            <p className="flex gap-2 items-center">Baixar Relatório <FileDown size={20} /></p>
+           </>
+        )}
+      </button>
+    </div>
+  );
 };

@@ -162,6 +162,7 @@ type RespostaNegativa = {
   oportunidade: string;
   priorizacao: number;
   texto_afirmativa: string;
+  texto_afirmativa_positiva: string;
 };
 // Função utilitária para obter o texto do nível com base no percentual
 export function obterNivelTexto(porcentagem: number): string {
@@ -197,6 +198,10 @@ export function ContentDiag({
     RespostaNegativa[]
   >([]);
 
+  const [respostasPositivas, setRespostasPositivas] = useState<
+    RespostaNegativa[]
+  >([]);
+
   useEffect(() => {
     async function buscarRespostasNegativas() {
       try {
@@ -214,6 +219,57 @@ export function ContentDiag({
       buscarRespostasNegativas();
     }
   }, [clienteId]);
+
+  useEffect(() => {
+      async function buscarRespostasPositivas() {
+        try {
+          const response = await fetch(`${apiUrl}/answers/positive/${clienteId}`);
+          if (!response.ok) throw new Error("Erro ao buscar respostas negativas");
+  
+          const data = await response.json();
+          setRespostasPositivas(data);
+        } catch (error) {
+          console.error("Erro ao carregar respostas negativas:", error);
+        }
+      }
+  
+      if (clienteId) {
+        buscarRespostasPositivas();
+      }
+    }, [clienteId]);
+
+     function renderizarPontosFortes(
+    departamento: string,
+    respostas: RespostaNegativa[],
+  ) {
+    const pontosDoDepartamento = respostas.filter(
+      (resposta) =>
+        resposta.departamento.toLowerCase() === departamento.toLowerCase(),
+    );
+
+    if (pontosDoDepartamento.length === 0) {
+      return (
+        <p className="italic  mt-2">
+          Nenhum ponto forte registrado para esta área.
+        </p>
+      );
+    }
+
+    return (
+      <>
+            <ul className=" p-5 grid grid-cols-2 gap-5">
+        {pontosDoDepartamento.map((resposta) => (
+          <li className="text-sm list-disc" key={resposta.id}>
+            {resposta.texto_afirmativa_positiva}
+          </li>
+        ))}
+      </ul>
+
+      </>
+ 
+    );
+  }
+
 
   function renderizarPlanoAcao(
     departamento: string,
@@ -375,7 +431,7 @@ export function ContentDiag({
           <strong>{percentualGeral}%</strong>.
         </p>
 
-        <div>
+        <div id="estrategias">
           <h3 className="text-[17px] font-medium mt-5">Estratégias</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -384,6 +440,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("estratégias", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("estratégias", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
@@ -391,7 +449,7 @@ export function ContentDiag({
           />
         </div>
 
-        <div>
+        <div id="vendas">
           <h3 className="text-[17px] font-medium mt-5">Vendas</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -400,6 +458,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("vendas", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("vendas", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
@@ -407,7 +467,7 @@ export function ContentDiag({
           />
         </div>
 
-        <div>
+        <div id="marketing">
           <h3 className="text-[17px] font-medium mt-5">Marketing</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -416,6 +476,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("marketing", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("marketing", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
@@ -423,7 +485,7 @@ export function ContentDiag({
           />
         </div>
 
-        <div>
+        <div id="rh">
           <h3 className="text-[17px] font-medium mt-5">RH</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -432,6 +494,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("rh", respostasNegativas)}
+               <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("rh", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
@@ -439,7 +503,7 @@ export function ContentDiag({
           />
         </div>
 
-        <div>
+        <div id="operacoes">
           <h3 className="text-[17px] font-medium mt-5">Operações</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -448,6 +512,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("operações", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("operações", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
@@ -455,7 +521,7 @@ export function ContentDiag({
           />
         </div>
 
-        <div>
+        <div id="tecnologia">
           <h3 className="text-[17px] font-medium mt-5">Tecnologia</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -464,13 +530,16 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("tecnologia", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("tecnologia", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
             dangerouslySetInnerHTML={{ __html: conclusaoTecnologia }}
           />
         </div>
-        <div>
+       
+        <div id="financeiro">
           <h3 className="text-[17px] font-medium mt-5">Financeiro</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
           <div
@@ -479,6 +548,8 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("financeiro", respostasNegativas)}
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          {renderizarPontosFortes("financeiro", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
             className="border-b pb-5 "
