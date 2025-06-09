@@ -28,6 +28,7 @@ import {
 
 import { consideracoesFinais } from "../Client/StaticDictionary";
 import { useState } from "react";
+import confetti from 'canvas-confetti';
 import { FileDown, Loader2 } from "lucide-react";
 
 type RespostaNegativa = {
@@ -429,48 +430,73 @@ export const GeradorRelatorioPDF: React.FC<Props> = ({
   respostasNegativas,
   pontuacaoFinal,
   respostasPositivas,
-  logoCliente
+  logoCliente,
 }) => {
   const [loading, setLoading] = useState(false);
 
   const gerarPDF = async () => {
-    setLoading(true);
-    try {
-      await handleGeneratePDF(
-        introGeral,
-        dadosPorDepartamento,
-        respostasNegativas,
-        pontuacaoFinal,
-        respostasPositivas,
-        logoCliente
-      );
+  setLoading(true);
+  try {
+    await handleGeneratePDF(
+      introGeral,
+      dadosPorDepartamento,
+      respostasNegativas,
+      pontuacaoFinal,
+      respostasPositivas,
+      logoCliente
+    );
 
-      
-    } catch (err) {
-      console.error("Erro ao gerar PDF:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 🎉 Confete em tela cheia por ~2 segundos
+    const confettiInstance = confetti.create(undefined, { useWorker: true, resize: true });
+
+    const duration = 2000; // duração total em ms
+    const interval = 250; // intervalo entre explosões
+    const end = Date.now() + duration;
+
+    const confettiInterval = setInterval(() => {
+      if (Date.now() > end) {
+        clearInterval(confettiInterval);
+        return;
+      }
+
+      confettiInstance({
+        particleCount: 100,
+        spread: 100,
+        startVelocity: 30,
+        origin: {
+          x: Math.random(),
+          y: Math.random() * 0.6,
+        },
+      });
+    }, interval);
+
+  } catch (err) {
+    console.error("Erro ao gerar PDF:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
-<div className="mt-5 flex justify-end mr-5 relative group">
-  <button
-    onClick={gerarPDF}
-    disabled={loading}
-    className="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 hover:scale-110 transition disabled:opacity-50"
-    title="Baixar relatório"
-  >
-    {loading ? (
-      <span className="flex items-center gap-2">
-        <Loader2 className="animate-spin" size={20} />
-        Gerando PDF...
-      </span>
-    ) : (
-      <p className="flex gap-2 items-center"><FileDown size={20} /></p>
-    )}
-  </button>
-</div>
-
+    <div className="mt-5 flex justify-end mr-5 relative group">
+      <button
+        onClick={gerarPDF}
+        disabled={loading}
+        className="cursor-pointer bg-red-600 text-white p-2 rounded-lg hover:bg-red-500 hover:scale-102 transition disabled:opacity-50"
+        title="Baixar relatório"
+      >
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="animate-spin" size={20} />
+            Gerando PDF...
+          </span>
+        ) : (
+          <p className="flex gap-2 items-center">
+            <FileDown size={20} />
+          </p>
+        )}
+      </button>
+    </div>
   );
 };
