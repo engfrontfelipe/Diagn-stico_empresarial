@@ -117,7 +117,7 @@ export function HeaderPageResult() {
   return (
     <div
       className={cn(
-        " flex items-center justify-between border-b-2 pb-4 border-accent fixed top-0 left-0 w-full z-50 bg-background transition-transform duration-300",
+        "flex items-center justify-between border-b-2 pb-4 border-accent fixed top-0 left-0 w-full z-50 bg-background transition-transform duration-300",
         showHeader ? "translate-y-0" : "-translate-y-full",
       )}
     >

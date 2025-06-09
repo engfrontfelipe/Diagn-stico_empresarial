@@ -313,9 +313,9 @@ export default function PageResult({ idCliente }: Props) {
     <div className=" w-full h-full mt-25 ">
       <HeaderPageResult />
       <div className="h-5" id="dashGeneral"></div>
-      <div className=" ">
-        <div className="hidden lg:flex gap-5 w-full pl-10 pr-10 m-auto">
-          <Card className="w-full max-w-[300px]">
+      <div className="">
+        <div className=" lg:flex gap-5 w-full pl-10 pr-10 m-auto">
+          <Card className="w-full lg:max-w-[300px]">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Resultado Geral de Maturidade
             </h3>
@@ -366,7 +366,7 @@ export default function PageResult({ idCliente }: Props) {
             </div>
           </Card>
 
-          <Card className="hidden lg:flex flex-col justify-center items-center w-full h-[360px]">
+          <Card className=" lg:flex mt-5 lg:mt-0 flex-col justify-center items-center w-full h-[360px]">
             <h1 className="text-[18px] -mb-5 font-semibold">
               Em barras por Departamento
             </h1>
@@ -403,7 +403,7 @@ export default function PageResult({ idCliente }: Props) {
             </ResponsiveContainer>
           </Card>
 
-          <Card className="p-6 h-90 hidden lg:flex  w-auto">
+          <Card className="p-6 h-90 hidden lg:flex  lg:mt-0 w-auto">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Distribuição de Respostas (%)
             </h3>
@@ -442,7 +442,7 @@ export default function PageResult({ idCliente }: Props) {
             </div>
           </Card>
         </div>
-        <div className="w-full m-auto pl-10 pr-10 ">
+        <div className=" hidden  lg:block w-full m-auto pl-10 pr-10 ">
           <Card className="w-full  mt-5 p-4">
             <div className="flex justify-center gap-3">
               {barChartData.map((card, index) => {
@@ -527,7 +527,7 @@ export default function PageResult({ idCliente }: Props) {
           </Card>
         </div>
 
-        <Card className="w-full max-w-[94%] m-auto mt-5" id="iceTable">
+        <Card className="hidden lg:block w-full max-w-[94%] m-auto mt-5" id="iceTable">
           <TableIceFrameWork
             clienteId={idCliente.toString()}
             reloadTrigger={false}
