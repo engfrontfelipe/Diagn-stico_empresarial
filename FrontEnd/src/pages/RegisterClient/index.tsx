@@ -52,7 +52,7 @@ export default function RegisterUser() {
       consultor: string;
       linkedin: string;
       site: string;
-      logo_url: string,
+      logo_url: string;
     }[]
   >([]);
 
@@ -93,7 +93,7 @@ export default function RegisterUser() {
     consultor: "",
     linkedin: "",
     site: "",
-    logo_url: ""
+    logo_url: "",
   });
 
   type InputOrSelectEventEdit =
@@ -125,7 +125,7 @@ export default function RegisterUser() {
       consultor,
       linkedin,
       site,
-      logo_url
+      logo_url,
     } = client;
 
     if (
@@ -235,7 +235,7 @@ export default function RegisterUser() {
       consultor: string;
       linkedin: string;
       site: string;
-      logo_url: string; 
+      logo_url: string;
     },
   ) => {
     try {
@@ -395,9 +395,7 @@ export default function RegisterUser() {
                       onChange={handleChange}
                     />
 
-                       <Label htmlFor="logo_url">
-                      Logo :
-                    </Label>
+                    <Label htmlFor="logo_url">Logo :</Label>
                     <Input
                       id="logo_url"
                       type="text"
@@ -470,11 +468,11 @@ export default function RegisterUser() {
                                     cnpj: cliente.cnpj,
                                     ramo_empresa: cliente.ramo_empresa,
                                     cargo_responsavel:
-                                    cliente.cargo_responsavel,
+                                      cliente.cargo_responsavel,
                                     consultor: cliente.consultor,
                                     linkedin: cliente.linkedin,
                                     site: cliente.site,
-                                    logo_url: cliente.logo_url
+                                    logo_url: cliente.logo_url,
                                   });
                                 }}
                               >
@@ -617,7 +615,7 @@ export default function RegisterUser() {
                                     />
                                   </div>
 
-                                   <div>
+                                  <div>
                                     <Label
                                       htmlFor="linkedin"
                                       className="mb-1 font-medium"
@@ -656,7 +654,8 @@ export default function RegisterUser() {
                                           value: e.target.value,
                                         })
                                       }
-                                    />to
+                                    />
+                                    to
                                   </div>
                                 </div>
 

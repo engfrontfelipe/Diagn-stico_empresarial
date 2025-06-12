@@ -28,7 +28,7 @@ import {
 
 import { consideracoesFinais } from "../Client/StaticDictionary";
 import { useState } from "react";
-import confetti from 'canvas-confetti';
+import confetti from "canvas-confetti";
 import { FileDown, Loader2 } from "lucide-react";
 
 type RespostaNegativa = {
@@ -256,7 +256,6 @@ function renderizarPontosHtml(
   `;
 }
 
-
 export function selecionarConclusaoPorDepartamento(
   departamento: string,
   pontuacao: number,
@@ -322,13 +321,13 @@ export const handleGeneratePDF = async (
   respostasNegativas: any,
   pontuacaoFinal: any,
   respostasPositivas: any,
-  logoCliente2: string
+  logoCliente2: string,
 ) => {
   const listaAreasHtml = renderizarListaDeAreasHtml(dadosPorDepartamento);
-  const tabelaOportunidadesHtml = gerarTabelaOportunidadesHtml(respostasNegativas);
+  const tabelaOportunidadesHtml =
+    gerarTabelaOportunidadesHtml(respostasNegativas);
   const conclusaoGeralHtml = selecionarTextoConclusao(pontuacaoFinal);
-  const logoCliente = logoCliente2
-
+  const logoCliente = logoCliente2;
 
   const getDepartamentoHtml = (nome: string, id: string) => {
     const area = dadosPorDepartamento.find((a) => a.nome.toLowerCase() === id);
@@ -397,10 +396,9 @@ export const handleGeneratePDF = async (
       title: "Relatório De Diagnóstico Empresarial",
       intro: introGeral,
       introPorDp: htmlFinal,
-      logoCliente: logoCliente
+      logoCliente: logoCliente,
     }),
   });
-  
 
   if (!response.ok) throw new Error("Erro ao gerar o PDF");
 
@@ -435,48 +433,48 @@ export const GeradorRelatorioPDF: React.FC<Props> = ({
   const [loading, setLoading] = useState(false);
 
   const gerarPDF = async () => {
-  setLoading(true);
-  try {
-    await handleGeneratePDF(
-      introGeral,
-      dadosPorDepartamento,
-      respostasNegativas,
-      pontuacaoFinal,
-      respostasPositivas,
-      logoCliente
-    );
+    setLoading(true);
+    try {
+      await handleGeneratePDF(
+        introGeral,
+        dadosPorDepartamento,
+        respostasNegativas,
+        pontuacaoFinal,
+        respostasPositivas,
+        logoCliente,
+      );
 
-    // 🎉 Confete em tela cheia por ~2 segundos
-    const confettiInstance = confetti.create(undefined, { useWorker: true, resize: true });
-
-    const duration = 2000; // duração total em ms
-    const interval = 250; // intervalo entre explosões
-    const end = Date.now() + duration;
-
-    const confettiInterval = setInterval(() => {
-      if (Date.now() > end) {
-        clearInterval(confettiInterval);
-        return;
-      }
-
-      confettiInstance({
-        particleCount: 100,
-        spread: 100,
-        startVelocity: 30,
-        origin: {
-          x: Math.random(),
-          y: Math.random() * 0.6,
-        },
+      const confettiInstance = confetti.create(undefined, {
+        useWorker: true,
+        resize: true,
       });
-    }, interval);
 
-  } catch (err) {
-    console.error("Erro ao gerar PDF:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      const duration = 3000;
+      const interval = 250;
+      const end = Date.now() + duration;
 
+      const confettiInterval = setInterval(() => {
+        if (Date.now() > end) {
+          clearInterval(confettiInterval);
+          return;
+        }
+
+        confettiInstance({
+          particleCount: 100,
+          spread: 100,
+          startVelocity: 30,
+          origin: {
+            x: Math.random(),
+            y: Math.random() * 0.6,
+          },
+        });
+      }, interval);
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="mt-5 flex justify-end mr-5 relative group">

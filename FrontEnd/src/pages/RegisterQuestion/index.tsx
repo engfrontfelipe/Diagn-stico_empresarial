@@ -207,11 +207,8 @@ function QuestionManagement() {
           Gerenciamento de Perguntas
         </h1>
         <div className="flex items-center gap-4">
-          <ThemeToggle /> 
-          <Link
-            to={"/dashboard"}
-            className=" w-5 h-5 flex items-center mt-1"
-          >
+          <ThemeToggle />
+          <Link to={"/dashboard"} className=" w-5 h-5 flex items-center mt-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="36"

@@ -32,11 +32,9 @@ import Results from "./Results";
 import { ContentDiag, selecionarTexto } from "./contetDiag";
 import { GeradorRelatorioPDF } from "../Client";
 
-
 interface Props {
   idCliente: string;
 }
-
 
 interface Resposta {
   id: number;
@@ -90,30 +88,27 @@ export default function PageResult({ idCliente }: Props) {
   const [loading, setLoading] = useState<boolean>(true);
   const { id } = useParams<{ id: string }>();
   idCliente = id || "";
-  const [logoCliente, setLogoCLiente] = useState('')
+  const [logoCliente, setLogoCLiente] = useState("");
   const [logoUrl, setLogoUrl] = useState<string>("");
-
 
   useEffect(() => {
     const fetchLogoCliente = async () => {
       try {
         const response = await fetch(`${apiUrl}/clientes/${idCliente}`);
-        if (!response.ok) throw new Error('Erro ao buscar a logo do cliente');
-        
+        if (!response.ok) throw new Error("Erro ao buscar a logo do cliente");
+
         const data = await response.json();
         if (data.logo_url) {
           setLogoCLiente(data.logo_url);
         }
       } catch (error) {
-        console.error('Erro ao buscar logo do cliente:', error);
+        console.error("Erro ao buscar logo do cliente:", error);
       }
     };
 
     fetchLogoCliente();
-    
   }, [idCliente]);
 
-  
   const verificarTemaEAtualizarLogo = () => {
     const theme = localStorage.getItem("theme");
     if (theme === "dark") {
@@ -307,7 +302,6 @@ export default function PageResult({ idCliente }: Props) {
 
   const respNegativas = respostasNegativas;
   const respPositivas = respostasPositivas;
-
 
   return (
     <div className=" w-full h-full mt-25 ">
@@ -515,9 +509,15 @@ export default function PageResult({ idCliente }: Props) {
         />
 
         <div className="pl-10 pr-10 mt-5">
-          <Card >
-          <GeradorRelatorioPDF introGeral={introHTML} dadosPorDepartamento={areas} respostasNegativas={respNegativas} 
-          pontuacaoFinal={percentualGeral} respostasPositivas={respPositivas} logoCliente={logoCliente} />
+          <Card>
+            <GeradorRelatorioPDF
+              introGeral={introHTML}
+              dadosPorDepartamento={areas}
+              respostasNegativas={respNegativas}
+              pontuacaoFinal={percentualGeral}
+              respostasPositivas={respPositivas}
+              logoCliente={logoCliente}
+            />
             <ContentDiag
               htmlIntroducao={introHTML}
               areas={areas}
@@ -527,7 +527,10 @@ export default function PageResult({ idCliente }: Props) {
           </Card>
         </div>
 
-        <Card className="hidden lg:block w-full max-w-[94%] m-auto mt-5" id="iceTable">
+        <Card
+          className="hidden lg:block w-full max-w-[94%] m-auto mt-5"
+          id="iceTable"
+        >
           <TableIceFrameWork
             clienteId={idCliente.toString()}
             reloadTrigger={false}

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const cors = require("cors");
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET;
 const express = require("express");
 
 const app = express();
@@ -11,9 +11,9 @@ app.use(cors());
 app.use(express.json());
 
 const criarUsuario = async (req, res) => {
-  const { nome, email, senha, confirmSenha } = req.body;
+  const { nome, email, senha, confirmSenha, role } = req.body;
 
-  if (!nome || !email || !senha || !confirmSenha) {
+  if (!nome || !email || !senha || !confirmSenha || !role) {
     return res.status(400).json({ error: "Todos os campos são obrigatórios" });
   }
 
@@ -32,8 +32,8 @@ const criarUsuario = async (req, res) => {
 
   try {
     const result = await sql`
-      INSERT INTO usuarios (nome, email, senha) 
-      VALUES (${nome}, ${email}, ${senhaHash}) 
+      INSERT INTO usuarios (nome, email, senha, role) 
+      VALUES (${nome}, ${email}, ${senhaHash}, ${role}) 
       RETURNING *;
     `;
     res.status(201).json({ message: "Usuário Cadastrado" });
@@ -47,7 +47,7 @@ const criarUsuario = async (req, res) => {
 const listarUsuarios = async (_req, res) => {
   try {
     const result =
-      await sql`SELECT id_usuario, nome, email, ativo FROM usuarios`;
+      await sql`SELECT id_usuario, nome, email, ativo, role FROM usuarios`;
     res.json(result);
   } catch (error) {
     res
@@ -74,7 +74,7 @@ const buscarUsuarioPorId = async (req, res) => {
 
 const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
-  const { nome, email, senha, confirmSenha, ativo } = req.body;
+  const { nome, email, senha, confirmSenha, ativo, role } = req.body;
 
   if (senha && confirmSenha && confirmSenha !== senha) {
     return res.status(400).json({ error: "Senhas não conferem" });
@@ -92,7 +92,9 @@ const atualizarUsuario = async (req, res) => {
         nome = COALESCE(${nome}, nome),
         email = COALESCE(${email}, email),
         senha = COALESCE(${senhaHash}, senha),
-        ativo = COALESCE(${ativo}, ativo)
+        ativo = COALESCE(${ativo}, ativo),
+        role = COALESCE(${role}, role)
+
       WHERE id_usuario = ${id} 
       RETURNING *;
     `;
@@ -115,7 +117,7 @@ function generateToken(usuario) {
     id: usuario.id_usuario,
     nome: usuario.nome,
     email: usuario.email,
-    role: usuario.role
+    role: usuario.role,
   };
 
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });

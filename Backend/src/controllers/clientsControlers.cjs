@@ -16,7 +16,7 @@ const criarCliente = async (req, res) => {
     consultor,
     linkedin,
     site,
-    logo_url
+    logo_url,
   } = req.body;
 
   if (
@@ -86,7 +86,7 @@ const atualizarCliente = async (req, res) => {
     consultor,
     linkedin,
     site,
-    logo_url
+    logo_url,
   } = req.body;
 
   if (!nome && !nome_responsavel && !cnpj && ativo === undefined) {

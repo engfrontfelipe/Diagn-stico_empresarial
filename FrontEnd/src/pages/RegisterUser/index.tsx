@@ -28,6 +28,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function RegisterUser() {
   const [formData, setFormData] = useState({
@@ -35,10 +42,11 @@ function RegisterUser() {
     email: "",
     senha: "",
     confirmSenha: "",
+    role: "",
   });
 
   const [usuarios, setUsuarios] = useState<
-    { id_usuario: string; nome: string; email: string; ativo: boolean }[]
+    { id_usuario: string; nome: string; email: string; ativo: boolean, role: string; }[]
   >([]);
 
   const handleChange = (e: any) => {
@@ -85,6 +93,7 @@ function RegisterUser() {
         email: "",
         senha: "",
         confirmSenha: "",
+        role: "",
       });
 
       fetchUsuarios();
@@ -155,6 +164,7 @@ function RegisterUser() {
     nome: "",
     email: "",
     senha: "",
+    role: ""
   });
 
   const handleChangeEdit = (e: any) => {
@@ -204,40 +214,67 @@ function RegisterUser() {
             </div>
 
             <Card className="p-4 w-full">
-              <div className="grid gap-4">
-                <Label htmlFor="nome">Nome:</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <Label className="text-[15x]" htmlFor="nome">
+                  Nome:
+                </Label>
                 <Input
                   id="nome"
+                  className="-ml-10"
                   placeholder="Robesvaldo Pereira"
                   value={formData.nome}
                   onChange={handleChange}
                 />
 
-                <Label htmlFor="email">Email:</Label>
+                <Label className="text-[15x]" htmlFor="email">
+                  Email:
+                </Label>
                 <Input
                   id="email"
+                  className="-ml-10"
                   placeholder="m@company.com.br"
                   value={formData.email}
                   onChange={handleChange}
                 />
-
-                <Label htmlFor="senha">Senha:</Label>
+                <Label className="text-[15px]" htmlFor="senha">
+                  Senha:
+                </Label>
                 <Input
                   id="senha"
                   type="password"
+                  className="-ml-10"
                   placeholder="Precisa conter letras e números."
                   value={formData.senha}
                   onChange={handleChange}
                 />
 
-                <Label htmlFor="confirmSenha">Confirmação de senha:</Label>
+                <Label className="text-[15px]" htmlFor="confirmSenha">
+                  Confirmação de senha:
+                </Label>
                 <Input
                   id="confirmSenha"
                   type="password"
+                  className="-ml-10"
                   placeholder="Confirmação da senha"
                   value={formData.confirmSenha}
                   onChange={handleChange}
                 />
+
+                <Label className="text-[15px]">Tipo de usuário</Label>
+                <Select
+                    value={formData.role}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, role: value }))
+                    }
+                >
+                  <SelectTrigger className="-ml-10 w-full">
+                  <SelectValue placeholder="Selecione" defaultValue={formData.role} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="consultant">Consultor</SelectItem>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button
                 className="w-full mt-1 cursor-pointer"
@@ -253,6 +290,7 @@ function RegisterUser() {
                   <TableRow>
                     <TableHead>Usuário</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Tipo</TableHead>
                     <TableHead>Ativo</TableHead>
                     <TableHead>Editar</TableHead>
                   </TableRow>
@@ -262,6 +300,7 @@ function RegisterUser() {
                     <TableRow key={usuario.id_usuario}>
                       <TableCell>{usuario.nome}</TableCell>
                       <TableCell>{usuario.email}</TableCell>
+                      <TableCell>{usuario.role === 'admin' ? "Administrador" : "Consultor"}</TableCell>
                       <TableCell>
                         <Switch
                           className="cursor-pointer"
@@ -280,7 +319,9 @@ function RegisterUser() {
                                 nome: usuario.nome,
                                 email: usuario.email,
                                 senha: "",
+                                role: ""
                               })
+
                             }
                           >
                             <Pencil
@@ -325,9 +366,27 @@ function RegisterUser() {
                                   placeholder="Digite a nova senha (opcional)"
                                 />
 
+                              <Label className="mt-2">Tipo de usuário</Label>
+                              <Select
+                                value={editUserData.role}
+                                onValueChange={(value) =>
+                                  setEditUserData((prev) => ({ ...prev, role: value }))
+                                }
+                              >
+                                <SelectTrigger className="mt-2">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="consultant">Consultor</SelectItem>
+                                  <SelectItem value="admin">Administrador</SelectItem>
+                                </SelectContent>
+                              </Select>
+
+
+                               
                                 <Button
                                   className="mt-5 w-full cursor-pointer"
-                                  onClick={handleUpdateUser}
+                                  onClick={handleUpdateUser}                                  
                                 >
                                   Editar
                                 </Button>

@@ -221,24 +221,24 @@ export function ContentDiag({
   }, [clienteId]);
 
   useEffect(() => {
-      async function buscarRespostasPositivas() {
-        try {
-          const response = await fetch(`${apiUrl}/answers/positive/${clienteId}`);
-          if (!response.ok) throw new Error("Erro ao buscar respostas negativas");
-  
-          const data = await response.json();
-          setRespostasPositivas(data);
-        } catch (error) {
-          console.error("Erro ao carregar respostas negativas:", error);
-        }
-      }
-  
-      if (clienteId) {
-        buscarRespostasPositivas();
-      }
-    }, [clienteId]);
+    async function buscarRespostasPositivas() {
+      try {
+        const response = await fetch(`${apiUrl}/answers/positive/${clienteId}`);
+        if (!response.ok) throw new Error("Erro ao buscar respostas negativas");
 
-     function renderizarPontosFortes(
+        const data = await response.json();
+        setRespostasPositivas(data);
+      } catch (error) {
+        console.error("Erro ao carregar respostas negativas:", error);
+      }
+    }
+
+    if (clienteId) {
+      buscarRespostasPositivas();
+    }
+  }, [clienteId]);
+
+  function renderizarPontosFortes(
     departamento: string,
     respostas: RespostaNegativa[],
   ) {
@@ -257,19 +257,16 @@ export function ContentDiag({
 
     return (
       <>
-            <ul className=" p-5 grid grid-cols-2 gap-5">
-        {pontosDoDepartamento.map((resposta) => (
-          <li className="text-sm list-disc" key={resposta.id}>
-            {resposta.texto_afirmativa_positiva}
-          </li>
-        ))}
-      </ul>
-
+        <ul className=" p-5 grid grid-cols-2 gap-5">
+          {pontosDoDepartamento.map((resposta) => (
+            <li className="text-sm list-disc" key={resposta.id}>
+              {resposta.texto_afirmativa_positiva}
+            </li>
+          ))}
+        </ul>
       </>
- 
     );
   }
-
 
   function renderizarPlanoAcao(
     departamento: string,
@@ -494,7 +491,7 @@ export function ContentDiag({
           />
           <h4 className="mt-3 font-medium italic">Planos de ação:</h4>
           {renderizarPlanoAcao("rh", respostasNegativas)}
-               <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
+          <h4 className="mt-3 font-medium italic">Pontos fortes:</h4>
           {renderizarPontosFortes("rh", respostasPositivas)}
           <h4 className="font-medium mt-4 mb-2">Conclusão</h4>
           <div
@@ -538,7 +535,7 @@ export function ContentDiag({
             dangerouslySetInnerHTML={{ __html: conclusaoTecnologia }}
           />
         </div>
-       
+
         <div id="financeiro">
           <h3 className="text-[17px] font-medium mt-5">Financeiro</h3>
           <h4 className="font-medium mt-5">Introdução:</h4>
