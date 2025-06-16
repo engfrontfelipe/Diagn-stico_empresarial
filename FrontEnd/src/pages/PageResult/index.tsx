@@ -300,6 +300,7 @@ export default function PageResult({ idCliente }: Props) {
     return pieChartData[0]?.value.toFixed(2);
   };
 
+
   const respNegativas = respostasNegativas;
   const respPositivas = respostasPositivas;
 
@@ -514,7 +515,7 @@ export default function PageResult({ idCliente }: Props) {
               introGeral={introHTML}
               dadosPorDepartamento={areas}
               respostasNegativas={respNegativas}
-              pontuacaoFinal={percentualGeral}
+              pontuacaoFinal={percentualGeral()}
               respostasPositivas={respPositivas}
               logoCliente={logoCliente}
             />

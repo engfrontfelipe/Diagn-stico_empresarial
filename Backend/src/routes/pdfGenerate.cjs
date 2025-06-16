@@ -1,4 +1,4 @@
-function generateHtml({ title, intro, introPorDp, logoCliente }) {
+function generateHtml({ title, introPorDp, logoCliente }) {
   return `
     <!DOCTYPE html>
     <html lang="pt-BR">
