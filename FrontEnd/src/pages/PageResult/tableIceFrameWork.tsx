@@ -29,17 +29,17 @@ const nivelParaNumero = (nivel: string) => {
 const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
-      return "text-red-600 font-bold";
+      return "text-black font-medium";
     case "Alta":
-      return "text-red-400 font-semibold";
+      return "text-black font-medium";
     case "Média":
-      return "text-yellow-400 font-medium";
+      return "text-black font-medium";
     case "Baixa":
-      return "text-green-400 font-medium";
+      return "text-black font-medium";
     case "Extremamente Baixa":
-      return "text-green-600 font-bold";
+      return "text-black font-medium";
     default:
-      return "text-gray-400 font-medium";
+      return "text-black font-medium";
   }
 };
 
@@ -200,16 +200,16 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
                 <TableCell
                   className={`text-center ${
                     q.priorizacao >= 91
-                      ? "text-red-700 font-bold"
+                      ? "text-black font-bold"
                       : q.priorizacao >= 71
-                        ? "text-red-500 font-semibold"
+                        ? "text-black font-semibold"
                         : q.priorizacao >= 51
-                          ? "text-yellow-500 font-medium"
+                          ? "text-black font-medium"
                           : q.priorizacao >= 31
-                            ? "text-yellow-300 font-medium"
+                            ? "text-black font-medium"
                             : q.priorizacao >= 11
-                              ? "text-green-400 font-medium"
-                              : "text-green-700 font-bold"
+                              ? "text-black font-medium"
+                              : "text-black font-bold"
                   }`}
                 >
                   {q.priorizacao}
