@@ -24,7 +24,6 @@ import {
 const apiUrl = import.meta.env.VITE_API_URL;
 import {
   HoverCard,
-  HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import TableIceFrameWork from "./tableIceFrameWork";
@@ -328,7 +327,7 @@ export default function PageResult({ idCliente }: Props) {
 
                 <HoverCard openDelay={1} closeDelay={1}>
                   <HoverCardTrigger
-                    className="cursor-pointer text-3xl text-center font-bold border-2 w-auto h-20 pt-5 aspect-video"
+                    className="text-white text-3xl text-center font-bold border-2 w-auto h-20 pt-5 aspect-video"
                     style={{
                       backgroundColor: getMaturidadeColor(
                         pieChartData[0]?.value,
@@ -352,7 +351,7 @@ export default function PageResult({ idCliente }: Props) {
                 </span>
                 <HoverCard openDelay={1} closeDelay={1}>
                   <HoverCardTrigger
-                    className={`cursor-pointer text-2xl text-center font-bold border-2 w-auto h-20 p-2 pt-5 aspect-video ${getNivelBgColor(getNivelMaturidade(pieChartData[0]?.value))}`}
+                    className={`text-white text-2xl text-center font-bold border-2 w-auto h-20 p-2 pt-5 aspect-video ${getNivelBgColor(getNivelMaturidade(pieChartData[0]?.value))}`}
                   >
                     <h3>{getNivelMaturidade(pieChartData[0]?.value)}</h3>
                   </HoverCardTrigger>
@@ -452,7 +451,7 @@ export default function PageResult({ idCliente }: Props) {
                     <HoverCard openDelay={1} closeDelay={1}>
                       <div className="flex justify-center mb-2">
                         <span
-                          className="text-xs font-semibold px-1 mr-2"
+                          className="text-xs  font-semibold px-1 mr-2"
                           style={{
                             writingMode: "vertical-rl",
                             transform: "rotate(180deg)",
@@ -461,24 +460,19 @@ export default function PageResult({ idCliente }: Props) {
                           Nota
                         </span>
                         <HoverCardTrigger
-                          className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
+                          className={`border-2  w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
                         >
-                          <h4 className="text-muted-foreground font-bold text-xl">
+                          <h4 className="text-white font-bold text-xl">
                             {nota}
                           </h4>
                         </HoverCardTrigger>
                       </div>
-                      <HoverCardContent className="text-sm p-2">
-                        Esta é a nota média do departamento com base nas
-                        respostas das perguntas avaliadas.
-                      </HoverCardContent>
                     </HoverCard>
 
-                    {/* Cartão com o Nível */}
                     <HoverCard openDelay={1} closeDelay={1}>
                       <div className="flex justify-center">
                         <span
-                          className="text-xs font-semibold px-1 mr-2 flex items-center justify-center"
+                          className="text-xs  font-semibold px-1 mr-2 flex items-center justify-center"
                           style={{
                             writingMode: "vertical-rl",
                             transform: "rotate(180deg)",
@@ -489,13 +483,9 @@ export default function PageResult({ idCliente }: Props) {
                         <HoverCardTrigger
                           className={`border-2 w-full max-w-30 h-14 flex items-center justify-center ${getNivelBgColor(nivel)}`}
                         >
-                          <h4 className="font-bold">{nivel}</h4>
+                          <h4 className="font-bold text-white ">{nivel}</h4>
                         </HoverCardTrigger>
                       </div>
-                      <HoverCardContent className="text-sm p-2">
-                        O nível reflete o estágio de maturidade ou conformidade
-                        do departamento com os critérios avaliados.
-                      </HoverCardContent>
                     </HoverCard>
                   </div>
                 );

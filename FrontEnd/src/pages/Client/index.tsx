@@ -108,7 +108,6 @@ function gerarTabelaOportunidadesHtml(
   if (!Array.isArray(respostasNegativas) || respostasNegativas.length === 0) {
     return `
       <section id="mapa-oportunidade">
-        <h3>Mapa de Oportunidade | Tabela de Ice FrameWork</h3>
         <p>Nenhuma oportunidade encontrada.</p>
       </section>
     `;
@@ -130,7 +129,6 @@ function gerarTabelaOportunidadesHtml(
 
   return `
     <section id="mapa-oportunidade">
-      <h3>Mapa de Oportunidade | Tabela de Ice FrameWork</h3>
       <table>
         <thead>
           <tr>

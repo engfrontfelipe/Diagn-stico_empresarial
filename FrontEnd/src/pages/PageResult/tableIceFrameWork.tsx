@@ -9,17 +9,22 @@ import {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 import { useEffect, useState } from "react";
+
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
+    case "Muito Fácil":
       return 5;
     case "Alta":
+    case "Fácil":
       return 4;
     case "Média":
       return 3;
     case "Baixa":
+    case "Difícil":
       return 2;
     case "Extremamente Baixa":
+    case "Muito Difícil":
       return 1;
     default:
       return 0;
@@ -29,17 +34,37 @@ const nivelParaNumero = (nivel: string) => {
 const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
+    case "Muito Fácil":
       return "text-black font-extrabold";
     case "Alta":
+    case "Fácil":
       return "text-black font-bold";
     case "Média":
       return "text-black font-medium";
     case "Baixa":
-      return "text-black font-light";
+    case "Difícil":
     case "Extremamente Baixa":
+    case "Muito Difícil":
       return "text-black font-light";
     default:
       return "text-black font-medium";
+  }
+};
+
+const converterFacilidade = (valor: string): string => {
+  switch (valor) {
+    case "Muito Alta":
+      return "Muito Fácil";
+    case "Alta":
+      return "Fácil";
+    case "Média":
+      return "Média";
+    case "Baixa":
+      return "Difícil";
+    case "Extremamente Baixa":
+      return "Muito Difícil";
+    default:
+      return valor;
   }
 };
 
@@ -93,9 +118,11 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
               );
               if (!r.ok) throw new Error("Erro ao buscar estados");
               const { resposta } = await r.json();
+
               const i = resposta.importancia || "";
               const u = resposta.urgencia || "";
-              const f = resposta.facilidade_implementacao || "";
+              const f = converterFacilidade(resposta.facilidade_implementacao || "");
+
               return {
                 ...q,
                 importancia: i,
@@ -115,13 +142,12 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
           }),
         );
 
-        const sorted = perguntasComEstados.sort(
+        const ordenadas = perguntasComEstados.sort(
           (a, b) => b.priorizacao - a.priorizacao,
         );
-        setQuestions(sorted);
+        setQuestions(ordenadas);
       } catch (e) {
         console.error(e);
-      } finally {
       }
     };
 
@@ -144,7 +170,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
   );
 
   return (
-    <div className=" w-full space-y-4 pl-6 pr-6">
+    <div className="w-full space-y-4 pl-6 pr-6">
       <h1 className="text-center font-bold text-3xl">
         Tabela de Ice FrameWork
       </h1>

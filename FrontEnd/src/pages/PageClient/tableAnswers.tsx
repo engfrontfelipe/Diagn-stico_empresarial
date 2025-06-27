@@ -12,33 +12,58 @@ import { Button } from "@/components/ui/button";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const converterFacilidade = (valor: string): string => {
+  switch (valor) {
+    case "Muito Alta":
+      return "Muito Fácil";
+    case "Alta":
+      return "Fácil";
+    case "Média":
+      return "Média";
+    case "Baixa":
+      return "Difícil";
+    case "Extremamente Baixa":
+      return "Muito Difícil";
+    default:
+      return valor;
+  }
+};
+
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
+    case "Muito Fácil":
       return 5;
     case "Alta":
+    case "Fácil":
       return 4;
     case "Média":
       return 3;
     case "Baixa":
+    case "Difícil":
       return 2;
     case "Extremamente Baixa":
+    case "Muito Difícil":
       return 1;
     default:
       return 0;
   }
 };
+
 const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
+    case "Muito Fácil":
       return "text-black font-extrabold";
     case "Alta":
+    case "Fácil":
       return "text-black font-bold";
     case "Média":
       return "text-black font-medium";
     case "Baixa":
-      return "text-black font-light";
+    case "Difícil":
     case "Extremamente Baixa":
+    case "Muito Difícil":
       return "text-black font-light";
     default:
       return "text-black font-medium";
@@ -92,6 +117,14 @@ export default function TableAnswers({
     "Extremamente Baixa",
   ];
 
+  const opcoesFacilidade = [
+    "Muito Fácil",
+    "Fácil",
+    "Média",
+    "Difícil",
+    "Muito Difícil",
+  ];
+
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
@@ -110,7 +143,7 @@ export default function TableAnswers({
               const { resposta } = await r.json();
               const i = resposta.importancia || "";
               const u = resposta.urgencia || "";
-              const f = resposta.facilidade_implementacao || "";
+              const f = converterFacilidade(resposta.facilidade_implementacao || "");
               return {
                 ...q,
                 importancia: i,
@@ -151,16 +184,17 @@ export default function TableAnswers({
   ) => {
     const updated = questions.map((q) => {
       if (q.id_resposta === id_resposta) {
-        const upd = { ...q, [campo]: valor };
-        upd.priorizacao = calcularPriorizacao(
-          upd.importancia,
-          upd.urgencia,
-          upd.facilidade_implementacao,
+        const atualizado = { ...q, [campo]: valor };
+        atualizado.priorizacao = calcularPriorizacao(
+          campo === "importancia" ? valor : q.importancia,
+          campo === "urgencia" ? valor : q.urgencia,
+          campo === "facilidade_implementacao" ? valor : q.facilidade_implementacao,
         );
-        return upd;
+        return atualizado;
       }
       return q;
     });
+
     setQuestions(updated);
 
     try {
@@ -198,19 +232,23 @@ export default function TableAnswers({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="px-4 py-2 bg-primary  rounded-md w-full cursor-pointer">
+        <Button className="px-4 py-2 bg-primary rounded-md w-full cursor-pointer">
           Tabela de Ice FrameWork
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[80vw] !max-w-none max-h-[85vh] overflow-y-auto  mb-6">
+      <DialogContent className="w-[80vw] !max-w-none max-h-[85vh] overflow-y-auto mb-6">
         <div className="w-full space-y-4">
           <h1 className="text-center font-bold text-3xl">
             Tabela de Ice FrameWork
           </h1>
-         <p className="text-center text-muted-foreground  ">
-          Foram encontradas {questions.length} oportunidades para sua empresa. <br />
-          <p className="font-medium ">(Recomendado diminuir o zoom da tela em monitores menores para melhor visualização.)</p>
-        </p >
+          <p className="text-center text-muted-foreground">
+            Foram encontradas {questions.length} oportunidades para sua empresa.
+            <br />
+            <p className="font-medium">
+              (Recomendado diminuir o zoom da tela em monitores menores para
+              melhor visualização.)
+            </p>
+          </p>
 
           {loading ? (
             <div className="flex justify-center items-center">
@@ -250,48 +288,45 @@ export default function TableAnswers({
                     <TableRow key={q.id_pergunta}>
                       <TableCell>{q.oportunidade}</TableCell>
                       <TableCell>{q.departamento}</TableCell>
-                      {[
-                        "importancia",
-                        "urgencia",
-                        "facilidade_implementacao",
-                      ].map((campo) => (
-                        <TableCell key={campo} className="text-center">
-                          <select
-                            value={q[campo as keyof Question]}
-                            onChange={(e) =>
-                              atualizarCampo(
-                                q.id_resposta,
-                                campo as any,
-                                e.target.value,
-                              )
-                            }
-                            className={`w-full text-center outline-none bg-transparent ${corNivel(String(q[campo as keyof Question]))}`}
-                          >
-                            {opcoesNivel.map((opt) => (
-                              <option
-                                key={opt}
-                                value={opt}
-                                className="text-black"
-                              >
-                                {opt}
-                              </option>
-                            ))}
-                          </select>
-                        </TableCell>
-                      ))}
+                      {["importancia", "urgencia", "facilidade_implementacao"].map(
+                        (campo) => (
+                          <TableCell key={campo} className="text-center">
+                            <select
+                              value={q[campo as keyof Question]}
+                              onChange={(e) =>
+                                atualizarCampo(
+                                  q.id_resposta,
+                                  campo as any,
+                                  e.target.value,
+                                )
+                              }
+                              className={`w-full text-center outline-none bg-transparent ${corNivel(
+                                String(q[campo as keyof Question]),
+                              )}`}
+                            >
+                              {(campo === "facilidade_implementacao"
+                                ? opcoesFacilidade
+                                : opcoesNivel
+                              ).map((opt) => (
+                                <option key={opt} value={opt} className="text-black">
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                          </TableCell>
+                        ),
+                      )}
                       <TableCell
                         className={`text-center ${
                           q.priorizacao >= 91
                             ? "text-black font-bold"
                             : q.priorizacao >= 71
-                              ? "text-black font-semibold"
-                              : q.priorizacao >= 51
-                                ? "text-black font-medium"
-                                : q.priorizacao >= 31
-                                  ? "text-black font-medium"
-                                  : q.priorizacao >= 11
-                                    ? "text-black font-medium"
-                                    : "text-black font-bold"
+                            ? "text-black font-semibold"
+                            : q.priorizacao >= 51
+                            ? "text-black font-medium"
+                            : q.priorizacao >= 31
+                            ? "text-black font-medium"
+                            : "text-black font-light"
                         }`}
                       >
                         {q.priorizacao}
