@@ -37,9 +37,11 @@ export const introducoes: Record<MaturidadeNivel, string[]> = {
     As ações de marketing e comercialização tendem a ocorrer sem uma cadência definida, dificultando previsibilidade de resultados. A recomendação, neste momento, é promover maior integração entre os departamentos, adotar ferramentas de CRM e planejamento, além de iniciar um processo estruturado de coleta e análise de indicadores-chave. A organização deve estabelecer metas claras, padronizar rotinas e criar mecanismos de acompanhamento para reduzir a variabilidade nas entregas e decisões.`,
   ],
   "50": [
-    `Neste ponto da jornada, a empresa já demonstra avanços importantes, com áreas estruturadas em estágios variados de maturidade. Algumas práticas de gestão estão implementadas, e há indícios de planejamento e organização, ainda que com limitações. 
-    As ações comerciais e de marketing começam a seguir uma lógica mais estratégica, mas ainda sofrem com baixa integração, falta de padronização e carência de dados qualificados. O relatório indica que a organização está preparada para uma transição mais robusta, com foco em profissionalização da gestão, automatização de processos e fortalecimento da cultura de análise crítica. 
-    A criação de indicadores estratégicos, a definição de rotinas periódicas de acompanhamento e o investimento em tecnologia serão decisivos para garantir crescimento sustentável e escalável.`,
+    `A empresa apresenta avanços consistentes em sua jornada de estruturação, com áreas operando em diferentes níveis de maturidade. Algumas práticas de gestão já estão implementadas, indicando movimentos iniciais em direção à organização e ao planejamento estruturado, embora ainda existam limitações.
+As iniciativas comerciais e de marketing evidenciam uma transição para uma abordagem mais estratégica, mas ainda carecem de alinhamento sistêmico, uso efetivo de indicadores e processos baseados em dados consistentes.
+O cenário atual aponta para uma organização com condições favoráveis à evolução para um novo estágio de maturidade, com foco na profissionalização da gestão, digitalização de processos e consolidação de uma cultura orientada à análise crítica e tomada de decisão baseada em evidências.
+Para viabilizar um crescimento sustentável e escalável, será fundamental avançar na criação de indicadores estratégicos, no estabelecimento de rotinas de acompanhamento e no investimento em tecnologias de suporte à gestão.
+`,
   ],
   "60": [
     `A empresa se posiciona em um estágio intermediário de maturidade, com diversas rotinas estruturadas e algum nível de previsibilidade operacional. Existe planejamento em diferentes áreas, e a gestão começa a se apoiar em dados para tomada de decisão. No entanto, persistem gargalos em termos de consistência, governança e integração entre setores.
@@ -85,8 +87,9 @@ export const introducoesEstrategia: Record<MaturidadeNivel, string[]> = {
      Neste estágio, é crucial promover maior clareza estratégica, conectando os objetivos globais com metas departamentais. A criação de planos de ação detalhados, com responsáveis e prazos, e a institucionalização de rituais de acompanhamento (como reuniões mensais de performance) ajudarão a consolidar a disciplina estratégica.`,
   ],
   "50": [
-    `A empresa apresenta um bom nível de consciência estratégica, com planos em andamento e objetivos definidos. No entanto, ainda há lacunas na gestão de prioridades, na comunicação da estratégia para toda a equipe e na mensuração dos resultados alcançados.
-     O fortalecimento da governança estratégica é o próximo passo, com foco na implementação de indicadores-chave de desempenho (KPIs), maior envolvimento das lideranças no desdobramento de metas e na formalização de uma cultura de revisão contínua das estratégias adotadas.`,
+    `A empresa demonstra um nível satisfatório de consciência estratégica, com objetivos corporativos definidos e iniciativas em andamento. Contudo, foram identificadas fragilidades na gestão das prioridades, na comunicação eficaz da estratégia entre os diferentes níveis organizacionais e na mensuração sistemática dos resultados obtidos. 
+    A recomendação é fortalecer a governança estratégica por meio da definição e acompanhamento de indicadores-chave de desempenho (KPIs), promovendo o alinhamento entre as metas organizacionais e os planos táticos das áreas. É essencial ampliar o engajamento das lideranças no processo de desdobramento das metas e institucionalizar uma cultura de monitoramento contínuo, revisão periódica e aprendizado estratégico.
+`,
   ],
   "60": [
     `A estrutura estratégica da empresa está consolidada em diversos aspectos. Os objetivos organizacionais são claros, existe um plano estratégico documentado e boa parte das áreas conhece suas metas. No entanto, ainda há oportunidades para fortalecer a execução e integrar mais profundamente os níveis tático e operacional.
@@ -123,7 +126,8 @@ export const conclusoesEstrategia: Record<MaturidadeNivel, string[]> = {
     `A base estratégica está mais consolidada, com direcionamentos para o futuro, porém a execução de curto prazo ainda demanda fortalecimento. A empresa deve investir no uso estruturado de indicadores e na comunicação entre equipes para transformar o planejamento em ações efetivas.`,
   ],
   "50": [
-    `A Vertical Group demonstra evolução importante na definição de metas e indicadores, com maior disciplina na execução. Contudo, a análise sistemática dos resultados e a adaptação contínua ainda precisam ser aprimoradas para garantir a consolidação do crescimento.`,
+    `A empresa demonstra avanços significativos na definição de metas e indicadores, com maior disciplina na execução e no acompanhamento. No entanto, a análise sistemática dos resultados e a capacidade de adaptação com base em dados ainda precisam ser fortalecidas, de modo a consolidar o crescimento e sustentar a estratégia em um ambiente de constante transformação.
+`,
   ],
   "60": [
     `Com processos mais estruturados, a empresa já utiliza indicadores estratégicos para monitorar o desempenho e ajustar suas ações. O próximo passo é intensificar a integração entre planejamento e execução para aumentar a agilidade e eficácia dos resultados.`,
@@ -156,9 +160,9 @@ export const introducoesVendas: Record<MaturidadeNivel, string[]> = {
      É recomendado o fortalecimento da estrutura comercial por meio de treinamentos, padronização do processo de vendas e maior rigor na gestão do pipeline. O acompanhamento semanal de indicadores como taxa de conversão e ciclo de vendas ajudará a ganhar mais previsibilidade.`,
   ],
   "40": [
-    `A área comercial possui uma estrutura inicial funcionando, com uso parcial de ferramentas e metas definidas, mas ainda enfrenta problemas de cadência, baixa taxa de conversão e falhas na qualificação de leads. 
-    As ações são realizadas, mas sem análise contínua de desempenho.
-     Neste estágio, é necessário revisar o funil comercial, instituir rituais de acompanhamento de metas (como reuniões semanais), e aprofundar o uso de dados para identificar gargalos. A integração com o marketing pode ajudar a elevar a qualidade dos leads.`,
+    `A área comercial apresenta uma estrutura operacional em estágio inicial, com metas estabelecidas e utilização parcial de ferramentas de suporte. Apesar da execução ativa, o processo comercial enfrenta desafios relevantes, como cadência inconsistente, baixa taxa de conversão e falhas na qualificação dos leads. Observa-se, ainda, ausência de uma rotina estruturada de análise de desempenho.
+Para elevar a performance da área, recomenda-se a revisão completa do funil de vendas, com a definição clara de etapas. A implantação de rituais de acompanhamento sistemático, como reuniões semanais, é essencial para garantir previsibilidade e correção ágil de desvios. Além disso, o aprofundamento da integração com a área de marketing permitirá elevar a qualidade da base prospectada, promovendo maior eficiência na conversão e no aproveitamento das oportunidades geradas.
+`,
   ],
   "50": [
     `A estrutura comercial está em desenvolvimento com processos definidos, uso consistente de ferramentas e equipe orientada por metas. Porém, a previsibilidade de resultados ainda é instável e a gestão de indicadores não é plenamente explorada.
@@ -196,7 +200,8 @@ export const conclusoesVendas: Record<MaturidadeNivel, string[]> = {
     `Há esforços claros para estruturar a área de vendas, com equipe engajada e início de definição do ICP. Ainda assim, falta integração entre planejamento e execução, além de processos que permitam monitorar indicadores de desempenho de forma eficaz.`,
   ],
   "40": [
-    `A equipe de vendas conta com uma base estruturada, incluindo cadência e algumas ferramentas de apoio. A previsibilidade começa a se concretizar, mas ainda é necessária maior disciplina na definição de metas e análise de resultados para garantir a escalabilidade.`,
+    `A equipe de vendas conta com uma base estruturada, com cadência definida e ferramentas de apoio parcialmente implementadas. A previsibilidade de resultados começa a se consolidar, mas ainda é necessário fortalecer a disciplina na definição de metas, no acompanhamento de indicadores e na análise de performance para garantir escalabilidade e maior assertividade nas decisões comerciais.
+`,
   ],
   "50": [
     `A maturidade da área comercial reflete um avanço na gestão das operações, com uso mais eficiente de ferramentas e definição clara do ICP. A liderança exerce papel estratégico, porém a escalabilidade ainda depende da otimização contínua dos processos e do alinhamento com a estratégia geral da empresa.`,
@@ -232,8 +237,9 @@ export const introducoesMarketing: Record<MaturidadeNivel, string[]> = {
      É fundamental alinhar os objetivos do marketing com os da área comercial, iniciar campanhas de geração de leads e incorporar ferramentas de CRM ou automação que permitam acompanhar a jornada do cliente.`,
   ],
   "40": [
-    `A área de marketing já possui rotinas estabelecidas e uma identidade visual consolidada, mas ainda opera com baixa integração estratégica, sem previsibilidade de resultados. A geração de demanda é instável e falta profundidade nas análises de performance.
-     O próximo passo é elaborar campanhas baseadas em dados, com metas claras (como CAC, CPL, taxa de conversão), além de reforçar a nutrição de leads com conteúdos segmentados e aprofundar a mensuração de cada canal de aquisição.`,
+    `A área de marketing apresenta rotinas operacionais consolidadas e identidade visual definida, o que demonstra um nível inicial de estruturação. No entanto, ainda opera com baixa integração ao planejamento estratégico da empresa, o que compromete a previsibilidade de resultados e dificulta a geração de demanda de forma contínua e escalável.
+A performance dos canais não é monitorada de maneira aprofundada, e há ausência de metas claras relacionadas a indicadores-chave, como CAC (Custo de Aquisição de Cliente), CPL (Custo por Lead) e taxa de conversão por etapa do funil.
+`,
   ],
   "50": [
     `O marketing está em amadurecimento, com estratégias de conteúdo bem executadas, captação ativa de leads e início de integração com o time de vendas. Ainda existem desafios em medir o ROI das ações e em sustentar a cadência de campanhas.
@@ -271,7 +277,7 @@ export const conclusoesMarketing: Record<MaturidadeNivel, string[]> = {
     `Há esforços para estruturar a área, com algumas campanhas e ações pontuais, porém sem integração entre canais ou alinhamento com os objetivos da empresa. O uso limitado de ferramentas e a ausência de análise de dados restringem o potencial de crescimento.`,
   ],
   "40": [
-    `A área de marketing começa a contar com processos mais definidos e utilização de ferramentas básicas para gestão de campanhas. A geração de demanda está em desenvolvimento, mas falta ainda maior foco em segmentação, mensuração e planejamento integrado.`,
+    `A área de marketing apresenta processos mais definidos e a utilização inicial de ferramentas básicas para a gestão de campanhas. A geração de demanda está em desenvolvimento, contudo, persiste a necessidade de aprimorar a segmentação, a mensuração de resultados e o planejamento integrado para maior efetividade.`,
   ],
   "50": [
     `O marketing alcança maturidade intermediária, com campanhas mais estruturadas, definição inicial de personas e uso de métricas para acompanhamento. A operação começa a se alinhar com as metas da empresa, mas a escalabilidade e previsibilidade ainda podem ser aprimoradas.`,
@@ -307,8 +313,9 @@ export const introducoesRH: Record<MaturidadeNivel, string[]> = {
      É recomendado criar uma agenda de desenvolvimento (como trilhas de capacitação), instituir rituais de feedback e iniciar medições de clima e engajamento para acompanhar a evolução da cultura e da satisfação dos colaboradores.`,
   ],
   "40": [
-    `A área apresenta uma estrutura funcional, com políticas de contratação, integração e benefícios bem definidas. A comunicação interna começa a ser mais efetiva, mas ainda faltam ferramentas que ajudem na tomada de decisão e no acompanhamento de indicadores.
-     O RH pode avançar com programas de desenvolvimento contínuo, criação de planos de carreira e ferramentas de gestão de desempenho. A cultura precisa ser reforçada com práticas de reconhecimento e alinhamento constante com os valores da empresa.`,
+    `A área de Recursos Humanos apresenta uma estrutura funcional consolidada, com políticas bem definidas nos processos de recrutamento, integração e gestão de benefícios. A comunicação interna demonstra sinais de evolução, embora ainda careça de mecanismos mais robustos de suporte à tomada de decisão e de acompanhamento sistemático de indicadores de performance e clima organizacional.
+Para avançar em maturidade, recomenda-se a implementação de programas estruturados de desenvolvimento contínuo, além da criação de trilhas de carreira alinhadas aos objetivos estratégicos da empresa. A gestão de desempenho deve ser aprimorada por meio de ferramentas específicas e ciclos regulares de avaliação. Por fim, o fortalecimento da cultura organizacional exige ações recorrentes de reconhecimento, reforço dos valores institucionais e alinhamento entre lideranças e equipes.
+`,
   ],
   "50": [
     `O RH já atua de forma integrada com a liderança, com rotinas bem estabelecidas e percepção positiva dos colaboradores. Existem iniciativas de treinamento, acompanhamento de clima e comunicação estruturada, mas a atuação ainda é mais operacional do que estratégica.
@@ -346,7 +353,7 @@ export const conclusoesRH: Record<MaturidadeNivel, string[]> = {
     `Há esforços para implementar práticas estruturadas de recrutamento e treinamento, mas a gestão por indicadores ainda é incipiente. A cultura organizacional começa a ser trabalhada, porém sem engajamento consistente dos colaboradores.`,
   ],
   "40": [
-    `O RH possui processos mais definidos, incluindo avaliações de desempenho e iniciativas de comunicação interna. No entanto, a integração entre as ações e o alinhamento com os objetivos estratégicos da empresa ainda precisam ser aprimorados.`,
+    `O RH apresenta processos estruturados, com destaque para a realização de avaliações de desempenho e ações voltadas à comunicação interna. No entanto, ainda há oportunidades de avanço na integração dessas iniciativas com os objetivos estratégicos da empresa.`,
   ],
   "50": [
     `A maturidade intermediária do RH permite que a área contribua para a retenção de talentos e desenvolvimento dos colaboradores. Indicadores básicos de performance são monitorados, e há esforços para fortalecer a cultura organizacional.`,
@@ -394,8 +401,9 @@ export const introducoesOperacoes: Record<MaturidadeNivel, string[]> = {
      A recomendação é investir em automações operacionais, ferramentas de BI para análise preditiva, rotinas de melhoria contínua e mecanismos de mitigação de riscos para tornar a operação mais resiliente e responsiva.`,
   ],
   "70": [
-    `A operação atua com excelência em execução, apresentando alto controle de produtividade, qualidade e gestão de fornecedores. A estrutura já suporta o crescimento da empresa com eficiência, e existem processos de melhoria contínua bem aplicados.
-     Para evoluir, a empresa pode avançar na digitalização de toda a cadeia operacional, buscar certificações de qualidade, implementar metodologias ágeis e reforçar o alinhamento estratégico das metas operacionais com os objetivos do negócio.`,
+    `A área de Operações apresenta alto grau de eficiência na execução, com controles bem definidos de produtividade, qualidade e gestão da cadeia de fornecedores. A estrutura atual é adequada para sustentar o crescimento da empresa, e os processos de melhoria contínua demonstram maturidade e aplicação consistente.
+Para avançar em direção a um modelo operacional mais robusto e escalável, recomenda-se a ampliação da digitalização dos processos, visando maior rastreabilidade, agilidade e integração entre áreas. A busca por certificações de qualidade, a adoção de metodologias ágeis para ciclos de melhoria e a consolidação do alinhamento entre indicadores operacionais e metas estratégicas contribuirão diretamente para elevar o nível de governança, controle e resiliência da operação.
+`,
   ],
   "80": [
     `A maturidade operacional é elevada, com sistemas integrados, gestão por indicadores, automações implementadas e processos altamente padronizados. A empresa consegue garantir qualidade, previsibilidade e escala, mantendo um bom relacionamento com fornecedores e clientes.
@@ -430,7 +438,7 @@ export const conclusoesOperacoes: Record<MaturidadeNivel, string[]> = {
     `A área operacional apresenta maior maturidade, com processos documentados, controle de qualidade implementado e monitoramento consistente por meio de indicadores. A gestão é proativa e busca a melhoria contínua.`,
   ],
   "70": [
-    `A operação está alinhada com a estratégia da empresa, utilizando dashboards em tempo real e análises avançadas para garantir produtividade e qualidade. A estrutura suporta o crescimento sustentável do negócio.`,
+    `A operação demonstra alinhamento consistente com a estratégia da empresa, utilizando dashboards em tempo real e análises avançadas para monitorar produtividade, qualidade e desempenho. A estrutura atual oferece suporte sólido para o crescimento sustentável e escalável do negócio.`,
   ],
   "80": [
     `A operação é altamente eficiente, com processos automatizados, indicadores estratégicos e controle rigoroso de qualidade. A gestão de fornecedores é integrada e contribui para a competitividade da empresa.`,
@@ -462,9 +470,8 @@ export const introducoesTecnologia: Record<MaturidadeNivel, string[]> = {
      Recomenda-se fortalecer projetos de integração, investir em capacitação técnica e desenvolver indicadores para monitorar o desempenho tecnológico.`,
   ],
   "50": [
-    `A maturidade tecnológica encontra-se em estágio intermediário, com boa infraestrutura, sistemas integrados em áreas-chave e processos parcialmente automatizados.
-     A cultura de inovação é presente, e o uso de dados para análise começa a ser mais frequente, embora ainda não seja disseminado.
-     O próximo passo envolve ampliar a automação, consolidar a governança de TI e implementar ferramentas avançadas de análise e segurança da informação.`,
+    `A empresa apresenta uma maturidade tecnológica em estágio intermediário, com infraestrutura adequada, sistemas integrados em áreas estratégicas e processos parcialmente automatizados. Há indícios consistentes de uma cultura voltada à inovação, bem como o início do uso de dados para análise e apoio à tomada de decisão, embora essa prática ainda não esteja plenamente difundida entre as áreas.
+A evolução do pilar tecnológico deve focar na ampliação da automação de processos, na consolidação de uma governança de TI estruturada e na adoção de ferramentas avançadas voltadas à análise preditiva e à segurança da informação. Esses avanços permitirão maior eficiência operacional, escalabilidade e mitigação de riscos cibernéticos.`,
   ],
   "60": [
     `A empresa possui infraestrutura robusta, sistemas integrados e processos automatizados em diversas áreas, suportando uma operação eficiente e colaborativa.
@@ -506,7 +513,7 @@ export const conclusoesTecnologia: Record<MaturidadeNivel, string[]> = {
     `A área de tecnologia conta com infraestrutura mais robusta e iniciativas iniciais de automação. A cultura de inovação está em desenvolvimento, mas a falta de dashboards e análises limita a tomada de decisões proativas.`,
   ],
   "50": [
-    `O nível intermediário reflete uma área mais estruturada, com integração básica entre sistemas e uso moderado de automações. No entanto, ainda há oportunidades para ampliar o uso de inteligência artificial e análise de dados.`,
+    `O nível intermediário reflete uma área de tecnologia mais estruturada, com integração básica entre sistemas e utilização moderada de automações. Apesar dos avanços, ainda existem oportunidades relevantes para ampliar o uso de inteligência artificial, fortalecer a análise de dados e consolidar uma governança digital que contribua de forma mais estratégica para a escalabilidade do negócio.`,
   ],
   "60": [
     `Tecnologia está bem organizada, com processos definidos, automações implementadas e monitoramento regular via dashboards. A cultura de inovação começa a influenciar outras áreas do negócio.`,
@@ -545,7 +552,9 @@ export const introducoesFinanceiro: Record<MaturidadeNivel, string[]> = {
     `A gestão financeira mostra-se estruturada, com processos claros e monitoramento regular de indicadores como lucratividade, margem de contribuição e ponto de equilíbrio. O planejamento orçamentário já é praticado com consistência. No entanto, o uso de dados históricos para modelagem de cenários ainda pode ser aprimorado. É recomendável aprofundar as análises financeiras e desenvolver mecanismos para avaliar riscos e oportunidades com mais precisão.`,
   ],
   "70": [
-    `Com um bom nível de controle e planejamento, o setor financeiro da empresa já opera com indicadores estratégicos e realiza análises periódicas para orientar a alta gestão. Há transparência nos dados e uma clara preocupação com a sustentabilidade financeira. A próxima etapa envolve o aprimoramento dos sistemas de controle, o uso de inteligência financeira e a integração com outras áreas para suportar o crescimento planejado do negócio.`,
+    `O setor financeiro apresenta um nível consistente de maturidade, com controles bem estruturados, indicadores estratégicos definidos e análises periódicas que subsidiam a tomada de decisão da alta gestão. Observa-se um ambiente de transparência nos dados financeiros e uma atuação orientada à sustentabilidade econômica do negócio.
+Para avançar, recomenda-se o aprimoramento dos sistemas de controle e a adoção de práticas de inteligência financeira. A integração do financeiro será fundamental para sustentar o crescimento e garantir maior assertividade nas decisões corporativas.
+`,
   ],
   "80": [
     `A área financeira é altamente organizada, utilizando sistemas de gestão para controle orçamentário, fluxo de caixa, análise de resultados e projeção de cenários. As decisões são baseadas em dados confiáveis e em tempo real. Existe um alinhamento entre os objetivos financeiros e as metas estratégicas. O desafio agora é evoluir para uma abordagem preditiva, com foco na otimização de recursos e maximização de resultados.`,
@@ -577,7 +586,7 @@ export const conclusoesFinanceiro: Record<MaturidadeNivel, string[]> = {
     `A gestão financeira está estruturada, com monitoramento regular de indicadores-chave e planejamento consistente. O uso de dados históricos para modelagem de cenários pode ser aprofundado para melhorar a avaliação de riscos e oportunidades.`,
   ],
   "70": [
-    `O setor financeiro opera com indicadores estratégicos e análises periódicas, apoiando a alta gestão com dados transparentes e foco na sustentabilidade. A próxima etapa é aprimorar sistemas de controle e integrar inteligência financeira com outras áreas.`,
+    `O setor financeiro atua com base em indicadores estratégicos e análises periódicas, contribuindo de forma consistente para a tomada de decisão da alta gestão, com foco na transparência e na sustentabilidade do negócio. Para avançar, é necessário aprimorar os sistemas de controle e fortalecer a integração da inteligência financeira com as demais áreas, ampliando a visão integrada e o suporte ao crescimento planejado.`,
   ],
   "80": [
     `A área financeira é altamente organizada, com sistemas para controle orçamentário, fluxo de caixa e projeção de cenários. Decisões são baseadas em dados confiáveis e alinhadas às metas estratégicas. O foco agora é evoluir para uma abordagem preditiva e otimização de recursos.`,
@@ -607,9 +616,10 @@ Para avançar, é imperativo institucionalizar práticas de gestão, treinar lid
    É comum a existência de bons projetos que não se sustentam pela falta de governança e disciplina gerencial.
 Neste estágio, a recomendação é fortalecer os mecanismos de monitoramento de desempenho, ampliar a cultura de dados e aprimorar a liderança em todos os níveis. A empresa precisa consolidar o que já foi construído e promover uma cultura de melhoria contínua. É um momento crítico de inflexão, em que a organização deve optar entre se acomodar em um nível básico de eficiência ou avançar rumo a uma performance sólida e sustentável.`,
 
-  "50": `A organização encontra-se em uma fase intermediária, com conquistas importantes em termos de estrutura, governança e controle.
-   No entanto, a maturidade ainda não se reflete de forma homogênea em todos os níveis. Existe uma base de processos consolidada, mas com lacunas operacionais, e indicadores que nem sempre são acompanhados com disciplina. Há clareza sobre o caminho, mas dificuldade em manter a cadência de execução.
-O foco neste momento deve estar em transformar boas práticas isoladas em políticas organizacionais perenes. A liderança deve ser desenvolvida não apenas para operar, mas para inspirar, orientar e garantir a execução estratégica. Investimentos em tecnologia, inovação e cultura organizacional serão decisivos para alcançar os próximos níveis de excelência. O potencial existe, mas precisa ser continuamente lapidado com disciplina e visão sistêmica.`,
+  "50": `A organização encontra-se em estágio intermediário de maturidade, apresentando avanços relevantes em estrutura, governança e controle. 
+Contudo, essa maturidade ainda não é homogênea entre todas as áreas. Observa-se uma base operacional consolidada, mas com lacunas importantes na padronização, no acompanhamento sistemático de indicadores e na integração entre departamentos. Embora exista clareza sobre os objetivos estratégicos, há desafios significativos na manutenção da cadência de execução e na consolidação de uma cultura de melhoria contínua.
+O foco para os próximos ciclos deve estar em institucionalizar as boas práticas já existentes, convertendo-as em políticas organizacionais formais. O desenvolvimento das lideranças será determinante, não apenas para garantir a operação, mas também para promover alinhamento estratégico, engajamento e excelência na entrega. Investimentos em tecnologia, inovação e cultura organizacional são recomendados como pilares estruturantes para o próximo estágio de maturidade.
+`,
 
   "60": `A empresa atingiu um estágio de amadurecimento importante, caracterizado por uma gestão consciente, processos bem definidos e a existência de uma cultura voltada para resultados. Entretanto, os avanços ainda não foram plenamente internalizados. Existem boas ferramentas e metodologias, mas sua aplicação nem sempre é uniforme ou bem compreendida pelas equipes.
 Neste cenário, é essencial consolidar os avanços por meio da padronização de práticas, do fortalecimento da comunicação institucional e da criação de uma mentalidade orientada à excelência.

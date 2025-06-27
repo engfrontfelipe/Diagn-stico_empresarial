@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/auth";
 
@@ -64,7 +64,7 @@ export function LoginForm({
         const userData = await userResponse.json();
         setUser(userData);
 
-        toast.success("Login realizado com sucesso!");
+        toast.success("Login realizado com sucesso! Redirecionando...");
 
         setTimeout(() => {
           navigate("/dashboard");
@@ -76,7 +76,9 @@ export function LoginForm({
       toast.error("Erro ao acessar a API, faça contato com o suporte");
       console.error("Erro ao acessar a API:", error);
     } finally {
-      setIsLoading(false); // desativa loading
+      setIsLoading(false);
+      setEmail("");
+      setPassword("")
     }
   };
 
@@ -87,8 +89,8 @@ export function LoginForm({
       {...props}
     >
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Faça login na sua conta</h1>
-        <p className="text-balance text-sm text-muted-foreground">
+        <h1 className="text-2xl font-bold ">Faça login na sua conta</h1>
+        <p className="text-balance text-sm ">
           Insira seu e-mail abaixo para fazer login em sua conta
         </p>
       </div>
@@ -96,6 +98,7 @@ export function LoginForm({
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
+            className="bg-slate-100/70 border-0"
             id="email"
             type="email"
             placeholder="m@example.com"
@@ -108,6 +111,7 @@ export function LoginForm({
             <Label htmlFor="password">Senha</Label>
           </div>
           <Input
+          className="bg-slate-100/70 border-0"
             id="password"
             type="password"
             value={password}
@@ -117,7 +121,7 @@ export function LoginForm({
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white disabled:opacity-70"
+          className="w-full cursor-pointer bg-[#131B4D] text-white hover:bg-[#3e4570] hover:text-white disabled:opacity-70"
         >
           {isLoading ? (
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
@@ -125,22 +129,8 @@ export function LoginForm({
             "Login"
           )}
         </Button>
-        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-          <span className="relative z-10 bg-background px-2 text-muted-foreground">
-            Problemas com sua conta?
-          </span>
-        </div>
-        <Button
-          type="reset"
-          onClick={() => {
-            toast.success("chamada problemas com sua conta");
-          }}
-          variant="outline"
-          className="w-full cursor-pointer bg-blue-600 text-white hover:bg-blue-500 hover:text-white"
-        >
-          Clique Aqui!
-        </Button>
       </div>
+      <Toaster position="bottom-center" richColors/>
     </form>
   );
 }

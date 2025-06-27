@@ -29,15 +29,15 @@ const nivelParaNumero = (nivel: string) => {
 const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
-      return "text-black font-medium";
+      return "text-black font-extrabold";
     case "Alta":
-      return "text-black font-medium";
+      return "text-black font-bold";
     case "Média":
       return "text-black font-medium";
     case "Baixa":
-      return "text-black font-medium";
+      return "text-black font-light";
     case "Extremamente Baixa":
-      return "text-black font-medium";
+      return "text-black font-light";
     default:
       return "text-black font-medium";
   }
@@ -149,7 +149,8 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
         Tabela de Ice FrameWork
       </h1>
       <p className="text-center text-muted-foreground">
-        Foram encontradas {questions.length} oportunidades para sua empresa.
+        Foram encontradas {questions.length} oportunidades para sua empresa. <br />
+        (Recomendado diminuir o zoom da tela em monitores menores para melhor visualização.)
       </p>
       <>
         <Table className="border-collapse border border-b-accent">
@@ -208,8 +209,8 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
                           : q.priorizacao >= 31
                             ? "text-black font-medium"
                             : q.priorizacao >= 11
-                              ? "text-black font-medium"
-                              : "text-black font-bold"
+                              ? "text-black font-light"
+                              : "text-black font-light"
                   }`}
                 >
                   {q.priorizacao}

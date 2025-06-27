@@ -31,15 +31,15 @@ const nivelParaNumero = (nivel: string) => {
 const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
-      return "text-black font-medium";
+      return "text-black font-extrabold";
     case "Alta":
-      return "text-black font-medium";
+      return "text-black font-bold";
     case "Média":
       return "text-black font-medium";
     case "Baixa":
-      return "text-black font-medium";
+      return "text-black font-light";
     case "Extremamente Baixa":
-      return "text-black font-medium";
+      return "text-black font-light";
     default:
       return "text-black font-medium";
   }
@@ -207,9 +207,10 @@ export default function TableAnswers({
           <h1 className="text-center font-bold text-3xl">
             Tabela de Ice FrameWork
           </h1>
-          <p className="text-center text-muted-foreground">
-            Foram encontradas {questions.length} oportunidades para sua empresa.
-          </p>
+         <p className="text-center text-muted-foreground  ">
+          Foram encontradas {questions.length} oportunidades para sua empresa. <br />
+          <p className="font-medium ">(Recomendado diminuir o zoom da tela em monitores menores para melhor visualização.)</p>
+        </p >
 
           {loading ? (
             <div className="flex justify-center items-center">
