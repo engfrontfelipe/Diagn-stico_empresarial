@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/auth";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 export function NavUser({}) {
   const { isMobile } = useSidebar();

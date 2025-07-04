@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 // Incluí o campo `role` na interface do usuário
 interface User {

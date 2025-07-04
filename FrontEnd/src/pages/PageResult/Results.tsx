@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import { useParams } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 const COLORS = [
   "#FF5733",

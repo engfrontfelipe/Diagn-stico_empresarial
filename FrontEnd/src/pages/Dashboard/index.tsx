@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import GeneralDashHome from "./GeneralDashHome.tsx";
 import { Card } from "@/components/ui/card.tsx";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 export default function Page() {
   const [clientes, setClientes] = useState<

@@ -7,7 +7,7 @@ import { toast, Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/auth";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 export function LoginForm({
   className,

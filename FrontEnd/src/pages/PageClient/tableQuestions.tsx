@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 function TableQuestions({
   onUpdateAnswers,

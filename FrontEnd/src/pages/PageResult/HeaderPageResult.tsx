@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/lib/changeButton";
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 
 const components: { title: string; href: string; description: string }[] = [
   {

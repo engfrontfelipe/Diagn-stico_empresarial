@@ -7,7 +7,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 import { useEffect, useState } from "react";
 
 const nivelParaNumero = (nivel: string) => {

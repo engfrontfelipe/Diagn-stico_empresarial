@@ -21,7 +21,7 @@ import {
   // ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 import {
   HoverCard,
   HoverCardTrigger,
