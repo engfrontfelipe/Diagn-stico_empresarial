@@ -1,7 +1,3 @@
-//field of cover
-
-//field of summary
-
 export type MaturidadeNivel =
   | "10"
   | "20"
