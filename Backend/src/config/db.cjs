@@ -1,15 +1,8 @@
 require("dotenv").config();
+const postgres = require("postgres");
 
-const { neon } = require("@neondatabase/serverless");
-
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error(
-    "DATABASE_URL is not defined. Please set it in your environment variables.",
-  );
-}
-
-const sql = neon(databaseUrl);
+const sql = postgres(process.env.DATABASE_URL, {
+  ssl: false, // ou false, dependendo da configuração do EasyPanel
+});
 
 module.exports = sql;

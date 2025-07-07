@@ -74,17 +74,23 @@ const buscarUsuarioPorId = async (req, res) => {
 
 const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
-  const { nome, email, senha, confirmSenha, ativo, role } = req.body;
+  let { nome, email, senha, confirmSenha, ativo, role } = req.body;
 
   if (senha && confirmSenha && confirmSenha !== senha) {
     return res.status(400).json({ error: "Senhas não conferem" });
   }
 
   try {
-    let senhaHash;
+    let senhaHash = null;
     if (senha) {
       senhaHash = bcrypt.hashSync(senha, 12);
     }
+
+    // ⚠️ Previne valores undefined (lib postgres exige)
+    nome = nome ?? null;
+    email = email ?? null;
+    ativo = ativo ?? null;
+    role = role ?? null;
 
     const result = await sql`
       UPDATE usuarios 
@@ -94,7 +100,6 @@ const atualizarUsuario = async (req, res) => {
         senha = COALESCE(${senhaHash}, senha),
         ativo = COALESCE(${ativo}, ativo),
         role = COALESCE(${role}, role)
-
       WHERE id_usuario = ${id} 
       RETURNING *;
     `;
@@ -111,6 +116,7 @@ const atualizarUsuario = async (req, res) => {
       .json({ error: "Erro ao atualizar usuário", detalhes: error.message });
   }
 };
+
 
 function generateToken(usuario) {
   const payload = {

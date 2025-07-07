@@ -133,7 +133,7 @@ function RegisterUser() {
 
   const updateUserData = async (
     id: string,
-    updatedData: { nome?: string; email?: string; senha?: string },
+    updatedData: { nome?: string; email?: string; senha?: string; role?: string },
   ) => {
     try {
       const response = await fetch(`${apiUrl}/usuarios/${id}`, {
@@ -179,7 +179,7 @@ function RegisterUser() {
       return;
     }
 
-    await updateUserData(id, { nome, email, senha: senha || undefined });
+    await updateUserData(id, { nome, email, senha: senha || undefined, role: editUserData.role });
     toast.success("Usuário atualizado!");
     fetchUsuarios();
   };

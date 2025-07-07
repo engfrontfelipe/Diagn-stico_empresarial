@@ -76,7 +76,8 @@ const atualizarCliente = async (req, res) => {
   if (isNaN(id)) {
     return res.status(400).json({ error: "ID inválido" });
   }
-  const {
+
+  let {
     nome,
     nome_responsavel,
     cnpj,
@@ -89,11 +90,34 @@ const atualizarCliente = async (req, res) => {
     logo_url,
   } = req.body;
 
-  if (!nome && !nome_responsavel && !cnpj && ativo === undefined) {
+  if (
+    nome === undefined &&
+    nome_responsavel === undefined &&
+    cnpj === undefined &&
+    ativo === undefined &&
+    ramo_empresa === undefined &&
+    cargo_responsavel === undefined &&
+    consultor === undefined &&
+    linkedin === undefined &&
+    site === undefined &&
+    logo_url === undefined
+  ) {
     return res
       .status(400)
       .json({ error: "Nenhum campo fornecido para atualização" });
   }
+
+  // ✅ Evita undefined (a lib postgres não aceita)
+  nome = nome ?? null;
+  nome_responsavel = nome_responsavel ?? null;
+  cnpj = cnpj ?? null;
+  ativo = ativo ?? null;
+  ramo_empresa = ramo_empresa ?? null;
+  cargo_responsavel = cargo_responsavel ?? null;
+  consultor = consultor ?? null;
+  linkedin = linkedin ?? null;
+  site = site ?? null;
+  logo_url = logo_url ?? null;
 
   try {
     const result = await sql`
@@ -109,8 +133,6 @@ const atualizarCliente = async (req, res) => {
         linkedin = COALESCE(${linkedin}, linkedin),
         site = COALESCE(${site}, site),
         logo_url = COALESCE(${logo_url}, logo_url)
-
-
       WHERE id_cliente = ${id}
       RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site, logo_url;
     `;
@@ -127,6 +149,7 @@ const atualizarCliente = async (req, res) => {
       .json({ error: "Erro ao atualizar cliente", detalhes: error.message });
   }
 };
+
 
 const buscarClientePorId = async (req, res) => {
   const { id } = req.params;
