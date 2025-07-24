@@ -150,7 +150,6 @@ const atualizarCliente = async (req, res) => {
   }
 };
 
-
 const buscarClientePorId = async (req, res) => {
   const { id } = req.params;
 

@@ -46,7 +46,13 @@ function RegisterUser() {
   });
 
   const [usuarios, setUsuarios] = useState<
-    { id_usuario: string; nome: string; email: string; ativo: boolean, role: string; }[]
+    {
+      id_usuario: string;
+      nome: string;
+      email: string;
+      ativo: boolean;
+      role: string;
+    }[]
   >([]);
 
   const handleChange = (e: any) => {
@@ -133,7 +139,12 @@ function RegisterUser() {
 
   const updateUserData = async (
     id: string,
-    updatedData: { nome?: string; email?: string; senha?: string; role?: string },
+    updatedData: {
+      nome?: string;
+      email?: string;
+      senha?: string;
+      role?: string;
+    },
   ) => {
     try {
       const response = await fetch(`${apiUrl}/usuarios/${id}`, {
@@ -164,7 +175,7 @@ function RegisterUser() {
     nome: "",
     email: "",
     senha: "",
-    role: ""
+    role: "",
   });
 
   const handleChangeEdit = (e: any) => {
@@ -179,7 +190,12 @@ function RegisterUser() {
       return;
     }
 
-    await updateUserData(id, { nome, email, senha: senha || undefined, role: editUserData.role });
+    await updateUserData(id, {
+      nome,
+      email,
+      senha: senha || undefined,
+      role: editUserData.role,
+    });
     toast.success("Usuário atualizado!");
     fetchUsuarios();
   };
@@ -262,13 +278,16 @@ function RegisterUser() {
 
                 <Label className="text-[15px]">Tipo de usuário</Label>
                 <Select
-                    value={formData.role}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, role: value }))
-                    }
+                  value={formData.role}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, role: value }))
+                  }
                 >
                   <SelectTrigger className="-ml-10 w-full">
-                  <SelectValue placeholder="Selecione" defaultValue={formData.role} />
+                    <SelectValue
+                      placeholder="Selecione"
+                      defaultValue={formData.role}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="consultant">Consultor</SelectItem>
@@ -300,7 +319,11 @@ function RegisterUser() {
                     <TableRow key={usuario.id_usuario}>
                       <TableCell>{usuario.nome}</TableCell>
                       <TableCell>{usuario.email}</TableCell>
-                      <TableCell>{usuario.role === 'admin' ? "Administrador" : "Consultor"}</TableCell>
+                      <TableCell>
+                        {usuario.role === "admin"
+                          ? "Administrador"
+                          : "Consultor"}
+                      </TableCell>
                       <TableCell>
                         <Switch
                           className="cursor-pointer"
@@ -319,9 +342,8 @@ function RegisterUser() {
                                 nome: usuario.nome,
                                 email: usuario.email,
                                 senha: "",
-                                role: ""
+                                role: "",
                               })
-
                             }
                           >
                             <Pencil
@@ -366,27 +388,32 @@ function RegisterUser() {
                                   placeholder="Digite a nova senha (opcional)"
                                 />
 
-                              <Label className="mt-2">Tipo de usuário</Label>
-                              <Select
-                                value={editUserData.role}
-                                onValueChange={(value) =>
-                                  setEditUserData((prev) => ({ ...prev, role: value }))
-                                }
-                              >
-                                <SelectTrigger className="mt-2">
-                                  <SelectValue placeholder="Selecione" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="consultant">Consultor</SelectItem>
-                                  <SelectItem value="admin">Administrador</SelectItem>
-                                </SelectContent>
-                              </Select>
+                                <Label className="mt-2">Tipo de usuário</Label>
+                                <Select
+                                  value={editUserData.role}
+                                  onValueChange={(value) =>
+                                    setEditUserData((prev) => ({
+                                      ...prev,
+                                      role: value,
+                                    }))
+                                  }
+                                >
+                                  <SelectTrigger className="mt-2">
+                                    <SelectValue placeholder="Selecione" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="consultant">
+                                      Consultor
+                                    </SelectItem>
+                                    <SelectItem value="admin">
+                                      Administrador
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
 
-
-                               
                                 <Button
                                   className="mt-5 w-full cursor-pointer"
-                                  onClick={handleUpdateUser}                                  
+                                  onClick={handleUpdateUser}
                                 >
                                   Editar
                                 </Button>

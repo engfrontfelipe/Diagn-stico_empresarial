@@ -33,7 +33,7 @@ app.post("/generate-pdf", async (req, res) => {
   });
   const page = await browser.newPage();
 
-  const pageHeight = 1122 - 100 - 76; 
+  const pageHeight = 1122 - 100 - 76;
 
   const html1 = generateHtml({ title, intro, introPorDp, pageMap: {} });
   await page.setContent(html1, { waitUntil: "networkidle0" });
@@ -77,7 +77,7 @@ app.post("/generate-pdf", async (req, res) => {
   const pdfBuffer = await page.pdf({
     format: "A4",
     printBackground: true,
-    margin: { top: "2cm", right: "2cm", bottom: "2cm", left: "3cm" }, 
+    margin: { top: "2cm", right: "2cm", bottom: "2cm", left: "3cm" },
     displayHeaderFooter: true,
     headerTemplate: `
       <div style="font-size:10pt; font-family:'Times New Roman'; width:100%; text-align:right; padding-right:1.5cm; ">

@@ -117,7 +117,6 @@ const atualizarUsuario = async (req, res) => {
   }
 };
 
-
 function generateToken(usuario) {
   const payload = {
     id: usuario.id_usuario,

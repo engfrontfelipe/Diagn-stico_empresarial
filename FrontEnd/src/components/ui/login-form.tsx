@@ -78,7 +78,7 @@ export function LoginForm({
     } finally {
       setIsLoading(false);
       setEmail("");
-      setPassword("")
+      setPassword("");
     }
   };
 
@@ -111,7 +111,7 @@ export function LoginForm({
             <Label htmlFor="password">Senha</Label>
           </div>
           <Input
-          className="bg-slate-100/70 border-0"
+            className="bg-slate-100/70 border-0"
             id="password"
             type="password"
             value={password}
@@ -130,7 +130,7 @@ export function LoginForm({
           )}
         </Button>
       </div>
-      <Toaster position="bottom-center" richColors/>
+      <Toaster position="bottom-center" richColors />
     </form>
   );
 }

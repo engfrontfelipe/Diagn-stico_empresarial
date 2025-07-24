@@ -54,19 +54,19 @@ const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
     case "Muito Fácil":
-      return "text-black font-extrabold";
+      return " font-extrabold";
     case "Alta":
     case "Fácil":
-      return "text-black font-bold";
+      return " font-bold";
     case "Média":
-      return "text-black font-medium";
+      return " font-medium";
     case "Baixa":
     case "Difícil":
     case "Extremamente Baixa":
     case "Muito Difícil":
-      return "text-black font-light";
+      return " font-light";
     default:
-      return "text-black font-medium";
+      return " font-medium";
   }
 };
 
@@ -143,7 +143,9 @@ export default function TableAnswers({
               const { resposta } = await r.json();
               const i = resposta.importancia || "";
               const u = resposta.urgencia || "";
-              const f = converterFacilidade(resposta.facilidade_implementacao || "");
+              const f = converterFacilidade(
+                resposta.facilidade_implementacao || "",
+              );
               return {
                 ...q,
                 importancia: i,
@@ -188,7 +190,9 @@ export default function TableAnswers({
         atualizado.priorizacao = calcularPriorizacao(
           campo === "importancia" ? valor : q.importancia,
           campo === "urgencia" ? valor : q.urgencia,
-          campo === "facilidade_implementacao" ? valor : q.facilidade_implementacao,
+          campo === "facilidade_implementacao"
+            ? valor
+            : q.facilidade_implementacao,
         );
         return atualizado;
       }
@@ -288,45 +292,47 @@ export default function TableAnswers({
                     <TableRow key={q.id_pergunta}>
                       <TableCell>{q.oportunidade}</TableCell>
                       <TableCell>{q.departamento}</TableCell>
-                      {["importancia", "urgencia", "facilidade_implementacao"].map(
-                        (campo) => (
-                          <TableCell key={campo} className="text-center">
-                            <select
-                              value={q[campo as keyof Question]}
-                              onChange={(e) =>
-                                atualizarCampo(
-                                  q.id_resposta,
-                                  campo as any,
-                                  e.target.value,
-                                )
-                              }
-                              className={`w-full text-center outline-none bg-transparent ${corNivel(
-                                String(q[campo as keyof Question]),
-                              )}`}
-                            >
-                              {(campo === "facilidade_implementacao"
-                                ? opcoesFacilidade
-                                : opcoesNivel
-                              ).map((opt) => (
-                                <option key={opt} value={opt} className="text-black">
-                                  {opt}
-                                </option>
-                              ))}
-                            </select>
-                          </TableCell>
-                        ),
-                      )}
+                      {[
+                        "importancia",
+                        "urgencia",
+                        "facilidade_implementacao",
+                      ].map((campo) => (
+                        <TableCell key={campo} className="text-center">
+                          <select
+                            value={q[campo as keyof Question]}
+                            onChange={(e) =>
+                              atualizarCampo(
+                                q.id_resposta,
+                                campo as any,
+                                e.target.value,
+                              )
+                            }
+                            className={`w-full text-center outline-none bg-transparent ${corNivel(
+                              String(q[campo as keyof Question]),
+                            )}`}
+                          >
+                            {(campo === "facilidade_implementacao"
+                              ? opcoesFacilidade
+                              : opcoesNivel
+                            ).map((opt) => (
+                              <option key={opt} value={opt} className="">
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        </TableCell>
+                      ))}
                       <TableCell
                         className={`text-center ${
                           q.priorizacao >= 91
-                            ? "text-black font-bold"
+                            ? " font-bold"
                             : q.priorizacao >= 71
-                            ? "text-black font-semibold"
-                            : q.priorizacao >= 51
-                            ? "text-black font-medium"
-                            : q.priorizacao >= 31
-                            ? "text-black font-medium"
-                            : "text-black font-light"
+                              ? " font-semibold"
+                              : q.priorizacao >= 51
+                                ? " font-medium"
+                                : q.priorizacao >= 31
+                                  ? " font-medium"
+                                  : " font-light"
                         }`}
                       >
                         {q.priorizacao}

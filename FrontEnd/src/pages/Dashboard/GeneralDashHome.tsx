@@ -77,7 +77,8 @@ export default function GeneralDashHome() {
             );
             toast.error("Erro ao carregar perguntas, usando fallback.");
           } else {
-            const questionsContentType = questionsRes.headers.get("content-type");
+            const questionsContentType =
+              questionsRes.headers.get("content-type");
             if (
               !questionsContentType ||
               !questionsContentType.includes("application/json")
@@ -124,7 +125,8 @@ export default function GeneralDashHome() {
                   `${apiUrl}/answers/${cliente.id_cliente}`,
                 );
                 if (answersRes.ok) {
-                  const answersContentType = answersRes.headers.get("content-type");
+                  const answersContentType =
+                    answersRes.headers.get("content-type");
                   if (
                     !answersContentType ||
                     !answersContentType.includes("application/json")
@@ -155,10 +157,12 @@ export default function GeneralDashHome() {
 
               const totalPerguntas = questions.length || 1;
               const respondidas = answers.length || 0;
-              const progressoAtual = Math.round((respondidas / totalPerguntas) * 100);
+              const progressoAtual = Math.round(
+                (respondidas / totalPerguntas) * 100,
+              );
 
-              const mesCompleto = 2592000; 
-              const tempoPorDP = 345600; 
+              const mesCompleto = 2592000;
+              const tempoPorDP = 345600;
               const limites = [
                 { limite: 14, fator: 1 },
                 { limite: 29, fator: 2 },
@@ -266,9 +270,7 @@ export default function GeneralDashHome() {
   return (
     <>
       {error && (
-        <div className="text-center text-red-600 font-medium p-4">
-          {error}
-        </div>
+        <div className="text-center text-red-600 font-medium p-4">{error}</div>
       )}
       <div>
         <h1 className="text-center text-[25px] font-medium">Gestão Geral</h1>
@@ -325,15 +327,12 @@ export default function GeneralDashHome() {
               );
 
               console.log(progresso);
-              
 
               return (
                 <TableRow key={cliente.id_cliente}>
                   <TableCell className="text-center font-medium">
                     <Link to={`/clientes/${cliente.id_cliente}`}>
-                      <a className="text-muted-foreground hover:text-accent">
-                        {cliente.nome}
-                      </a>
+                      <a className="hover:underline">{cliente.nome}</a>
                     </Link>
                   </TableCell>
 
@@ -377,15 +376,15 @@ export default function GeneralDashHome() {
                             status.atrasado
                               ? "bg-red-500 hover:bg-red-300"
                               : status.progressoAtual === 100
-                              ? "bg-green-500 hover:bg-green-400"
-                              : "bg-green-500 hover:bg-green-400"
+                                ? "bg-green-500 hover:bg-green-400"
+                                : "bg-green-500 hover:bg-green-400"
                           }`}
                         >
                           {status.progressoAtual === 100
                             ? `Concluído (${status.progressoAtual}%)`
                             : status.atrasado
-                            ? `Atrasado (${status.progressoAtual}%)`
-                            : `Em dia (${status.progressoAtual}%)`}
+                              ? `Atrasado (${status.progressoAtual}%)`
+                              : `Em dia (${status.progressoAtual}%)`}
                         </button>
                       </DialogTrigger>
                       <DialogContent>
@@ -402,13 +401,15 @@ export default function GeneralDashHome() {
                         <div className="mt-4 space-y-4">
                           <div>
                             <p className="text-sm mb-1">
-                              Progresso atual ({status.progressoAtual.toFixed(0)}%)
+                              Progresso atual (
+                              {status.progressoAtual.toFixed(0)}%)
                             </p>
                             <Progress value={status.progressoAtual} />
                           </div>
                           <div>
                             <p className="text-sm mb-1">
-                              Progresso esperado ({status.progressoEsperado.toFixed(0)}%)
+                              Progresso esperado (
+                              {status.progressoEsperado.toFixed(0)}%)
                             </p>
                             <Progress
                               value={status.progressoEsperado}

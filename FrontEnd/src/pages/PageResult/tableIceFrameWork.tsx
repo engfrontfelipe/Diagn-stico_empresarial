@@ -7,6 +7,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import { FileSpreadsheet } from "lucide-react";
 
 const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
 import { useEffect, useState } from "react";
@@ -36,19 +37,19 @@ const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
     case "Muito Fácil":
-      return "text-black font-extrabold";
+      return "text-primary font-extrabold";
     case "Alta":
     case "Fácil":
-      return "text-black font-bold";
+      return "text-primary font-bold";
     case "Média":
-      return "text-black font-medium";
+      return "text-primary font-medium";
     case "Baixa":
     case "Difícil":
     case "Extremamente Baixa":
     case "Muito Difícil":
-      return "text-black font-light";
+      return "text-primary font-light";
     default:
-      return "text-black font-medium";
+      return "text-primary font-medium";
   }
 };
 
@@ -211,8 +212,10 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
         Tabela de Ice FrameWork
       </h1>
       <p className="text-center text-muted-foreground">
-        Foram encontradas {questions.length} oportunidades para sua empresa. <br />
-        (Recomendado diminuir o zoom da tela em monitores menores para melhor visualização.)
+        Foram encontradas {questions.length} oportunidades para sua empresa.{" "}
+        <br />
+        (Recomendado diminuir o zoom da tela em monitores menores para melhor
+        visualização.)
       </p>
 
       <div className="flex justify-between items-center">
@@ -234,12 +237,9 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
           </select>
         </div>
 
-        <button
-          onClick={exportarParaCSV}
-          className="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary/90 transition"
-        >
-          Exportar CSV
-        </button>
+        <Button onClick={exportarParaCSV}>
+          Exportar CSV <FileSpreadsheet />
+        </Button>
       </div>
 
       <Table className="border-collapse border border-b-accent">
@@ -274,16 +274,16 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
               <TableCell
                 className={`text-center ${
                   q.priorizacao >= 91
-                    ? "text-black font-bold"
+                    ? "text-primary font-bold"
                     : q.priorizacao >= 71
-                      ? "text-black font-semibold"
+                      ? "text-primary font-semibold"
                       : q.priorizacao >= 51
-                        ? "text-black font-medium"
+                        ? "text-primary font-medium"
                         : q.priorizacao >= 31
-                          ? "text-black font-medium"
+                          ? "text-primary font-medium"
                           : q.priorizacao >= 11
-                            ? "text-black font-light"
-                            : "text-black font-light"
+                            ? "text-primary font-light"
+                            : "text-primary font-light"
                 }`}
               >
                 {q.priorizacao}

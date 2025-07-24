@@ -14,18 +14,10 @@ import {
 import { useParams } from "react-router-dom";
 import { HeaderPageResult } from "./HeaderPageResult";
 import { Card } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  // ChartTooltip,
-  // ChartTooltipContent,
-} from "@/components/ui/chart";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
 const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
-import {
-  HoverCard,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card";
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";
 import { ContentDiag, selecionarTexto } from "./contetDiag";
@@ -299,7 +291,6 @@ export default function PageResult({ idCliente }: Props) {
     return pieChartData[0]?.value.toFixed(2);
   };
 
-
   const respNegativas = respostasNegativas;
   const respPositivas = respostasPositivas;
 
@@ -500,7 +491,7 @@ export default function PageResult({ idCliente }: Props) {
         />
 
         <div className="pl-10 pr-10 mt-5">
-          <Card>
+          <Card id="diagResult">
             <GeradorRelatorioPDF
               introGeral={introHTML}
               dadosPorDepartamento={areas}

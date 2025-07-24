@@ -488,8 +488,8 @@ export const GeradorRelatorioPDF: React.FC<Props> = ({
             Gerando PDF...
           </span>
         ) : (
-          <p className="flex gap-2 items-center">
-            <FileDown size={20} />
+          <p className="flex gap-2 items-center animate-pulse">
+            Gerar Relatório <FileDown size={20} />
           </p>
         )}
       </button>

@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/ui/login-form"
+import { LoginForm } from "@/components/ui/login-form";
 
 export default function LoginPage() {
   return (
@@ -12,7 +12,10 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-black/40 z-0" />
 
       <div className="bg-slate-100/70 p-6 rounded-2xl relative z-10 flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex flex-col items-center gap-2 self-center font-medium ">
+        <a
+          href="#"
+          className="flex flex-col items-center gap-2 self-center font-medium "
+        >
           <div className="flex items-center justify-center rounded-md">
             <img
               src="https://assinaturas.grovehost.com.br/StaticDicionary/logConsulting.png"
@@ -25,5 +28,5 @@ export default function LoginPage() {
         <LoginForm />
       </div>
     </div>
-  )
+  );
 }
