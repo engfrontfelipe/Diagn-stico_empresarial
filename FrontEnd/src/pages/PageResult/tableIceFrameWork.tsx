@@ -8,9 +8,10 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { FileSpreadsheet } from "lucide-react";
+import { useEffect, useState } from "react";
+import * as XLSX from "xlsx"; 
 
 const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
-import { useEffect, useState } from "react";
 
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {
@@ -174,37 +175,84 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
     paginaAtual * itensPorPagina,
   );
 
-  const exportarParaCSV = () => {
-    const headers = [
-      "Oportunidade",
-      "Departamento",
-      "Importância",
-      "Urgência",
-      "Facilidade",
-      "Priorização",
-    ];
+const exportarParaExcel = () => {
+  const headers = [
+    "Oportunidade",
+    "Departamento",
+    "Importância",
+    "Urgência",
+    "Facilidade",
+    "Priorização",
+  ];
 
-    const linhas = filtradas.map((q) => [
-      `"${q.oportunidade}"`,
-      `"${q.departamento}"`,
-      `"${q.importancia}"`,
-      `"${q.urgencia}"`,
-      `"${q.facilidade_implementacao}"`,
-      q.priorizacao,
-    ]);
+  const dados = filtradas.map((q) => ({
+    Oportunidade: q.oportunidade,
+    Departamento: q.departamento,
+    Importância: q.importancia,
+    Urgência: q.urgencia,
+    Facilidade: q.facilidade_implementacao,
+    Priorização: q.priorizacao,
+  }));
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers, ...linhas].map((linha) => linha.join(",")).join("\n");
+  const worksheet = XLSX.utils.json_to_sheet(dados, { header: headers });
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "tabela_ice_framework.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // Define filtros no cabeçalho
+  worksheet["!autofilter"] = { ref: `A1:F${dados.length + 1}` };
+
+  // Ajusta largura das colunas automaticamente
+  worksheet["!cols"] = headers.map((h) => ({
+    wch: Math.max(
+      h.length,
+      ...dados.map((d) => String(d[h as keyof typeof d] || "").length)
+    ) + 4,
+  }));
+
+  // Aplica estilo: bordas, cabeçalho com fundo azul claro, texto em negrito
+  const range = XLSX.utils.decode_range(worksheet["!ref"]!);
+
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+      const cell = worksheet[cellAddress];
+      if (!cell) continue;
+
+      const isHeader = R === 0;
+
+      cell.s = {
+        font: {
+          bold: isHeader,
+          color: { rgb: "000000" },
+        },
+        fill: isHeader
+          ? {
+              fgColor: { rgb: "D9E1F2" }, // fundo azul claro
+            }
+          : undefined,
+        alignment: {
+          vertical: "center",
+          horizontal: "left",
+        },
+        border: {
+          top: { style: "thin", color: { rgb: "CCCCCC" } },
+          bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+          left: { style: "thin", color: { rgb: "CCCCCC" } },
+          right: { style: "thin", color: { rgb: "CCCCCC" } },
+        },
+      };
+    }
+  }
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "ICE Framework");
+
+  XLSX.writeFile(workbook, "tabela_ice_framework.xlsx", {
+    bookType: "xlsx",
+    compression: true,
+    cellStyles: true,
+  });
+};
+
+
 
   return (
     <div className="w-full space-y-4 pl-6 pr-6">
@@ -237,8 +285,8 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
           </select>
         </div>
 
-        <Button onClick={exportarParaCSV}>
-          Exportar CSV <FileSpreadsheet />
+        <Button onClick={exportarParaExcel}>
+          Exportar Excel <FileSpreadsheet />
         </Button>
       </div>
 
@@ -276,14 +324,12 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
                   q.priorizacao >= 91
                     ? "text-primary font-bold"
                     : q.priorizacao >= 71
-                      ? "text-primary font-semibold"
-                      : q.priorizacao >= 51
-                        ? "text-primary font-medium"
-                        : q.priorizacao >= 31
-                          ? "text-primary font-medium"
-                          : q.priorizacao >= 11
-                            ? "text-primary font-light"
-                            : "text-primary font-light"
+                    ? "text-primary font-semibold"
+                    : q.priorizacao >= 51
+                    ? "text-primary font-medium"
+                    : q.priorizacao >= 31
+                    ? "text-primary font-medium"
+                    : "text-primary font-light"
                 }`}
               >
                 {q.priorizacao}
