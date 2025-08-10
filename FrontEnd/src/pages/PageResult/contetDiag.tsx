@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { introducoes, consideracoesFinais } from "../Client/StaticDictionary";
 
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 export function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
   const nivel = Math.min(Math.ceil(pontuacao / 10) * 10, 100);
   return nivel.toString() as MaturidadeNivel;

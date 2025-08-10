@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import GeneralDashHome from "./GeneralDashHome.tsx";
 import { Card } from "@/components/ui/card.tsx";
 
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 export default function Page() {
   const [clientes, setClientes] = useState<

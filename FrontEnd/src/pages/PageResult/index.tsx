@@ -16,7 +16,7 @@ import { HeaderPageResult } from "./HeaderPageResult";
 import { Card } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card";
 import TableIceFrameWork from "./tableIceFrameWork";
 import Results from "./Results";

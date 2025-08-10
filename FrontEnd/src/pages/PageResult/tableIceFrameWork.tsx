@@ -11,7 +11,7 @@ import { FileSpreadsheet } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx"; 
 
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 const nivelParaNumero = (nivel: string) => {
   switch (nivel) {

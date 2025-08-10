@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 function TableQuestions({
   onUpdateAnswers,

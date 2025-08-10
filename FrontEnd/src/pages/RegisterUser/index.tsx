@@ -13,7 +13,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-const apiUrl = "https://diagnostivo-v1-backend.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 import { Pencil } from "lucide-react";
 import { useState, useEffect } from "react";
