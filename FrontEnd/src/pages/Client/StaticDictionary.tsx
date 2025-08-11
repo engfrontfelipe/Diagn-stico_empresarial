@@ -10,7 +10,6 @@ export type MaturidadeNivel =
   | "90"
   | "100";
 
-
 export const introducoes: Record<MaturidadeNivel, string[]> = {
   "10": [
     `A estrutura organizacional encontra-se em estágio embrionário, com ausência quase total de práticas formais de gestão. Processos são inexistentes ou improvisados, decisões seguem uma lógica reativa e não há definição clara de papéis, metas ou rotinas.
@@ -312,7 +311,6 @@ export const conclusoesMarketing: Record<MaturidadeNivel, string[]> = {
   ],
 };
 
-
 export const introducoesRH: Record<MaturidadeNivel, string[]> = {
   "10": [
     `A área de Recursos Humanos encontra-se em estágio embrionário, caracterizada pela ausência de processos formais de recrutamento, integração, desenvolvimento e avaliação de desempenho. As contratações são realizadas de forma reativa e sem critérios definidos. O primeiro passo é estruturar minimamente o processo de contratação, estabelecer descrições de cargos, criar um plano de ambientação para novos colaboradores e iniciar práticas simples de escuta, como reuniões 1:1 e inquéritos de clima.`,
@@ -442,7 +440,6 @@ export const conclusoesOperacoes: Record<MaturidadeNivel, string[]> = {
     `A operação é um diferencial competitivo, com excelência em todos os processos, sistemas avançados e inteligência operacional. A área impulsiona o crescimento sustentável, a inovação contínua e a liderança no setor.`,
   ],
 };
-
 
 export const introducoesTecnologia: Record<MaturidadeNivel, string[]> = {
   "10": [

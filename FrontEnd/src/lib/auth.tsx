@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl =
+  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 // Incluí o campo `role` na interface do usuário
 interface User {

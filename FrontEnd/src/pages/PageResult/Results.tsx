@@ -16,7 +16,8 @@ import { Card } from "@/components/ui/card";
 import { Toaster } from "sonner";
 import { useParams } from "react-router-dom";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl =
+  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 const COLORS = [
   "#FF5733",

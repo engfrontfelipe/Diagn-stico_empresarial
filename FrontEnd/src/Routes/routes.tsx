@@ -8,11 +8,14 @@ import RegisterClient from "@/pages/RegisterClient";
 import RegisterQuest from "@/pages/RegisterQuestion";
 import PageClient from "@/pages/PageClient";
 import PageResult from "@/pages/PageResult";
+import ManualConsultor from "@/pages/Documentation/DocConsulting";
 
 const Rotas = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
+      <Route path="/doc/Consulting" element={<ManualConsultor />} />
 
       <Route
         path="/dashboard"

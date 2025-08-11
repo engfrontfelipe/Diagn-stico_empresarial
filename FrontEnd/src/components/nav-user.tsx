@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/auth";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl =
+  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 export function NavUser({}) {
   const { isMobile } = useSidebar();

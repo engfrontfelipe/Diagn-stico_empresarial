@@ -19,7 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl =
+  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
 
 interface Cliente {
   id_cliente: string;
