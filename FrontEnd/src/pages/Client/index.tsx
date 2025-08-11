@@ -304,7 +304,7 @@ export function selecionarTextoConclusao(pontuacao: number): string {
     <div class="page">
       <section id="conclusao-geral" class="page-content">
         <h2>Conclusão Geral</h2>
-        <p>${texto.trim().replace(/\n/g, "<br>")}</p>
+        <p>${texto}</p>
         <p>A pontuação final da empresa foi <strong>${pontuacao}</strong>, o que indica um nível de maturidade de <strong>${obterNivelTexto(pontuacao)}</strong>.</p>
         <p>Recomendamos que a empresa priorize as áreas com maior percentual de maturidade para alcançar um desempenho mais equilibrado e eficiente.</p>
         <p><strong>"O segredo da mudança é focar toda a sua energia não em lutar contra o velho, mas em construir o novo." - Sócrates</strong></p>

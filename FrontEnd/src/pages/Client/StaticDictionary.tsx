@@ -64,7 +64,7 @@ A tecnologia está plenamente integrada ao dia a dia, e as decisões são guiada
 Neste nível, o foco está na ampliação da presença institucional, parcerias globais, legado organizacional e transformação setorial. A empresa está preparada para inspirar o mercado e influenciar positivamente seu ecossistema com liderança e responsabilidade.`,
   ],
 };
-export const consideracoesFinais: Record<MaturidadeNivel, string[]> = {
+export const consideracoesFinais = {
   "10": [
     `A organização encontra-se em um ponto crítico de desenvolvimento, com estruturas inexistentes ou altamente fragilizadas. Falta clareza nos papéis, processos e objetivos, e o modelo atual está centrado em decisões reativas e improvisadas.
 Para iniciar sua jornada de crescimento, será essencial estabelecer os fundamentos mínimos da gestão: definição de responsabilidades, construção de fluxos operacionais básicos, criação de mecanismos de controle e início da cultura de acompanhamento.

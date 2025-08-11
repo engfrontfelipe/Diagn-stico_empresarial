@@ -17,7 +17,7 @@ export function selecionarTextoConclusao(pontuacao: number): string {
 
   return `
     <section id="conclusao-${nivel}">
-      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
+      <p>${texto}</p>
     </section>
   `;
 }
