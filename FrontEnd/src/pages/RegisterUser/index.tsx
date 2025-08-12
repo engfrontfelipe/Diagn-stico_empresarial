@@ -187,7 +187,7 @@ function RegisterUser() {
     const { id, nome, email, senha } = editUserData;
 
     if (!nome || !email) {
-      toast.error("Nome e email são obrigatórios!");
+      toast.error("Nome e e-mail são obrigatórios!");
       return;
     }
 
@@ -244,12 +244,12 @@ function RegisterUser() {
                 />
 
                 <Label className="text-[15x]" htmlFor="email">
-                  Email:
+                  E-mail:
                 </Label>
                 <Input
                   id="email"
                   className="-ml-10"
-                  placeholder="m@company.com.br"
+                  placeholder="email@company.com.br"
                   value={formData.email}
                   onChange={handleChange}
                 />
@@ -309,7 +309,7 @@ function RegisterUser() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Usuário</TableHead>
-                    <TableHead>Email</TableHead>
+                    <TableHead>E-mail</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Ativo</TableHead>
                     <TableHead>Editar</TableHead>
@@ -369,7 +369,7 @@ function RegisterUser() {
                                 />
 
                                 <Label className="mb-2 mt-2 font-medium">
-                                  Email
+                                  E-mail
                                 </Label>
                                 <Input
                                   id="email"

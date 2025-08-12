@@ -184,7 +184,7 @@ function Results({
           <Card className="hidden md:flex w-full h-[350px] flex-row p-6 pt-10 mt-5">
             <div className="flex flex-col items-center">
               <h3 className="text-md font-semibold mb-4 -mt-4">
-                % de maturidade pro departamento
+                % de maturidade por departamento
               </h3>
               <PieChart width={390} height={250}>
                 <Pie

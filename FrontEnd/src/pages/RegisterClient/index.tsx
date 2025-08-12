@@ -278,7 +278,7 @@ export default function RegisterUser() {
     } = editClientData;
 
     if (!nome_empresa || !nome_responsavel) {
-      toast.error("Nome e email são obrigatórios!");
+      toast.error("Nome e e-mail são obrigatórios!");
       return;
     }
 

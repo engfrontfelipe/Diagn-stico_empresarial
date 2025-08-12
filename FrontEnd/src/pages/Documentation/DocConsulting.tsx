@@ -55,7 +55,7 @@ function ManualConsultor() {
               Acesse o sistema utilizando o login e senha fornecidos pela empresa responsável.
             </li>
             <li>
-              Certifique-se de que tem permissão para visualizar e responder as perguntas dos clientes que irá atender.
+              Certifique-se de que tem permissão para visualizar e responder às perguntas dos clientes que irá atender.
             </li>
             <li>
               Familiarize-se com a interface, que está organizada por áreas da empresa, permitindo uma avaliação segmentada e detalhada.

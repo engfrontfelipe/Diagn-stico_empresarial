@@ -263,7 +263,7 @@ export default function TableIceFrameWork({ clienteId }: TableAnswersProps) {
         Foram encontradas {questions.length} oportunidades para sua empresa.{" "}
         <br />
         (Recomendado diminuir o zoom da tela em monitores menores para melhor
-        visualização.)
+        visualização)
       </p>
 
       <div className="flex justify-between items-center">
