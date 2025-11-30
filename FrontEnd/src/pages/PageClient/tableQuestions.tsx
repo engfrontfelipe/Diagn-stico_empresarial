@@ -1,102 +1,99 @@
+// tableQuestions.tsx
 import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-
-import { toast, Toaster } from "sonner";
-import { useAuth } from "@/lib/auth";
-import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "sonner";
 
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
 
-function TableQuestions({
-  onUpdateAnswers,
-}: {
+interface Pergunta {
+  id_pergunta: number;
+  texto_pergunta: string;
+  departamento: string;
+}
+
+interface TableQuestionsProps {
   onUpdateAnswers: (answers: any[]) => void;
-}) {
-  const [answers, setAnswers] = useState<Record<string, boolean>>({});
-  const [questions, setQuestions] = useState<
-    { id_pergunta: number; texto_pergunta: string; departamento: string }[]
-  >([]);
-  const [loading, setLoading] = useState(true);
+  clienteId: string;
+}
 
+// Função para decodificar JWT sem biblioteca
+const decodeJWT = (token: string | null): any => {
+  if (!token) return null;
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+export default function TableQuestions({
+  onUpdateAnswers,
+  clienteId,
+}: TableQuestionsProps) {
+  const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const [questions, setQuestions] = useState<Pergunta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const answersRef = useRef(answers);
   const [currentPageByTab, setCurrentPageByTab] = useState<
     Record<string, number>
   >({});
+
   const QUESTIONS_PER_PAGE = 7;
 
-  const { user } = useAuth();
-  const { id } = useParams();
-  const id_cliente = parseInt(id || "0");
-  const id_usuario = user?.id;
-
-  const answersRef = useRef(answers);
-
   useEffect(() => {
-    if (!id_cliente) return;
+    answersRef.current = answers;
+  }, [answers]);
 
-    fetch(`${apiUrl}/answers/${id_cliente}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar respostas salvas");
-        return res.json();
-      })
-      .then((data) => {
-        const booleanAnswers: Record<string, boolean> = {};
+  // Carrega respostas salvas (só uma vez)
+  useEffect(() => {
+    const carregarRespostas = async () => {
+      try {
+        const res = await fetch(`${apiUrl}/answers/${clienteId}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
 
-        data.forEach((item: { id_pergunta: number; resposta: number }) => {
-          booleanAnswers[item.id_pergunta.toString()] = item.resposta === 1;
+        const map: Record<string, boolean> = {};
+        data.forEach((a: any) => {
+          map[a.id_pergunta] = a.resposta === 1;
         });
 
-        setAnswers(booleanAnswers);
-        answersRef.current = booleanAnswers;
+        setAnswers(map);
+        answersRef.current = map;
 
-        const respostasValidas = Object.entries(booleanAnswers).map(
-          ([id_pergunta, resposta]) => ({
-            id_pergunta: Number(id_pergunta),
-            resposta: resposta ? 1 : 2,
-          }),
+        // Atualiza o pai apenas uma vez no carregamento
+        onUpdateAnswers(
+          Object.entries(map).map(([id, r]) => ({
+            id_pergunta: +id,
+            resposta: r ? 1 : 2,
+          })),
         );
-        onUpdateAnswers(respostasValidas);
-      })
-      .catch((error) => {
-        console.error("Erro ao carregar respostas salvas:", error);
-      })
-      .finally(() => setLoading(false)); // <-- aqui
-  }, [id_cliente]);
-
-  useEffect(() => {
-    fetch(`${apiUrl}/questions/list`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
-        return res.json();
-      })
-      .then((data) => setQuestions(data))
-      .catch((error) => console.error("Erro ao buscar as perguntas:", error))
-      .finally(() => setLoading(false)); // <-- aqui também
-  }, []);
-
-  const tabsData = questions.reduce((acc: any[], question) => {
-    const tab = acc.find(
-      (t: { label: string }) => t.label === question.departamento,
-    );
-    const field = {
-      id: question.id_pergunta,
-      label: question.texto_pergunta,
+      } catch (err) {
+        console.error("Erro ao carregar respostas:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (tab) {
-      tab.fields.push(field);
-    } else {
-      acc.push({
-        value: question.departamento.toLowerCase().replace(/\s/g, "-"),
-        label: question.departamento,
-        fields: [field],
-      });
-    }
+    carregarRespostas();
+  }, [clienteId]); // SEM onUpdateAnswers aqui = sem loop!
 
-    return acc;
-  }, []);
+  // Carrega perguntas do cliente
+  useEffect(() => {
+    fetch(`${apiUrl}/questions/cliente/${clienteId}`)
+      .then((r) => r.json())
+      .then(setQuestions)
+      .catch(() => toast.error("Erro ao carregar perguntas"));
+  }, [clienteId]);
 
   const salvarRespostaIndividual = async (
     idPergunta: string,
@@ -105,190 +102,218 @@ function TableQuestions({
     const respostaNumerica = valor ? 1 : 2;
     const data_resposta = new Date().toISOString().split("T")[0];
 
-    const resposta = {
-      id_cliente,
-      id_pergunta: parseInt(idPergunta),
-      resposta: respostaNumerica,
-      data_resposta,
-      id_usuario,
-    };
+    // PEGA O TOKEN DO LOCALSTORAGE E DECODIFICA
+    const token =
+      localStorage.getItem("token") ||
+      localStorage.getItem("authToken") ||
+      localStorage.getItem("userToken");
+    const payloadJWT = decodeJWT(token);
+    const id_usuario = payloadJWT?.id || 1; // fallback pro admin
+
+    const payload = [
+      {
+        id_cliente: Number(clienteId),
+        id_pergunta: Number(idPergunta),
+        resposta: respostaNumerica,
+        data_resposta,
+        id_usuario, // AGORA VAI O USUÁRIO LOGADO!
+      },
+    ];
 
     try {
-      const response = await fetch(`${apiUrl}/answers/save`, {
+      const res = await fetch(`${apiUrl}/answers/save`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([resposta]),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: JSON.stringify(payload),
       });
 
-      const resultado = await response.json();
+      const resultado = await res.json();
 
-      if (!response.ok) {
-        toast.error(resultado?.error || "Erro ao salvar resposta.");
+      if (!res.ok) {
+        toast.error(resultado?.error || "Erro ao salvar resposta");
         return;
       }
 
-      const mensagem = resultado.message?.toLowerCase();
-
-      if (mensagem?.includes("atualizada")) {
-        toast.info("Resposta atualizada com sucesso.");
-      } else if (mensagem?.includes("salva")) {
-        toast.success("Nova resposta salva com sucesso.");
-      } else {
-        toast.info("Resposta atualizada com sucesso.");
-      }
+      toast.success(
+        valor ? "Resposta 'Sim' salva!" : "Oportunidade identificada!",
+      );
     } catch (err) {
-      console.error(err);
-      toast.error("Erro ao salvar, contate o suporte.");
+      console.error("Erro ao salvar:", err);
+      toast.error("Erro de conexão com o servidor");
     }
   };
 
   const handleSwitchChange = (idPergunta: string, value: boolean) => {
-    const updatedAnswers = {
-      ...answersRef.current,
-      [idPergunta]: value,
-    };
-
-    setAnswers(updatedAnswers);
-    answersRef.current = updatedAnswers;
+    const updated = { ...answersRef.current, [idPergunta]: value };
+    setAnswers(updated);
+    answersRef.current = updated;
 
     salvarRespostaIndividual(idPergunta, value);
 
-    const respostasValidas = Object.entries(updatedAnswers)
-      .filter(([_, v]) => v !== null)
-      .map(([id_pergunta, resposta]) => ({
-        id_pergunta: Number(id_pergunta),
-        resposta: resposta ? 1 : 2,
+    // Atualiza o pai com as respostas válidas
+    const validas = Object.entries(updated)
+      .filter(([_, v]) => v !== undefined)
+      .map(([id, resp]) => ({
+        id_pergunta: Number(id),
+        resposta: resp ? 1 : 2,
       }));
 
-    onUpdateAnswers(respostasValidas);
+    onUpdateAnswers(validas);
   };
+
+  // Agrupa perguntas por departamento
+  const tabsData = questions.reduce((acc: any[], q) => {
+    const existing = acc.find((t) => t.label === q.departamento);
+    const field = { id: q.id_pergunta, label: q.texto_pergunta };
+
+    if (existing) {
+      existing.fields.push(field);
+    } else {
+      acc.push({
+        value: q.departamento.toLowerCase().replace(/\s+/g, "-"),
+        label: q.departamento,
+        fields: [field],
+      });
+    }
+    return acc;
+  }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[400px] w-full">
-        <div className="w-16 h-16 border-4 border-t-transparent border-accent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-96">
+        <div className="w-16 h-16 border-4 border-t-transparent border-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <p>Nenhuma pergunta disponível para este cliente.</p>
+        <p className="text-sm mt-2">Verifique os departamentos no cadastro.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-8xl mx-auto space-y-2">
-      <Tabs defaultValue="estratégias">
-        <TabsList className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 w-full overflow-x-auto">
+    <div className="w-full space-y-6">
+      <Tabs defaultValue={tabsData[0]?.value}>
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 w-full overflow-x-auto h-auto">
           {tabsData.map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="text-xs sm:text-sm cursor-pointer"
+              className="text-xs sm:text-sm"
             >
-              {tab.label}
+              {tab.label} ({tab.fields.length})
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {tabsData.map((tab) => (
-          <TabsContent
-            key={tab.value}
-            value={tab.value}
-            className="bg-card rounded-xl mt-3 grid grid-cols-1 gap-3 p-6"
-          >
-            {(() => {
-              const currentPage = currentPageByTab[tab.value] || 1;
-              const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
-              const endIndex = startIndex + QUESTIONS_PER_PAGE;
-              const paginatedFields = tab.fields.slice(startIndex, endIndex);
+        {tabsData.map((tab) => {
+          const page = currentPageByTab[tab.value] || 1;
+          const start = (page - 1) * QUESTIONS_PER_PAGE;
+          const end = start + QUESTIONS_PER_PAGE;
+          const pageItems = tab.fields.slice(start, end);
 
-              return paginatedFields.map((field: any) => {
-                const isChecked = answersRef.current.hasOwnProperty(field.id)
-                  ? answersRef.current[field.id]
-                  : null;
+          return (
+            <TabsContent key={tab.value} value={tab.value} className="mt-6">
+              <div className="space-y-6 bg-card rounded-xl p-6 border">
+                {pageItems.map((field: any) => {
+                  const checked = answersRef.current[field.id] ?? null;
 
-                return (
-                  <div
-                    key={field.id}
-                    className=" flex items-center justify-between gap-4 border-b pb-3"
-                  >
-                    <Label
-                      htmlFor={field.id}
-                      className="text-sm leading-snug max-w-[80%]"
+                  return (
+                    <div
+                      key={field.id}
+                      className="flex items-start justify-between gap-4 pb-5 border-b last:border-0"
                     >
-                      {field.label}
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                          isChecked === true ? "bg-emerald-600" : "bg-gray-600"
-                        }`}
-                        onClick={() => handleSwitchChange(field.id, true)}
+                      <Label
+                        htmlFor={`q-${field.id}`}
+                        className="text-sm leading-relaxed max-w-2xl"
                       >
-                        Sim
-                      </button>
-                      <button
-                        type="button"
-                        className={`cursor-pointer px-3 py-1 rounded-lg transition-all duration-200 text-white ${
-                          isChecked === false ? "bg-red-600" : "bg-gray-600"
-                        }`}
-                        onClick={() => handleSwitchChange(field.id, false)}
-                      >
-                        Não
-                      </button>
-                      {isChecked === null && (
-                        <span className="text-sm text-gray-500 font-medium">
-                          Não respondida.
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              });
-            })()}
+                        {field.label}
+                      </Label>
 
-            <div className="flex justify-center gap-x-6 mt-4">
-              <Button
-                size="sm"
-                disabled={(currentPageByTab[tab.value] || 1) === 1}
-                onClick={() =>
-                  setCurrentPageByTab((prev) => ({
-                    ...prev,
-                    [tab.value]: (prev[tab.value] || 1) - 1,
-                  }))
-                }
-              >
-                Anterior
-              </Button>
-              <span className="text-sm self-center">
-                Página {currentPageByTab[tab.value] || 1} de{" "}
-                {Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)}
-              </span>
-              <Button
-                size="sm"
-                disabled={
-                  (currentPageByTab[tab.value] || 1) >=
-                  Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)
-                }
-                onClick={() =>
-                  setCurrentPageByTab((prev) => ({
-                    ...prev,
-                    [tab.value]: (prev[tab.value] || 1) + 1,
-                  }))
-                }
-              >
-                Próxima
-              </Button>
-            </div>
-          </TabsContent>
-        ))}
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() =>
+                            handleSwitchChange(field.id.toString(), true)
+                          }
+                          className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                            checked === true
+                              ? "bg-emerald-600 text-white shadow-md"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          Sim
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleSwitchChange(field.id.toString(), false)
+                          }
+                          className={`px-5 py-2 rounded-lg font-medium transition-all ${
+                            checked === false
+                              ? "bg-red-600 text-white shadow-md"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          Não
+                        </button>
+                        {checked === null && (
+                          <span className="text-xs text-muted-foreground">
+                            Pendente
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Paginação */}
+                {tab.fields.length > QUESTIONS_PER_PAGE && (
+                  <div className="flex items-center justify-center gap-4 mt-8">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={page === 1}
+                      onClick={() =>
+                        setCurrentPageByTab((prev) => ({
+                          ...prev,
+                          [tab.value]: page - 1,
+                        }))
+                      }
+                    >
+                      Anterior
+                    </Button>
+                    <span className="text-sm">
+                      Página {page} de{" "}
+                      {Math.ceil(tab.fields.length / QUESTIONS_PER_PAGE)}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={end >= tab.fields.length}
+                      onClick={() =>
+                        setCurrentPageByTab((prev) => ({
+                          ...prev,
+                          [tab.value]: page + 1,
+                        }))
+                      }
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          );
+        })}
       </Tabs>
 
-      <Toaster
-        richColors
-        position="bottom-center"
-        closeButton
-        duration={1000}
-      />
+      <Toaster position="bottom-center" richColors closeButton />
     </div>
   );
 }
-
-export default TableQuestions;

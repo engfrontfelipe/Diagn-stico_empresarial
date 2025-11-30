@@ -1,3 +1,4 @@
+// RegisterUser.tsx
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SectionCards } from "@/components/section-cards";
@@ -7,29 +8,60 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Label } from "@/components/ui/label";
-import { DialogHeader } from "@/components/ui/dialog";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-import { Pencil } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast, Toaster } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { AlertCircle } from "lucide-react";
+
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+
+const DEPARTAMENTOS_DISPONIVEIS = [
+  "RH",
+  "Financeiro",
+  "Marketing",
+  "Tecnologia",
+  "Vendas",
+  "Operações",
+  "Estratégias",
+] as const;
+
+type Cliente = {
+  id_cliente: number;
+  nome: string;
+  nome_responsavel: string;
+  cnpj: string;
+  cargo_responsavel: string;
+  ramo_empresa: string;
+  consultor: string;
+  linkedin: string;
+  site: string;
+  logo_url: string | null;
+  ativo: boolean;
+  departamentos: string[];
+};
+
+type ClienteForm = {
+  nome_empresa: string;
+  nome_responsavel: string;
+  cnpj: string;
+  ramo_empresa: string;
+  cargo_responsavel: string;
+  consultor: string;
+  linkedin: string;
+  site: string;
+  logo_url: string;
+};
 
 export default function RegisterUser() {
-  const [client, setClient] = useState({
+  const [client, setClient] = useState<ClienteForm>({
     nome_empresa: "",
     nome_responsavel: "",
     cnpj: "",
@@ -41,25 +73,18 @@ export default function RegisterUser() {
     logo_url: "",
   });
 
-  const [clientes, setClientes] = useState<
-    {
-      nome_responsavel: string;
-      nome: string;
-      cnpj: string;
-      id_cliente: string;
-      ramo_empresa: string;
-      cargo_responsavel: string;
-      ativo: boolean;
-      consultor: string;
-      linkedin: string;
-      site: string;
-      logo_url: string;
-    }[]
+  const [departamentosSelecionados, setDepartamentosSelecionados] = useState<
+    string[]
   >([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Sheet de edição
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
 
   const formatCNPJ = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 14);
-
     return digits
       .replace(/^(\d{2})(\d)/, "$1.$2")
       .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
@@ -67,126 +92,131 @@ export default function RegisterUser() {
       .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
   };
 
-  type InputOrSelectEvent =
-    | React.ChangeEvent<HTMLInputElement>
-    | { id: string; value: string };
-
-  const handleChange = (e: InputOrSelectEvent) => {
-    const id = "target" in e ? e.target.id : e.id;
-    const value = "target" in e ? e.target.value : e.value;
-
-    let newValue = value;
-
-    if (id === "cnpj") {
-      newValue = formatCNPJ(value);
-    }
-
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    const newValue = id === "cnpj" ? formatCNPJ(value) : value;
     setClient((prev) => ({ ...prev, [id]: newValue }));
   };
 
-  const [editClientData, setEditClientData] = useState({
-    id_cliente: "",
-    nome_empresa: "",
-    nome_responsavel: "",
-    cnpj: "",
-    ramo_empresa: "",
-    cargo_responsavel: "",
-    consultor: "",
-    linkedin: "",
-    site: "",
-    logo_url: "",
-  });
-
-  type InputOrSelectEventEdit =
-    | React.ChangeEvent<HTMLInputElement>
-    | { id: string; value: string };
-
-  const handleChangeEdit = (e: InputOrSelectEventEdit) => {
-    const id = "target" in e ? e.target.id : e.id;
-    const value = "target" in e ? e.target.value : e.value;
-
-    let newValue = value;
-
-    if (id === "cnpj") {
-      newValue = formatCNPJ(value);
-    }
-
-    setEditClientData((prev) => ({ ...prev, [id]: newValue }));
+  const toggleDepartamento = (dept: string) => {
+    setDepartamentosSelecionados((prev) =>
+      prev.includes(dept) ? prev.filter((d) => d !== dept) : [...prev, dept],
+    );
   };
 
-  const cadastrarCliente = (e: React.FormEvent) => {
+  const cadastrarCliente = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const {
-      nome_empresa,
-      nome_responsavel,
-      cnpj,
-      ramo_empresa,
-      cargo_responsavel,
-      consultor,
-      linkedin,
-      site,
-      logo_url,
-    } = client;
-
-    if (
-      !nome_empresa ||
-      !nome_responsavel ||
-      !cnpj ||
-      !ramo_empresa ||
-      !cargo_responsavel ||
-      !consultor ||
-      !linkedin ||
-      !site ||
-      !logo_url
-    ) {
-      toast.error("Preencha todos os campos obrigatórios.");
+    if (departamentosSelecionados.length === 0) {
+      toast.error("Selecione pelo menos um departamento.");
       return;
     }
 
-    fetch(`${apiUrl}/clientes/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome: nome_empresa,
-        nome_responsavel,
-        cnpj,
-        ramo_empresa,
-        cargo_responsavel,
-        consultor,
-        linkedin,
-        site,
-        logo_url,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erro ao cadastrar cliente.");
-        }
-        return response.json();
-      })
-      .then(() => {
-        toast.success("Cliente cadastrado com sucesso!");
-        fetchClientes();
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Erro ao cadastrar cliente.");
+    const payload = {
+      nome: client.nome_empresa,
+      nome_responsavel: client.nome_responsavel,
+      cnpj: client.cnpj.replace(/\D/g, ""),
+      cargo_responsavel: client.cargo_responsavel,
+      ramo_empresa: client.ramo_empresa,
+      consultor: client.consultor,
+      linkedin: client.linkedin,
+      site: client.site,
+      logo_url: client.logo_url || null,
+      departamentos: departamentosSelecionados,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/clientes/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao cadastrar");
+      }
+
+      toast.success("Cliente cadastrado com sucesso!");
+      limparFormulario();
+      fetchClientes();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao cadastrar cliente");
+    }
+  };
+
+  const limparFormulario = () => {
+    setClient({
+      nome_empresa: "",
+      nome_responsavel: "",
+      cnpj: "",
+      ramo_empresa: "",
+      cargo_responsavel: "",
+      consultor: "",
+      linkedin: "",
+      site: "",
+      logo_url: "",
+    });
+    setDepartamentosSelecionados([]);
   };
 
   const fetchClientes = async () => {
     try {
-      const response = await fetch(`${apiUrl}/clientes/list`);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar clientes");
-      }
-      const data = await response.json();
+      const res = await fetch(`${apiUrl}/clientes/list`);
+      const data = await res.json();
       setClientes(data);
-    } catch (error) {
-      console.error("Erro:", error);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ABERTURA DO SHEET COM GARANTIA DE ARRAY
+  const abrirEdicao = (cliente: Cliente) => {
+    setClienteEditando({
+      ...cliente,
+      cnpj: cliente.cnpj.replace(
+        /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+        "$1.$2.$3/$4-$5",
+      ),
+      departamentos: cliente.departamentos ?? [], // Nunca será null/undefined
+    });
+    setSheetOpen(true);
+  };
+
+  const salvarEdicao = async () => {
+    if (!clienteEditando) return;
+
+    const payload = {
+      nome: clienteEditando.nome,
+      nome_responsavel: clienteEditando.nome_responsavel,
+      cnpj: clienteEditando.cnpj.replace(/\D/g, ""),
+      cargo_responsavel: clienteEditando.cargo_responsavel,
+      ramo_empresa: clienteEditando.ramo_empresa,
+      consultor: clienteEditando.consultor,
+      linkedin: clienteEditando.linkedin,
+      site: clienteEditando.site,
+      logo_url: clienteEditando.logo_url || null,
+    };
+
+    try {
+      const res = await fetch(
+        `${apiUrl}/clientes/update/${clienteEditando.id_cliente}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!res.ok) throw new Error("Erro ao atualizar");
+
+      toast.success("Cliente atualizado com sucesso!");
+      setSheetOpen(false);
+      fetchClientes();
+    } catch {
+      toast.error("Erro ao salvar alterações");
     }
   };
 
@@ -194,491 +224,328 @@ export default function RegisterUser() {
     fetchClientes();
   }, []);
 
-  const toggleClientStatus = async (
-    id_cliente: string,
-    currentStatus: boolean,
-  ) => {
-    try {
-      const response = await fetch(`${apiUrl}/clientes/update/${id_cliente}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ativo: !currentStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar status do cliente");
-      }
-
-      setClientes((prevCliente) =>
-        prevCliente.map((cliente) =>
-          cliente.id_cliente === id_cliente
-            ? { ...cliente, ativo: !currentStatus }
-            : cliente,
-        ),
-      );
-      toast.success("Status do cliente atualizado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      toast.error("Erro ao atualizar status do cliente");
-    }
-  };
-
-  const updateClientData = async (
-    id: string,
-    updatedData: {
-      nome?: string;
-      nome_responsavel?: string;
-      cnpj?: string;
-      ramo_empresa: string;
-      cargo_responsavel: string;
-      consultor: string;
-      linkedin: string;
-      site: string;
-      logo_url: string;
-    },
-  ) => {
-    try {
-      const response = await fetch(`${apiUrl}/clientes/update/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao atualizar dados do cliente");
-      }
-
-      setClientes((prevClientes) =>
-        prevClientes.map((cliente) =>
-          cliente.id_cliente === id ? { ...cliente, ...updatedData } : cliente,
-        ),
-      );
-    } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      toast.error("Erro ao atualizar dados do cliente");
-    }
-  };
-
-  const handleUpdateUser = async () => {
-    const {
-      id_cliente,
-      nome_empresa,
-      nome_responsavel,
-      cnpj,
-      ramo_empresa,
-      cargo_responsavel,
-      consultor,
-      linkedin,
-      site,
-      logo_url,
-    } = editClientData;
-
-    if (!nome_empresa || !nome_responsavel) {
-      toast.error("Nome e e-mail são obrigatórios!");
-      return;
-    }
-
-    await updateClientData(id_cliente, {
-      nome: nome_empresa,
-      nome_responsavel,
-      cnpj: cnpj || undefined,
-      ramo_empresa,
-      cargo_responsavel,
-      consultor,
-      linkedin: linkedin,
-      site: site,
-      logo_url: logo_url,
-    });
-    toast.success("Cliente atualizado com sucesso!");
-  };
-
-  const clientIsActive = () => {
-    const activeClients = clientes.filter((cliente) => cliente.ativo);
-    return activeClients.length;
-  };
-
-  const renderLoading = () => (
-    <div className="flex justify-center items-center h-screen">
-      <div className="w-16 h-16 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
-    </div>
-  );
-
-  if (!client || !clientes || clientes.length === 0) {
-    return renderLoading();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-16 h-16 border-4 border-t-transparent border-primary rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
-      <SidebarInset id="top">
+      <SidebarInset>
         <SiteHeader title="Gestão de Clientes" icon={false} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">
-                <SectionCards
-                  description="Total de Clientes:"
-                  title={`${clientes.length} clientes`}
-                  footer={`O valor total de clientes ativos é de ${clientIsActive()} clientes.`}
-                />
-              </div>
-              <div className="px-4 lg:px-6 grid gap-6 md:grid-cols-1">
-                <Card className="p-4 w-full">
-                  <div className="grid gap-4 ">
-                    <Label htmlFor="consultor">Consultor Responsável:</Label>
+        <div className="p-6 space-y-8">
+          <SectionCards
+            title={`${clientes.length} clientes cadastrados`}
+            description="Total de clientes no sistema"
+            footer={`Ativos: ${clientes.filter((c) => c.ativo).length}`}
+          />
+
+          <div className="grid lg:grid-cols-1 gap-8">
+            {/* Formulário de Cadastro */}
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-6">Cadastrar Novo Cliente</h2>
+              <form onSubmit={cadastrarCliente} className="space-y-5">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Consultor Responsável</Label>
                     <Input
                       id="consultor"
-                      type="text"
-                      placeholder="Nome do consultor responsável"
                       value={client.consultor}
                       onChange={handleChange}
+                      required
                     />
-
-                    <Label htmlFor="nome_empresa">Nome da Empresa:</Label>
+                  </div>
+                  <div>
+                    <Label>Nome da Empresa</Label>
                     <Input
                       id="nome_empresa"
-                      placeholder="Nome da empresa"
-                      type="text"
                       value={client.nome_empresa}
                       onChange={handleChange}
+                      required
                     />
-
-                    <Label htmlFor="nome_responsavel">
-                      Nome do Responsável:
-                    </Label>
+                  </div>
+                  <div>
+                    <Label>Nome do Responsável</Label>
                     <Input
                       id="nome_responsavel"
-                      type="text"
-                      placeholder="Nome do responsável"
                       value={client.nome_responsavel}
                       onChange={handleChange}
+                      required
                     />
-
-                    <Label htmlFor="cargo_responsavel">
-                      Cargo do Responsável:
-                    </Label>
+                  </div>
+                  <div>
+                    <Label>Cargo do Responsável</Label>
                     <Input
                       id="cargo_responsavel"
-                      type="text"
-                      placeholder="Digite o cargo do responsável"
                       value={client.cargo_responsavel}
                       onChange={handleChange}
+                      required
                     />
-
-                    <Label htmlFor="ramo_empresa">Ramo da Empresa:</Label>
+                  </div>
+                  <div>
+                    <Label>Ramo da Empresa</Label>
                     <Input
                       id="ramo_empresa"
-                      type="text"
-                      placeholder="Digite o ramo da empresa"
                       value={client.ramo_empresa}
                       onChange={handleChange}
+                      required
                     />
-
-                    <Label htmlFor="linkedin">LinkedIn:</Label>
-                    <Input
-                      id="linkedin"
-                      type="text"
-                      placeholder="Digite o LinkedIn da empresa"
-                      value={client.linkedin}
-                      onChange={handleChange}
-                    />
-
-                    <Label htmlFor="site">Site:</Label>
-                    <Input
-                      id="site"
-                      type="text"
-                      placeholder="Digite o WebSite da empresa"
-                      value={client.site}
-                      onChange={handleChange}
-                    />
-
-                    <Label htmlFor="logo_url">Logo :</Label>
-                    <Input
-                      id="logo_url"
-                      type="text"
-                      placeholder="Insira a URL da logo do cliente"
-                      value={client.logo_url}
-                      onChange={handleChange}
-                    />
-
-                    <Label>CNPJ:</Label>
+                  </div>
+                  <div>
+                    <Label>CNPJ</Label>
                     <Input
                       id="cnpj"
-                      type="text"
                       placeholder="99.999.999/9999-99"
                       value={client.cnpj}
                       onChange={handleChange}
-                    ></Input>
+                      required
+                    />
                   </div>
-                  <Button
-                    onClick={cadastrarCliente}
-                    className="w-full mt-1 cursor-pointer"
+                  <div>
+                    <Label>LinkedIn</Label>
+                    <Input
+                      id="linkedin"
+                      value={client.linkedin}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label>Site</Label>
+                    <Input
+                      id="site"
+                      value={client.site}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Logo URL (opcional)</Label>
+                    <Input
+                      id="logo_url"
+                      value={client.logo_url}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t pt-6">
+                  <Label className="text-lg font-semibold mb-4 block">
+                    Departamentos para Diagnóstico{" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {DEPARTAMENTOS_DISPONIVEIS.map((dept) => (
+                      <div key={dept} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={dept}
+                          checked={departamentosSelecionados.includes(dept)}
+                          onCheckedChange={() => toggleDepartamento(dept)}
+                        />
+                        <label
+                          htmlFor={dept}
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          {dept}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button type="submit" className="w-full" size="lg">
+                  Cadastrar Cliente + Departamentos
+                </Button>
+              </form>
+            </Card>
+
+            {/* Lista de Clientes */}
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-4">Clientes Cadastrados</h2>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {clientes.map((c) => (
+                  <button
+                    key={c.id_cliente}
+                    onClick={() => abrirEdicao(c)}
+                    className="w-full text-left p-4 border rounded-lg hover:bg-accent hover:border-primary transition-all"
                   >
-                    Criar Cliente
-                  </Button>
-                </Card>
-
-                <Card className="p-4 w-full">
-                  <Table className="shadow-md min-w-full">
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Empresa</TableHead>
-                        <TableHead>Ramo Empresa</TableHead>
-
-                        <TableHead>Nome do Responsável</TableHead>
-                        <TableHead>Cargo do Responsável</TableHead>
-                        <TableHead>Consultor</TableHead>
-
-                        <TableHead>Ativo</TableHead>
-                        <TableHead>Editar</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {clientes.map((cliente) => (
-                        <TableRow key={cliente.id_cliente}>
-                          <TableCell>{cliente.nome}</TableCell>
-                          <TableCell>{cliente.ramo_empresa}</TableCell>
-                          <TableCell>{cliente.nome_responsavel}</TableCell>
-                          <TableCell>{cliente.cargo_responsavel}</TableCell>
-                          <TableCell>{cliente.consultor}</TableCell>
-
-                          <TableCell>
-                            <Switch
-                              className="cursor-pointer"
-                              checked={cliente.ativo}
-                              onCheckedChange={() => {
-                                toggleClientStatus(
-                                  cliente.id_cliente,
-                                  cliente.ativo,
-                                );
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Dialog>
-                              <DialogTrigger
-                                onClick={() => {
-                                  setEditClientData({
-                                    id_cliente: cliente.id_cliente,
-                                    nome_empresa: cliente.nome,
-                                    nome_responsavel: cliente.nome_responsavel,
-                                    cnpj: cliente.cnpj,
-                                    ramo_empresa: cliente.ramo_empresa,
-                                    cargo_responsavel:
-                                      cliente.cargo_responsavel,
-                                    consultor: cliente.consultor,
-                                    linkedin: cliente.linkedin,
-                                    site: cliente.site,
-                                    logo_url: cliente.logo_url,
-                                  });
-                                }}
-                              >
-                                <button>
-                                  <Pencil
-                                    className="text-center ml-3 cursor-pointer"
-                                    size={20}
-                                  />
-                                </button>
-                              </DialogTrigger>
-
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle className="mb-2">
-                                    Editar dados do Cliente
-                                  </DialogTitle>
-                                </DialogHeader>
-
-                                <div className="grid grid-cols-2 gap-4 mt-4">
-                                  <div>
-                                    <Label
-                                      htmlFor="nome_responsavel"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Nome do Responsável
-                                    </Label>
-                                    <Input
-                                      id="nome_responsavel"
-                                      placeholder="Digite o nome do responsável"
-                                      value={editClientData.nome_responsavel}
-                                      onChange={handleChangeEdit}
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="consultor"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Consultor Responsável
-                                    </Label>
-                                    <Input
-                                      id="consultor"
-                                      placeholder="Digite o nome do consultor responsável"
-                                      value={editClientData.consultor}
-                                      onChange={handleChangeEdit}
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="cargo_responsavel"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Cargo Responsável
-                                    </Label>
-                                    <Input
-                                      id="cargo_responsavel"
-                                      type="text"
-                                      placeholder="Digite o cargo do responsável"
-                                      value={editClientData.cargo_responsavel}
-                                      onChange={(e) =>
-                                        handleChangeEdit({
-                                          id: "cargo_responsavel",
-                                          value: e.target.value,
-                                        })
-                                      }
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="nome_empresa"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Nome da Empresa
-                                    </Label>
-                                    <Input
-                                      id="nome_empresa"
-                                      placeholder="Digite o nome da empresa"
-                                      value={editClientData.nome_empresa}
-                                      onChange={handleChangeEdit}
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="ramo_empresa"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Ramo da Empresa
-                                    </Label>
-                                    <Input
-                                      id="ramo_empresa"
-                                      type="text"
-                                      placeholder="Digite o ramo da empresa"
-                                      value={editClientData.ramo_empresa}
-                                      onChange={(e) =>
-                                        handleChangeEdit({
-                                          id: "ramo_empresa",
-                                          value: e.target.value,
-                                        })
-                                      }
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="cnpj"
-                                      className="mb-1 font-medium"
-                                    >
-                                      CNPJ
-                                    </Label>
-                                    <Input
-                                      id="cnpj"
-                                      placeholder="Digite o CNPJ (opcional)"
-                                      value={editClientData.cnpj}
-                                      onChange={handleChangeEdit}
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="linkedin"
-                                      className="mb-1 font-medium"
-                                    >
-                                      LinkedIn
-                                    </Label>
-                                    <Input
-                                      id="linkedin"
-                                      type="text"
-                                      placeholder="Digite o LinkedIn"
-                                      value={editClientData.linkedin}
-                                      onChange={(e) =>
-                                        handleChangeEdit({
-                                          id: "linkedin",
-                                          value: e.target.value,
-                                        })
-                                      }
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="linkedin"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Logo
-                                    </Label>
-                                    <Input
-                                      id="logo_url"
-                                      type="text"
-                                      placeholder="Digite o URL da nova Logo"
-                                      value={editClientData.logo_url}
-                                      onChange={(e) =>
-                                        handleChangeEdit({
-                                          id: "logo_url",
-                                          value: e.target.value,
-                                        })
-                                      }
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <Label
-                                      htmlFor="site"
-                                      className="mb-1 font-medium"
-                                    >
-                                      Site
-                                    </Label>
-                                    <Input
-                                      id="site"
-                                      type="text"
-                                      placeholder="Digite o Site da Empresa"
-                                      value={editClientData.site}
-                                      onChange={(e) =>
-                                        handleChangeEdit({
-                                          id: "site",
-                                          value: e.target.value,
-                                        })
-                                      }
-                                    />
-                                    to
-                                  </div>
-                                </div>
-
-                                <Button
-                                  className="mt-6 w-full cursor-pointer"
-                                  onClick={handleUpdateUser}
-                                >
-                                  Editar
-                                </Button>
-                              </DialogContent>
-                            </Dialog>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-lg">{c.nome}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {c.cnpj.replace(
+                            /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+                            "$1.$2.$3/$4-$5",
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Consultor: {c.consultor}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${c.ativo ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                      >
+                        {c.ativo ? "Ativo" : "Inativo"}
+                      </span>
+                    </div>
+                  </button>
+                ))}
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </SidebarInset>
+
+      {/* SHEET DE EDIÇÃO - 100% SEGURO */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="right"
+          className="min-w-2xl p-6 sm:w-[600px] overflow-y-auto"
+        >
+          <SheetHeader>
+            <SheetTitle>Editar Cliente</SheetTitle>
+            <SheetDescription>
+              Você pode alterar todas as informações, exceto os departamentos.
+            </SheetDescription>
+          </SheetHeader>
+
+          {clienteEditando && (
+            <div className="mt-6 space-y-6">
+              <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                <div>
+                  <p className="font-medium text-amber-900">
+                    Departamentos não editáveis
+                  </p>
+                  <p className="text-sm text-amber-700">
+                    Os departamentos foram definidos no cadastro inicial e não
+                    podem ser alterados posteriormente.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Nome da Empresa</Label>
+                  <Input
+                    value={clienteEditando.nome}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        nome: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Consultor</Label>
+                  <Input
+                    value={clienteEditando.consultor}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        consultor: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Nome do Responsável</Label>
+                  <Input
+                    value={clienteEditando.nome_responsavel}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        nome_responsavel: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Cargo</Label>
+                  <Input
+                    value={clienteEditando.cargo_responsavel}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        cargo_responsavel: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Ramo da Empresa</Label>
+                  <Input
+                    value={clienteEditando.ramo_empresa}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        ramo_empresa: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>CNPJ</Label>
+                  <Input
+                    value={clienteEditando.cnpj}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
+                <div>
+                  <Label>LinkedIn</Label>
+                  <Input
+                    value={clienteEditando.linkedin}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        linkedin: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Site</Label>
+                  <Input
+                    value={clienteEditando.site}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        site: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Logo URL (opcional)</Label>
+                  <Input
+                    value={clienteEditando.logo_url || ""}
+                    onChange={(e) =>
+                      setClienteEditando({
+                        ...clienteEditando,
+                        logo_url: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <SheetFooter className="mt-8">
+            <SheetClose asChild>
+              <Button variant="outline">Cancelar</Button>
+            </SheetClose>
+            <Button onClick={salvarEdicao}>Salvar Alterações</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
       <Toaster position="bottom-center" richColors closeButton />
     </SidebarProvider>
   );

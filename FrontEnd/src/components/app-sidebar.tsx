@@ -28,7 +28,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   src="https://assinaturas.grovehost.com.br/imagesClientes/Grove-favicon.png"
                   className="!size-8"
                 />
-                <span className="text-base font-semibold">Grove Tech</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold">
+                    Grove Consulting
+                  </span>
+                  <span className="text-sm">V2.0</span>
+                </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -1,6 +1,6 @@
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
-
+import { useState } from "react";
+import confetti from "canvas-confetti";
+import { FileDown, Loader2 } from "lucide-react";
 import {
   introducoesEstrategia,
   introducoesVendas,
@@ -9,10 +9,6 @@ import {
   introducoesOperacoes,
   introducoesTecnologia,
   introducoesFinanceiro,
-  MaturidadeNivel,
-} from "../Client/StaticDictionary";
-
-import {
   conclusoesEstrategia,
   conclusoesVendas,
   conclusoesMarketing,
@@ -20,6 +16,8 @@ import {
   conclusoesOperacoes,
   conclusoesTecnologia,
   conclusoesFinanceiro,
+  MaturidadeNivel,
+  consideracoesFinais,
 } from "../Client/StaticDictionary";
 
 import {
@@ -27,16 +25,13 @@ import {
   obterNivelTexto,
 } from "../PageResult/contetDiag";
 
-import { consideracoesFinais } from "../Client/StaticDictionary";
-import { useState } from "react";
-import confetti from "canvas-confetti";
-import { FileDown, Loader2 } from "lucide-react";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
 
 type RespostaNegativa = {
   id: string;
   texto_pergunta: string;
   departamento: string;
-  plano_acao: JSON;
+  plano_acao: any;
   oportunidade: string;
   priorizacao: number;
   texto_afirmativa: string;
@@ -74,18 +69,18 @@ const conclusoesPorDepartamento: Record<
   financeiro: conclusoesFinanceiro,
 };
 
-const capitalizeWords = (str: string) => {
-  return str
+const capitalizeWords = (str: string) =>
+  str
     .toLowerCase()
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
-};
 
 function renderizarListaDeAreasHtml(areas: AreaMaturidade[]): string {
-  if (!Array.isArray(areas)) return "";
+  const areasValidas = areas.filter((a) => a.percentual > 0);
+  if (areasValidas.length === 0) return "<p>Nenhuma área avaliada.</p>";
 
-  const itens = areas
+  const itens = areasValidas
     .map(
       (area) =>
         `<li><strong>${area.nome}</strong> — ${area.percentual}% (${obterNivelTexto(area.percentual)})</li>`,
@@ -96,9 +91,7 @@ function renderizarListaDeAreasHtml(areas: AreaMaturidade[]): string {
     <section id="lista-de-areas">
       <h3>Resumo das Áreas Avaliadas</h3>
       <p>A empresa foi avaliada em diferentes aspectos e apresenta o seguinte nível de maturidade por área:</p>
-      <ul>
-        ${itens}
-      </ul>
+      <ul>${itens}</ul>
     </section>
   `;
 }
@@ -151,27 +144,23 @@ function selecionarTextoPorDepartamento(
   departamento: string,
   pontuacao: number,
 ): string {
+  if (pontuacao === 0) return "";
+
   const nivel = obterNivelMaturidade(pontuacao);
   const chaveDepto = departamento.toLowerCase();
   const intros = introducoesPorDepartamento[chaveDepto];
 
   const opcoes = intros?.[nivel];
-  if (!opcoes || opcoes.length === 0) {
-    return `
-      <section>
-        <p>Introdução não disponível para o nível ${nivel} da área ${departamento}.</p>
-      </section>
-    `;
-  }
+  if (!opcoes || opcoes.length === 0) return "";
 
   const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
-  const texto = opcoes[indiceAleatorio];
+  const textoSelecionado = opcoes[indiceAleatorio];
 
   return `
     <section id="introducao-${chaveDepto}">
       <h3>${capitalizeWords(chaveDepto)}</h3>
       <h4>Introdução</h4>
-      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
+      <p>${textoSelecionado.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
@@ -186,20 +175,14 @@ function renderizarPlanoAcaoHtml(
       resposta.departamento.toLowerCase() === departamento.toLowerCase(),
   );
 
-  if (planosDoDepartamento.length === 0) {
-    return `
-      <p>Nenhum plano de ação registrado para esta área.</p>
-    `;
-  }
+  if (planosDoDepartamento.length === 0) return "";
 
   const listaItens = planosDoDepartamento
     .map((resposta) => {
       const planos = resposta.plano_acao
         ? Object.entries(resposta.plano_acao)
             .map(
-              ([chave, valor]) => `
-            <p><strong>${chave}:</strong> ${valor}</p>
-          `,
+              ([chave, valor]) => `<p><strong>${chave}:</strong> ${valor}</p>`,
             )
             .join("")
         : `<p>Sem plano de ação definido.</p>`;
@@ -225,32 +208,25 @@ function renderizarPontosHtml(
   departamento: string,
   respostas: RespostaNegativa[],
 ): string {
-  const planosDoDepartamento = respostas.filter(
+  const pontosDoDepartamento = respostas.filter(
     (resposta) =>
       typeof resposta.departamento === "string" &&
       resposta.departamento.toLowerCase() === departamento.toLowerCase(),
   );
 
-  if (planosDoDepartamento.length === 0) {
-    return `<p>Nenhum plano de ação registrado para esta área.</p>`;
-  }
+  if (pontosDoDepartamento.length === 0) return "";
 
-  const listaPontos = planosDoDepartamento
-    .map((resposta) => {
-      const ponto = resposta.texto_afirmativa_positiva;
-
-      return `
-        <ul>
-          <li>${ponto || "Sem ponto forte definido."}</li>
-        </ul>
-      `;
-    })
+  const listaPontos = pontosDoDepartamento
+    .map(
+      (resposta) =>
+        `<li>${resposta.texto_afirmativa_positiva || "Sem ponto forte definido."}</li>`,
+    )
     .join("");
 
   return `
     <div>
       <h4>Pontos fortes Identificados</h4>
-      ${listaPontos}
+      <ul>${listaPontos}</ul>
     </div>
   `;
 }
@@ -259,32 +235,22 @@ export function selecionarConclusaoPorDepartamento(
   departamento: string,
   pontuacao: number,
 ): string {
+  if (pontuacao === 0) return "";
+
   const nivel = obterNivelMaturidade(pontuacao);
   const conclusoes = conclusoesPorDepartamento[departamento.toLowerCase()];
-  if (!conclusoes) {
-    return `
-      <section>
-        <p>Conclusão não disponível para a área ${departamento}.</p>
-      </section>
-    `;
-  }
+  if (!conclusoes) return "";
 
   const opcoes = conclusoes[nivel];
-  if (!opcoes || opcoes.length === 0) {
-    return `
-      <section>
-        <p>Conclusão não disponível para o nível ${nivel} da área ${departamento}.</p>
-      </section>
-    `;
-  }
+  if (!opcoes || opcoes.length === 0) return "";
 
   const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
-  const texto = opcoes[indiceAleatorio];
+  const textoSelecionado = opcoes[indiceAleatorio];
 
   return `
     <section id="conclusao-${departamento}-${nivel}">
       <h4>Conclusão do Departamento</h4>
-      <p>${texto.trim().replace(/\n/g, "<br>")}</p>
+      <p>${textoSelecionado.trim().replace(/\n/g, "<br>")}</p>
     </section>
   `;
 }
@@ -328,29 +294,23 @@ export const handleGeneratePDF = async (
   const conclusaoGeralHtml = selecionarTextoConclusao(pontuacaoFinal);
   const logoCliente = logoCliente2;
 
-  const getDepartamentoHtml = (nome: string, id: string) => {
+  const getDepartamentoHtml = (_nome: string, id: string) => {
     const area = dadosPorDepartamento.find((a) => a.nome.toLowerCase() === id);
     const pontuacao = area ? area.percentual : 0;
+    if (pontuacao === 0) return ""; // IGNORA TOTALMENTE
+
     const introducao = selecionarTextoPorDepartamento(id, pontuacao);
     const planosHtml = renderizarPlanoAcaoHtml(id, respostasNegativas);
     const pontosHtml = renderizarPontosHtml(id, respostasPositivas);
     const conclusaoHtml = selecionarConclusaoPorDepartamento(id, pontuacao);
 
-    return introducao || planosHtml || conclusaoHtml || logoCliente
-      ? `
-        <div class="page">
-          <section class="page-content" id="${id}">
-            ${introducao}${planosHtml}${pontosHtml}${conclusaoHtml}
-          </section>
-        </div>
-      `
-      : `
-        <div class="page">
-          <section class="page-content" id="${id}">
-            <p>Conteúdo não disponível para ${nome}.</p>
-          </section>
-        </div>
-      `;
+    return `
+      <div class="page">
+        <section class="page-content" id="${id}">
+          ${introducao}${planosHtml}${pontosHtml}${conclusaoHtml}
+        </section>
+      </div>
+    `;
   };
 
   const htmlFinal = `
@@ -443,31 +403,11 @@ export const GeradorRelatorioPDF: React.FC<Props> = ({
         logoCliente,
       );
 
-      const confettiInstance = confetti.create(undefined, {
-        useWorker: true,
-        resize: true,
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
       });
-
-      const duration = 3000;
-      const interval = 250;
-      const end = Date.now() + duration;
-
-      const confettiInterval = setInterval(() => {
-        if (Date.now() > end) {
-          clearInterval(confettiInterval);
-          return;
-        }
-
-        confettiInstance({
-          particleCount: 100,
-          spread: 100,
-          startVelocity: 30,
-          origin: {
-            x: Math.random(),
-            y: Math.random() * 0.6,
-          },
-        });
-      }, interval);
     } catch (err) {
       console.error("Erro ao gerar PDF:", err);
     } finally {

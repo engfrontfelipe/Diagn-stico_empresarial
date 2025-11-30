@@ -1,11 +1,7 @@
 import * as React from "react";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { motion, AnimatePresence } from "framer-motion";
-
 
 const faqs = [
   {
@@ -115,7 +111,9 @@ export default function FaqCollapsible() {
               <CollapsibleTrigger
                 className={`w-full flex justify-between items-center bg-gray-50 px-5 py-4 rounded-lg cursor-pointer transition 
                 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
-                  isOpen ? "font-semibold text-gray-900" : "font-medium text-gray-700"
+                  isOpen
+                    ? "font-semibold text-gray-900"
+                    : "font-medium text-gray-700"
                 }`}
               >
                 <span>{question}</span>

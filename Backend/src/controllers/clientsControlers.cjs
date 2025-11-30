@@ -11,63 +11,83 @@ const criarCliente = async (req, res) => {
     nome,
     nome_responsavel,
     cnpj,
-    cargo_responsavel,
     ramo_empresa,
+    cargo_responsavel,
     consultor,
     linkedin,
     site,
     logo_url,
+    departamentos = [], // array de strings: ["RH", "TI", ...]
   } = req.body;
 
-  if (
-    !nome ||
-    !nome_responsavel ||
-    !cnpj ||
-    !cargo_responsavel ||
-    !ramo_empresa ||
-    !consultor ||
-    !linkedin ||
-    !site
-  ) {
-    return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+  // Validação básica
+  if (!nome || !nome_responsavel || !cnpj || !consultor || departamentos.length === 0) {
+    return res.status(400).json({ error: "Preencha todos os campos obrigatórios e selecione ao menos um departamento." });
   }
+
   try {
-    const clienteExistente = await sql`
-      SELECT * FROM clientes WHERE cnpj = ${cnpj};
-    `;
+    // Usa transação corretamente com sql.begin
+    const resultado = await sql.begin(async (sql) => {
+      // 1. Insere o cliente
+      const [cliente] = await sql`
+        INSERT INTO clientes (
+          nome, nome_responsavel, cnpj, ramo_empresa,
+          cargo_responsavel, consultor, linkedin, site, logo_url
+        ) VALUES (
+          ${nome}, ${nome_responsavel}, ${cnpj.replace(/\D/g, '')},
+          ${ramo_empresa}, ${cargo_responsavel}, ${consultor},
+          ${linkedin}, ${site}, ${logo_url || null}
+        )
+        RETURNING id_cliente
+      `;
 
-    if (clienteExistente.length > 0) {
-      return res.status(400).json({ error: "CNPJ já cadastrado" });
-    }
+      const id_cliente = cliente.id_cliente;
 
-    const result = await sql`
-      INSERT INTO clientes (nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site, logo_url) 
-      VALUES (${nome}, ${nome_responsavel}, ${cnpj}, true, ${cargo_responsavel}, ${ramo_empresa}, ${consultor}, ${linkedin}, ${site}, ${logo_url}) 
-      RETURNING id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site, logo_url;
-    `;
+      // 2. Insere os departamentos do cliente
+      const departamentosPayload = departamentos.map(dept => ({
+        id_cliente,
+        departamento: dept.trim(),
+        ativo: true
+      }));
 
-    res.status(201).json({ message: "Cliente cadastrado", cliente: result[0] });
+      if (departamentosPayload.length > 0) {
+        await sql`
+          INSERT INTO cliente_departamentos ${sql(departamentosPayload)}
+        `;
+      }
+
+      return { id_cliente, nome, departamentos: departamentosPayload.length };
+    });
+
+    res.status(201).json({
+      message: "Cliente criado com sucesso!",
+      cliente: resultado
+    });
   } catch (error) {
-    console.error("Erro ao criar cliente:", error);
-    res
-      .status(500)
-      .json({ error: "Erro ao criar cliente", detalhes: error.message });
+    console.error("Erro ao criar cliente com departamentos:", error);
+    res.status(500).json({ error: "Erro interno ao criar cliente", detalhes: error.message });
   }
 };
 
-const listarClientes = async (_req, res) => {
+// src/controllers/clientsControlers.cjs ou onde estiver
+const listarClientes = async (req, res) => {
   try {
-    const result = await sql`
-      SELECT id_cliente, nome, nome_responsavel, cnpj, ativo, cargo_responsavel, ramo_empresa, consultor, linkedin, site, logo_url
+    const clientes = await sql`
+      SELECT 
+        id_cliente, 
+        nome, 
+        nome_responsavel, 
+        cnpj, 
+        ativo, 
+        data_cadastro,
+        final_diagnostico  -- <<< ESSA LINHA É O QUE TAVA FALTANDO, SEU FILHO DA PUTA
       FROM clientes 
-      ORDER BY nome ASC;
+      ORDER BY nome
     `;
-    res.status(200).json(result);
+    res.json(clientes);
   } catch (error) {
-    console.error("Erro ao listar clientes:", error);
-    res
-      .status(500)
-      .json({ error: "Erro ao buscar clientes", detalhes: error.message });
+    console.error(error);
+    res.status(500).json({ error: "Erro ao listar clientes" });
   }
 };
 
@@ -251,21 +271,43 @@ const verificarDiagnostico = async (req, res) => {
 
 const concluirDiagnostico = async (req, res) => {
   const { id } = req.params;
-  const { data_conclusao } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ erro: "ID do cliente é obrigatório" });
+  }
 
   try {
-    await sql`
-      UPDATE clientes SET final_diagnostico = ${data_conclusao} WHERE id_cliente = ${id};
+    const agora = new Date();
+    const dataConclusao = agora.toISOString();
+
+    // ATENÇÃO: Use apenas as colunas que REALMENTE existem na sua tabela clientes
+    const result = await sql`
+      UPDATE clientes 
+      SET 
+        final_diagnostico = ${dataConclusao}
+        -- Se você tiver outra coluna tipo "concluido", "diagnostico_concluido", etc, coloque aqui:
+        -- , diagnostico_concluido = true
+      WHERE id_cliente = ${id}
+      RETURNING id_cliente, nome, final_diagnostico
     `;
 
-    res
-      .status(200)
-      .json({ mensagem: "Data de conclusão registrada com sucesso" });
+    if (result.count === 0) {
+      return res.status(404).json({ erro: "Cliente não encontrado" });
+    }
+
+    console.log(`Diagnóstico CONCLUÍDO para ${result[0].nome} | ID: ${id} | ${dataConclusao}`);
+
+    return res.status(200).json({
+      mensagem: "Diagnóstico concluído com sucesso!",
+      cliente: result[0],
+      concluido_em: dataConclusao,
+    });
   } catch (error) {
-    console.error("Erro ao atualizar data de conclusão:", error);
-    res
-      .status(500)
-      .json({ erro: "Erro ao registrar conclusão do diagnóstico" });
+    console.error("Erro ao concluir diagnóstico:", error);
+    return res.status(500).json({
+      erro: "Falha ao concluir o diagnóstico",
+      detalhes: error.message,
+    });
   }
 };
 

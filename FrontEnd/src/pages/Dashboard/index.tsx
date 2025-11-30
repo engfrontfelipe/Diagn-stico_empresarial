@@ -1,83 +1,103 @@
+import { useEffect, useState } from "react";
 import { AppSidebar } from "../../components/app-sidebar";
-import { SectionCards } from "../../components/section-cards";
 import { SiteHeader } from "../../components/site-header.tsx";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
 import GeneralDashHome from "./GeneralDashHome.tsx";
-import { Card } from "@/components/ui/card.tsx";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, Building2, CheckCircle2, Clock, Sparkles } from "lucide-react";
 
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
 
 export default function Page() {
-  const [clientes, setClientes] = useState<
-    { id: string; nome: string; ativo: boolean }[] | null
-  >(null);
-  const [usuarios, setUsuarios] = useState<
-    { id: string; nome: string; email: string; ativo: boolean }[] | null
-  >(null);
-  const [showDocModal, setShowDocModal] = useState(true); // modal abre ao carregar
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchClientes = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch(`${apiUrl}/clientes/list`);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar clientes");
-      }
-      const data = await response.json();
-      setClientes(data);
-    } catch (error) {
-      console.error("Erro:", error);
-    }
-  };
+      const [clientesRes, questionsRes] = await Promise.all([
+        fetch(`${apiUrl}/clientes/list`),
+        fetch(`${apiUrl}/questions/list`),
+      ]);
 
-  const fetchUsuarios = async () => {
-    try {
-      const response = await fetch(`${apiUrl}/usuarios/list`);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar usuários");
-      }
-      const data = await response.json();
-      setUsuarios(data);
-    } catch (error) {
-      console.error("Erro:", error);
+      const clientesData = clientesRes.ok ? await clientesRes.json() : [];
+      const totalPerguntas = questionsRes.ok
+        ? (await questionsRes.json()).length
+        : 100;
+
+      // Busca respostas de todos os clientes de uma vez
+      const clientesComStatus = await Promise.all(
+        clientesData.map(async (cliente: any) => {
+          try {
+            const [statusRes, answersRes] = await Promise.all([
+              fetch(
+                `${apiUrl}/cliente/diagnostico/status/${cliente.id_cliente}`,
+              ),
+              fetch(`${apiUrl}/answers/${cliente.id_cliente}`),
+            ]);
+
+            const statusData = statusRes.ok
+              ? await statusRes.json()
+              : { iniciado: false };
+            const answers = answersRes.ok ? await answersRes.json() : [];
+            const respondidas = Array.isArray(answers) ? answers.length : 0;
+
+            const temDataConclusao =
+              cliente.final_diagnostico &&
+              cliente.final_diagnostico.trim() !== "" &&
+              new Date(cliente.final_diagnostico) <= new Date();
+
+            const concluidoPorRespostas = respondidas >= totalPerguntas;
+
+            let status: "concluido" | "em_andamento" | "nao_iniciado";
+
+            if (temDataConclusao || concluidoPorRespostas) {
+              status = "concluido";
+            } else if (statusData.iniciado === true) {
+              status = "em_andamento";
+            } else {
+              status = "nao_iniciado";
+            }
+
+            return { ...cliente, statusCalculado: status };
+          } catch {
+            return { ...cliente, statusCalculado: "nao_iniciado" };
+          }
+        }),
+      );
+
+      setClientes(clientesComStatus);
+    } catch (err) {
+      console.error("Erro ao carregar dashboard:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchClientes();
-    fetchUsuarios();
+    fetchData();
+    const interval = setInterval(fetchData, 20000);
+    return () => clearInterval(interval);
   }, []);
 
-  const clientIsActive = () => {
-    if (clientes) {
-      const activeClients = clientes.filter((cliente) => cliente.ativo);
-      return activeClients.length;
-    }
-    return 0;
-  };
+  // CONTAGEM 100% IGUAL À TABELA
+  const concluidos = clientes.filter(
+    (c) => c.statusCalculado === "concluido",
+  ).length;
+  const emAndamento = clientes.filter(
+    (c) => c.statusCalculado === "em_andamento",
+  ).length;
+  const totalClientes = clientes.length;
+  const clientesAtivos = clientes.filter((c) => c.ativo).length;
 
-  const usuarioIsActive = () => {
-    if (usuarios) {
-      const activeUsers = usuarios.filter((usuario) => usuario.ativo);
-      return activeUsers.length;
-    }
-    return 0;
-  };
-
-  if (!clientes || !usuarios) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="w-16 h-16 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <p className="text-lg font-medium text-primary">
+            Carregando dashboard...
+          </p>
+        </div>
       </div>
     );
   }
@@ -85,62 +105,120 @@ export default function Page() {
   return (
     <SidebarProvider>
       <AppSidebar variant="inset" />
-      <SidebarInset id="top">
-        <SiteHeader title="Tela Inicial" icon={false} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="grid grid-cols-2 gap-4 px-4 lg:px-6">
-                <SectionCards
-                  description={`Total de Clientes:`}
-                  title={`${clientes.length} clientes`}
-                  footer={`O valor total de clientes ativos é de ${clientIsActive()} clientes.`}
-                />
-                <SectionCards
-                  description="Total de Usuários:"
-                  title={`${usuarios.length} usuários`}
-                  footer={`Valor total de usuários ativos é de ${usuarioIsActive()} usuários.`}
-                />
+      <SidebarInset>
+        <SiteHeader title="Dashboard Geral" icon={false} />
+
+        <div className="min-h-screen bg-gradient-to-br">
+          <div className="p-6 lg:p-10 w-full mx-auto space-y-10">
+            {/* Hero */}
+            <div className="text-center space-y-4">
+              <Sparkles className="w-12 h-12 text-primary animate-pulse mx-auto" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Bem-vindo ao Diagnóstico Empresarial V2
+              </h1>
+            </div>
+
+            {/* CARDS 100% CORRETOS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* CARD 1 - TOTAL CLIENTES */}
+              <div className="relative p-[3px] rounded-2xl bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600 animate-border-spin">
+                <Card className="h-full bg-white dark:bg-gray-950 rounded-2xl border-0 shadow-xl">
+                  <CardContent className="p-6 flex flex-col justify-center h-36 lg:h-40">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-500 text-xs font-medium">
+                          Total de Clientes
+                        </p>
+                        <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
+                          {totalClientes}
+                        </p>
+                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4" /> {clientesAtivos}{" "}
+                          ativos
+                        </p>
+                      </div>
+                      <Building2 className="w-12 h-12 text-blue-600 opacity-70" />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
-              <div className="px-4 lg:px-6">
-                <Card>
-                  <GeneralDashHome />
+              {/* CARD 2 - EM PROGRESSO */}
+              <div className="relative p-[3px] rounded-2xl bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 animate-border-spin">
+                <Card className="h-full bg-white dark:bg-gray-950 rounded-2xl border-0 shadow-xl">
+                  <CardContent className="p-6 flex flex-col justify-center h-36 lg:h-40">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-500 text-xs font-medium">
+                          Em Progresso
+                        </p>
+                        <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
+                          {emAndamento}
+                        </p>
+                        <p className="text-xs text-orange-600 mt-2">
+                          Diagnósticos ativos
+                        </p>
+                      </div>
+                      <Clock className="w-12 h-12 text-orange-600 opacity-70" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* CARD 3 - CONCLUÍDOS */}
+              <div className="relative p-[3px] rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 animate-border-spin">
+                <Card className="h-full bg-white dark:bg-gray-950 rounded-2xl border-0 shadow-xl">
+                  <CardContent className="p-6 flex flex-col justify-center h-36 lg:h-40">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-500 text-xs font-medium">
+                          Concluídos
+                        </p>
+                        <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
+                          {concluidos}
+                        </p>
+                        <p className="text-xs text-emerald-600 mt-2">
+                          Prontos para relatório
+                        </p>
+                      </div>
+                      <CheckCircle2 className="w-12 h-12 text-emerald-600 opacity-70" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* CARD 4 - EQUIPE */}
+              <div className="relative p-[3px] rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-rose-600 animate-border-spin">
+                <Card className="h-full bg-white dark:bg-gray-950 rounded-2xl border-0 shadow-xl">
+                  <CardContent className="p-6 flex flex-col justify-center h-36 lg:h-40">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-500 text-xs font-medium">
+                          Equipe
+                        </p>
+                        <p className="text-4xl font-bold text-gray-900 dark:text-white mt-1">
+                          3
+                        </p>
+                        <p className="text-xs text-purple-600 mt-2">
+                          Usuários ativos
+                        </p>
+                      </div>
+                      <Users className="w-12 h-12 text-purple-600 opacity-70" />
+                    </div>
+                  </CardContent>
                 </Card>
               </div>
             </div>
+
+            {/* Tabela */}
+            <Card className="shadow-xl border-0">
+              <CardContent className="p-8">
+                <GeneralDashHome />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </SidebarInset>
-
-      {/* Modal de Documentação */}
-      <Dialog open={showDocModal} onOpenChange={setShowDocModal}>
-  <DialogContent className="max-w-lg">
-    <DialogHeader>
-      <DialogTitle className="text-center text-xl font-bold text-primary mb-2">
-        Confira nossa nova documentação!
-      </DialogTitle>
-      <DialogDescription className="text-center text-base">
-        Preparamos um <span className="font-semibold">Manual do Consultor</span> atualizado,
-        com instruções detalhadas para aproveitar ao máximo o sistema.  
-        Acesse agora e descubra as novidades!
-      </DialogDescription>
-    </DialogHeader>
-    <DialogFooter className="flex justify-center gap-3">
-      <Button onClick={() => setShowDocModal(false)}>Fechar</Button>
-      <Button
-        variant="secondary"
-        onClick={() => {
-          setShowDocModal(false);
-          window.open("/doc/Consulting", "_blank");
-        }}
-      >
-        📖 Abrir Documentação
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
     </SidebarProvider>
   );
 }

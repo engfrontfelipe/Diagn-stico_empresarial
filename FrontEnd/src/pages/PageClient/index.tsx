@@ -1,524 +1,288 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import TableQuestions from "./tableQuestions";
 import TableAnswers from "./tableAnswers";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { PieChart, Pie, Sector, Cell, Label } from "recharts";
-import { PieSectorDataItem } from "recharts/types/polar/Pie";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { PieChart, Pie, Cell, Label } from "recharts";
+import { ChartContainer } from "@/components/ui/chart";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { toast, Toaster } from "sonner";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { CheckCircle2, Trophy } from "lucide-react";
 
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
-
-interface Cliente {
-  nome: string;
-  nome_responsavel: string;
-  cnpj: string;
-  ativo: boolean;
-  id: string;
-  data_cadastro: string;
-  consultor: string;
-  linkedin: string;
-  site: string;
-}
-
-const chartConfig = {} satisfies ChartConfig;
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
 
 export default function PageClient() {
   const { id } = useParams<{ id: string }>();
-  const [reloadAnswers, setReloadAnswers] = useState(false);
-  const [chartDataPie, setChartDataPie] = useState([
-    { question: "Respondidas", val: 0, fill: "#33bb45" },
-    { question: "Não Respondidas", val: 0, fill: "#df2c2c" },
-  ]);
-  const [cliente, setCliente] = useState<Cliente | null>(null);
-  const [questions, setQuestions] = useState<
-    | { id_pergunta: number; texto_pergunta: string; departamento: string }[]
-    | null
-  >(null);
+  const navigate = useNavigate();
+
+  const [cliente, setCliente] = useState<any>(null);
+  const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<any[]>([]);
   const [diagnosticoIniciado, setDiagnosticoIniciado] = useState(false);
-  const [tempoRestante, setTempoRestante] = useState<number | null>(null);
+  const [diagnosticoConcluido, setDiagnosticoConcluido] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
-  const [expirado, setExpirado] = useState(false);
+  const [isConcluding, setIsConcluding] = useState(false);
 
   useEffect(() => {
-    const verificarDiagnostico = async () => {
+    if (!id) return;
+
+    const carregarDados = async () => {
       try {
-        const response = await fetch(
-          `${apiUrl}/cliente/diagnostico/status/${id}`,
-        );
-        if (!response.ok)
-          throw new Error("Erro ao buscar status do diagnóstico");
-        const data = await response.json();
+        const [resCliente, resQuestions, resStatus, resAnswers] =
+          await Promise.all([
+            fetch(`${apiUrl}/clientes/${id}`),
+            fetch(`${apiUrl}/questions/cliente/${id}`),
+            fetch(`${apiUrl}/cliente/diagnostico/status/${id}`),
+            fetch(`${apiUrl}/answers/${id}`),
+          ]);
 
-        setDiagnosticoIniciado(data.iniciado);
+        const [clienteData, questionsData, statusData, answersData] =
+          await Promise.all([
+            resCliente.json(),
+            resQuestions.json(),
+            resStatus.json(),
+            resAnswers.json(),
+          ]);
 
-        setExpirado(data.expirado);
-
-        setTempoRestante(
-          data.tempoRestante ? Math.floor(data.tempoRestante / 1000) : null,
+        setCliente(clienteData);
+        setQuestions(questionsData);
+        setAnswers(answersData);
+        setDiagnosticoIniciado(!!statusData.iniciado);
+        setDiagnosticoConcluido(
+          statusData.concluido || answersData.length === questionsData.length,
         );
       } catch (err) {
-        console.error("Erro ao verificar status do diagnóstico", err);
-        toast.error("Erro ao carregar status do diagnóstico.");
+        toast.error("Erro ao carregar dados do cliente");
       }
     };
 
-    if (id) {
-      verificarDiagnostico();
-    }
+    carregarDados();
   }, [id]);
 
-  useEffect(() => {
-    if (!diagnosticoIniciado || tempoRestante === null) return;
+  // NOVO: Função para concluir o diagnóstico no backend
+  const concluirDiagnosticoNoBackend = async () => {
+    if (!id || isConcluding || diagnosticoConcluido) return;
 
-    const interval = setInterval(() => {
-      setTempoRestante((prev) => {
-        if (prev === null || prev <= 0) {
-          clearInterval(interval);
-          setDiagnosticoIniciado(false);
-          return null;
-        }
-        return prev - 1;
+    setIsConcluding(true);
+    try {
+      const res = await fetch(`${apiUrl}/cliente/diagnostico/concluir/${id}`, {
+        method: "POST",
       });
-    }, 1000);
 
-    return () => clearInterval(interval);
-  }, [diagnosticoIniciado, tempoRestante]);
+      if (!res.ok) throw new Error("Erro ao concluir diagnóstico");
 
-  async function activeTime() {
+      setDiagnosticoConcluido(true);
+      toast.success("Diagnóstico concluído com sucesso!", {
+        description: "O relatório final já está disponível.",
+        icon: <Trophy className="w-5 h-5" />,
+      });
+    } catch (err) {
+      console.error("Erro ao concluir diagnóstico:", err);
+      toast.error("Erro ao finalizar diagnóstico. Tente novamente.");
+    } finally {
+      setIsConcluding(false);
+    }
+  };
+
+  const iniciarDiagnostico = async () => {
+    if (!id) return;
     setIsStarting(true);
     try {
-      const response = await fetch(
-        `${apiUrl}/cliente/diagnostico/iniciar/${id}`,
-        {
-          method: "POST",
-        },
-      );
-      if (!response.ok) throw new Error("Erro ao iniciar diagnóstico");
-
-      // const data = await response.json();
-
-      const statusResponse = await fetch(
-        `${apiUrl}/cliente/diagnostico/status/${id}`,
-      );
-      if (!statusResponse.ok)
-        throw new Error("Erro ao verificar status após iniciar");
-      const statusData = await statusResponse.json();
-
-      setDiagnosticoIniciado(statusData.iniciado);
-      const tempoInicial = statusData.tempoRestante
-        ? Math.floor(statusData.tempoRestante / 1000)
-        : null;
-      setTempoRestante(tempoInicial);
-
+      const res = await fetch(`${apiUrl}/cliente/diagnostico/iniciar/${id}`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error();
+      setDiagnosticoIniciado(true);
       toast.success("Diagnóstico iniciado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao iniciar diagnóstico:", error);
-      toast.error("Não foi possível iniciar o diagnóstico.");
+    } catch {
+      toast.error("Erro ao iniciar diagnóstico");
     } finally {
       setIsStarting(false);
     }
-  }
+  };
 
+  const total = questions.length;
+  const respondidas = answers.length;
+  const porcentagem = total > 0 ? Math.round((respondidas / total) * 100) : 0;
+
+  // Verifica se acabou de atingir 100% e ainda não concluiu
   useEffect(() => {
-    const fetchCliente = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/clientes/${id}`);
-        const data = await response.json();
-        setCliente(data);
-      } catch (err) {
-        console.error("Erro ao buscar cliente", err);
-      }
-    };
-
-    if (id) {
-      fetchCliente();
+    if (porcentagem === 100 && !diagnosticoConcluido && diagnosticoIniciado) {
+      concluirDiagnosticoNoBackend();
     }
-  }, [id]);
+  }, [porcentagem, diagnosticoConcluido, diagnosticoIniciado]);
 
-  useEffect(() => {
-    fetch(`${apiUrl}/questions/list`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
-        return res.json();
-      })
-      .then((data) => setQuestions(data))
-      .catch((error) => console.error("Erro ao buscar as perguntas:", error));
-  }, []);
+  const chartData = [
+    { name: "Respondidas", value: respondidas, fill: "#22c55e" },
+    { name: "Pendentes", value: total - respondidas, fill: "#ef4444" },
+  ];
 
-  useEffect(() => {
-    const respondidas = answers.length;
-    const totalPerguntas = questions?.length || 0;
-    const naoRespondidas = Math.max(totalPerguntas - respondidas, 0);
+  const irParaResultado = () => {
+    navigate(`/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`);
+  };
 
-    setChartDataPie([
-      { question: "Respondidas", val: respondidas, fill: "#33bb45" },
-      { question: "Não Respondidas", val: naoRespondidas, fill: "#df2c2c" },
-    ]);
-  }, [answers, questions]);
-
-  const porcentagem = questions?.length
-    ? Math.round((answers.length / questions.length) * 100)
-    : 0;
-
-  const renderLoading = () => (
-    <div className="flex justify-center items-center h-screen">
-      <div className="w-16 h-16 border-4 border-t-4 border-accent border-solid rounded-full animate-spin border-t-primary"></div>
-    </div>
-  );
-
-  if (!cliente || !questions) {
-    return renderLoading();
-  }
-
-  const tempoTotalSegundos = 30 * 24 * 60 * 60;
-  const progresso =
-    tempoRestante !== null
-      ? Math.round(
-          ((tempoTotalSegundos - tempoRestante) / tempoTotalSegundos) * 100,
-        )
-      : 0;
-
-  function progressoBarra() {
-    if (expirado === true) {
-      return 100;
-    }
-    if (porcentagem === 100) {
-      return 100;
-    }
-
-    return progresso;
-  }
-
-  function renderDiagnosticoUI({
-    tempoRestante,
-    isStarting,
-    diagnosticoIniciado,
-    activeTime,
-  }: {
-    tempoRestante: number | null;
-    isStarting: boolean;
-    diagnosticoIniciado: boolean;
-    activeTime: () => void;
-  }) {
-    if (expirado == true && porcentagem == 100)
-      return <Button disabled>Diagnóstico Concluído</Button>;
-
-    if (expirado === true && porcentagem !== 100) {
-      return (
-        <Button disabled>Tempo expirado e Diagnóstico não concluído!</Button>
-      );
-    }
-
-    if (porcentagem === 100) {
-      return <Button disabled>Diagnóstico Concluído</Button>;
-    }
-
-    if (!diagnosticoIniciado) {
-      return (
-        <Button
-          className="cursor-pointer"
-          onClick={activeTime}
-          disabled={isStarting}
-        >
-          {isStarting ? "Iniciando..." : "Iniciar Diagnóstico"}
-        </Button>
-      );
-    }
-
-    if (tempoRestante !== null) {
-      const dias = Math.floor(tempoRestante / 86400);
-      const horas = Math.floor((tempoRestante % 86400) / 3600);
-      const minutos = Math.floor((tempoRestante % 3600) / 60);
-      const segundos = tempoRestante % 60;
-
-      return (
-        <Button disabled>
-          Tempo restante: {dias}d {horas}h {minutos}m {segundos}s
-        </Button>
-      );
-    }
-
-    return null;
-  }
-
-  function alteraBarraProgresso(
-    porcentagem: number,
-    tempoRestante: number | null,
-    diagnosticoIniciado: boolean,
-  ) {
-    const mesCompleto = 2592000;
-    const tempoPorDP = 345600;
-
-    const limites = [
-      { limite: 14, fator: 1 },
-      { limite: 29, fator: 2 },
-      { limite: 43, fator: 3 },
-      { limite: 57, fator: 4 },
-      { limite: 71, fator: 5 },
-      { limite: 86, fator: 6 },
-      { limite: 100, fator: 7 },
-    ];
-
-    const diagnosticoAtrasado = limites.some(
-      ({ limite, fator }) =>
-        porcentagem < limite &&
-        tempoRestante !== null &&
-        tempoRestante <= mesCompleto - tempoPorDP * fator,
-    );
-
-    const tempoDecorrido =
-      tempoRestante !== null ? mesCompleto - tempoRestante : 0;
-
-    const progressoIdeal = limites.reduce((ideal, { limite, fator }) => {
-      const tempoEsperado = tempoPorDP * fator;
-      return tempoDecorrido >= tempoEsperado ? limite : ideal;
-    }, 0);
-
-    if (!diagnosticoIniciado) {
-      return (
-        <Button className="-mt-6 w-auto" disabled>
-          Diagnóstico não iniciado
-        </Button>
-      );
-    }
-
-    if (tempoRestante == null && porcentagem < 100) {
-      return (
-        <Button className="-mt-6 bg-red-500" disabled>
-          Não concluído.
-        </Button>
-      );
-    }
-
-    if (porcentagem === 100) {
-      return (
-        <Button
-          className="cursor-pointer bg-green-500 hover:bg-primary"
-          onClick={() => {
-            toast.success("Diagnóstico já concluído!");
-            window.open(
-              `/cliente/ccadsvakocpa7ccijccc65366565g6fv6v5v559xq/result/${id}`,
-              "_blank",
-            );
-          }}
-        >
-          Gerar link do Cliente
-        </Button>
-      );
-    }
-
+  if (!cliente || questions.length === 0) {
     return (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            className={`cursor-pointer h-auto -mt-6 flex flex-col justify-between ${
-              diagnosticoAtrasado
-                ? "bg-red-500 hover:bg-red-300"
-                : "bg-green-500 hover:bg-green-300"
-            }`}
-          >
-            <span className="-mb-2">
-              {diagnosticoAtrasado
-                ? "Diagnóstico atrasado!"
-                : "Diagnóstico em dia!"}
-            </span>
-            <span className="text-sm">
-              {diagnosticoAtrasado ? "(Saiba mais)" : "(Saiba mais)"}
-            </span>
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {diagnosticoAtrasado ? "Atenção!" : "Parabéns!"}
-            </DialogTitle>
-            <DialogDescription>
-              {diagnosticoAtrasado
-                ? "O diagnóstico está atrasado. Acelere o processo para evitar problemas."
-                : "O diagnóstico está em dia. Continue assim com o bom trabalho!"}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-4 space-y-4">
-            <div>
-              <p className="text-sm mb-1">
-                Progresso atual ({porcentagem.toFixed(0)}%)
-              </p>
-              <Progress value={porcentagem} />
-            </div>
-            <div>
-              <p className="text-sm mb-1">
-                Progresso esperado ({progressoIdeal.toFixed(0)}%)
-              </p>
-              <Progress value={progressoIdeal} className="bg-muted" />
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-16 h-16 border-4 border-t-transparent border-primary rounded-full animate-spin" />
+      </div>
     );
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset id="top">
-        <SiteHeader
-          title={cliente ? cliente.nome : "Carregando..."}
-          icon={true}
-          linkedlin={cliente.linkedin}
-          globe={cliente.site}
-        />
+    <>
+      <SidebarProvider>
+        <AppSidebar variant="inset" />
+        <SidebarInset>
+          <SiteHeader title="Diagnóstico do Cliente" icon={false} />
+          <div className="p-4 lg:p-6">
+            <Card className="max-w-7xl mx-auto">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex-1">
+                  <CardTitle className="text-3xl font-bold">
+                    {cliente.nome}
+                  </CardTitle>
+                  <p className="text-muted-foreground mt-1">
+                    Responsável: <strong>{cliente.nome_responsavel}</strong> •
+                    Consultor: <strong>{cliente.consultor}</strong>
+                  </p>
+                </div>
 
-        <div className="flex flex-2 flex-col overflow-x-clip">
-          <div className="@container/main flex flex-2 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 px-4 lg:px-6">
-                <Card className="h-46 w-full lg:w-full">
-                  {" "}
-                  <CardHeader>
-                    <CardTitle className="text-2xl mb-2 flex justify-between">
-                      {cliente ? cliente.nome : "Carregando..."}
-                      {renderDiagnosticoUI({
-                        tempoRestante,
-                        isStarting,
-                        diagnosticoIniciado,
-                        activeTime,
-                      })}
-                    </CardTitle>
-                    <CardDescription className="grid gap-1">
-                      <span>
-                        Focal point:{" "}
-                        <span className="font-bold text-foreground">
-                          {cliente ? cliente.nome_responsavel : "Carregando..."}
-                          .
-                        </span>
-                      </span>
-                      <span className="flex align-middle justify-between text-muted-foreground">
-                        <div>
-                          Consultor Responsável:{" "}
-                          <span className="font-bold text-foreground">
-                            {cliente ? cliente.consultor : "Carregando..."}.
-                          </span>
-                        </div>
-                        <span className="z-10">
-                          {alteraBarraProgresso(
-                            porcentagem,
-                            tempoRestante,
-                            diagnosticoIniciado,
-                          )}
-                        </span>
-                      </span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="-mt-15">
-                    <p className="text-muted-foreground text-sm mt-6 mb-2">
-                      Tempo Restante:
-                    </p>
-                    <Progress className=" h-3.5" value={progressoBarra()} />
-                  </CardContent>
-                </Card>
-
-                <Card className="lg:w-[80%] w-full flex flex-row justify-between">
-                  {" "}
-                  <div className="w-auto">
-                    <CardHeader>
-                      <CardDescription>Total de Perguntas:</CardDescription>
-                      <CardTitle className="text-2xl font-semibold tabular-nums">
-                        {questions.length} perguntas
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent></CardContent>
-                    <CardFooter>
-                      <div className="text-muted-foreground mt-6">
-                        Total de perguntas respondidas: {answers.length}
-                      </div>
-                    </CardFooter>
-                  </div>
-                  <div>
-                    <ChartContainer
-                      config={chartConfig}
-                      className="h-[135px] w-[130px] overflow-hidden mr-4"
+                {/* BOTÃO INTELIGENTE FINAL */}
+                <div className="w-full sm:w-auto">
+                  {!diagnosticoIniciado ? (
+                    <Button
+                      onClick={iniciarDiagnostico}
+                      disabled={isStarting}
+                      size="lg"
+                      className="w-full"
                     >
+                      {isStarting ? "Iniciando..." : "Iniciar Diagnóstico"}
+                    </Button>
+                  ) : diagnosticoConcluido || porcentagem === 100 ? (
+                    <Button
+                      onClick={irParaResultado}
+                      size="lg"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 shadow-lg"
+                    >
+                      <Trophy className="mr-2 h-5 w-5" />
+                      Visualizar Relatório Final
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      disabled
+                      size="lg"
+                      className="w-full"
+                    >
+                      Em Andamento ({porcentagem}%)
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-10">
+                {/* Progresso + Gráfico */}
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-lg font-medium">
+                        Progresso do Diagnóstico
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {respondidas} de {total} perguntas respondidas
+                      </p>
+                    </div>
+                    <Progress value={porcentagem} className="h-6" />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-green-600 font-bold text-xl">
+                        {porcentagem}% concluído
+                      </span>
+                      {(diagnosticoConcluido || porcentagem === 100) && (
+                        <span className="flex items-center gap-2 text-emerald-600 font-bold text-lg animate-pulse">
+                          <CheckCircle2 className="h-6 w-6" />
+                          100% Concluído!
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <ChartContainer config={{}} className="w-60 h-60">
                       <PieChart>
-                        <ChartTooltip
-                          cursor={false}
-                          content={<ChartTooltipContent hideLabel />}
-                        />
                         <Pie
-                          data={chartDataPie}
-                          dataKey="val"
-                          nameKey="question"
-                          innerRadius={45}
-                          outerRadius={60}
-                          activeIndex={0}
-                          activeShape={(props: PieSectorDataItem) => (
-                            <Sector
-                              {...props}
-                              outerRadius={(props.outerRadius ?? 0) + 5}
-                            />
-                          )}
-                          isAnimationActive={true}
-                          animationDuration={800}
+                          data={chartData}
+                          dataKey="value"
+                          innerRadius={80}
+                          outerRadius={110}
+                          paddingAngle={5}
+                          cornerRadius={15}
+                          stroke="none"
                         >
-                          {chartDataPie.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          {chartData.map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} />
                           ))}
                           <Label
                             value={`${porcentagem}%`}
                             position="center"
-                            className="fill-muted-foreground text-base"
+                            className="text-5xl font-extrabold fill-foreground"
                           />
                         </Pie>
                       </PieChart>
                     </ChartContainer>
                   </div>
-                </Card>
-              </div>
+                </div>
 
-              <div className="px-4 lg:px-6 grid grid-cols-1 gap-5 align-center justify-center -mb-5">
-                <Card className="p-6">
-                  <TableQuestions
-                    onUpdateAnswers={(updatedAnswers: any[]) => {
-                      setReloadAnswers((prev) => !prev);
-                      setAnswers(updatedAnswers);
-                    }}
-                  />
-                </Card>
-                <TableAnswers clienteId={id!} reloadTrigger={reloadAnswers} />
-              </div>
-            </div>
+                {/* Só mostra as tabelas se iniciado */}
+                {diagnosticoIniciado && (
+                  <>
+                    <div className="border-t pt-10">
+                      <h2 className="text-2xl font-semibold mb-6 text-primary">
+                        Responda às perguntas por departamento
+                      </h2>
+                      <TableQuestions
+                        onUpdateAnswers={setAnswers}
+                        clienteId={id!}
+                      />
+                    </div>
+
+                    <div className="border-t pt-10">
+                      <h2 className="text-2xl font-semibold mb-6 text-primary">
+                        Oportunidades Identificadas (ICE Framework)
+                      </h2>
+                      <TableAnswers clienteId={id!} />
+                    </div>
+
+                    {/* MENSAGEM FINAL ÉPICA */}
+                    {(diagnosticoConcluido || porcentagem === 100) && (
+                      <div className="mt-16 p-10 bg-gradient-to-r from-emerald-50 to-green-50 border-4 border-emerald-300 rounded-3xl text-center shadow-2xl">
+                        <Trophy className="w-20 h-20 text-emerald-600 mx-auto mb-4 animate-bounce" />
+                        <h3 className="text-4xl font-bold text-emerald-900 mb-4">
+                          Parabéns, {cliente.nome_responsavel.split(" ")[0]}!
+                        </h3>
+                        <p className="text-xl text-emerald-800 max-w-3xl mx-auto">
+                          Você concluiu com sucesso o diagnóstico empresarial.
+                          Todas as {total} perguntas foram respondidas.
+                        </p>
+                        <p className="text-2xl font-bold text-emerald-700 mt-6">
+                          O relatório final está pronto para análise
+                          estratégica!
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+
+      <Toaster position="bottom-center" richColors closeButton />
+    </>
   );
 }

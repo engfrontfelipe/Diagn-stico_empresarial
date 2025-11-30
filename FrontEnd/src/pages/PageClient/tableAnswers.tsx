@@ -10,8 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
 
 const converterFacilidade = (valor: string): string => {
   switch (valor) {
@@ -26,11 +25,11 @@ const converterFacilidade = (valor: string): string => {
     case "Extremamente Baixa":
       return "Muito Difícil";
     default:
-      return valor;
+      return valor || "Não definido";
   }
 };
 
-const nivelParaNumero = (nivel: string) => {
+const nivelParaNumero = (nivel: string): number => {
   switch (nivel) {
     case "Muito Alta":
     case "Muito Fácil":
@@ -55,31 +54,27 @@ const corNivel = (nivel: string) => {
   switch (nivel) {
     case "Muito Alta":
     case "Muito Fácil":
-      return " font-extrabold";
+      return "font-extrabold text-green-700";
     case "Alta":
     case "Fácil":
-      return " font-bold";
+      return "font-bold text-green-600";
     case "Média":
-      return " font-medium";
+      return "font-medium text-amber-600";
     case "Baixa":
     case "Difícil":
+      return "font-medium text-orange-600";
     case "Extremamente Baixa":
     case "Muito Difícil":
-      return " font-light";
+      return "font-light text-red-600";
     default:
-      return " font-medium";
+      return "font-medium text-muted-foreground";
   }
 };
 
-const calcularPriorizacao = (
-  importancia: string,
-  urgencia: string,
-  facilidade: string,
-) => {
-  const i = nivelParaNumero(importancia);
-  const u = nivelParaNumero(urgencia);
-  const f = nivelParaNumero(facilidade);
-  return Math.round(i * u * f);
+const calcularPriorizacao = (i: string, u: string, f: string): number => {
+  return Math.round(
+    nivelParaNumero(i) * nivelParaNumero(u) * nivelParaNumero(f),
+  );
 };
 
 type Question = {
@@ -87,28 +82,25 @@ type Question = {
   id_resposta: number;
   texto_pergunta: string;
   departamento: string;
+  oportunidade: string;
   importancia: string;
   urgencia: string;
   facilidade_implementacao: string;
   priorizacao: number;
-  oportunidade: string;
 };
 
+// REMOVIDO reloadTrigger → usamos key no componente pai
 type TableAnswersProps = {
   clienteId: string;
-  reloadTrigger: boolean;
 };
 
-export default function TableAnswers({
-  clienteId,
-  reloadTrigger,
-}: TableAnswersProps) {
+export default function TableAnswers({ clienteId }: TableAnswersProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [departamentoSelecionado, setDepartamentoSelecionado] =
     useState("Todos");
   const [loading, setLoading] = useState(true);
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const itensPorPagina = 8;
+  const itensPorPagina = 10;
 
   const opcoesNivel = [
     "Muito Alta",
@@ -117,7 +109,6 @@ export default function TableAnswers({
     "Baixa",
     "Extremamente Baixa",
   ];
-
   const opcoesFacilidade = [
     "Muito Fácil",
     "Fácil",
@@ -127,36 +118,56 @@ export default function TableAnswers({
   ];
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const carregarOportunidades = async () => {
       setLoading(true);
       try {
         const res = await fetch(`${apiUrl}/answers/negative/${clienteId}`);
-        if (!res.ok) throw new Error("Erro ao buscar as perguntas");
-        const data: Question[] = await res.json();
+        if (!res.ok) throw new Error();
+        const negativas = await res.json();
 
-        const perguntasComEstados = await Promise.all(
-          data.map(async (q) => {
+        const oportunidades = await Promise.all(
+          negativas.map(async (item: any) => {
             try {
               const r = await fetch(
-                `${apiUrl}/answers/recovery-status/${q.id_resposta}`,
+                `${apiUrl}/answers/recovery-status/${item.id_resposta}`,
               );
-              if (!r.ok) throw new Error("Erro ao buscar estados");
-              const { resposta } = await r.json();
-              const i = resposta.importancia || "";
-              const u = resposta.urgencia || "";
-              const f = converterFacilidade(
-                resposta.facilidade_implementacao || "",
-              );
+
+              let importancia = "";
+              let urgencia = "";
+              let facilidade = "";
+
+              if (r.ok) {
+                const data = await r.json();
+                const resp = data.resposta || {};
+                importancia = resp.importancia || "";
+                urgencia = resp.urgencia || "";
+                facilidade = converterFacilidade(
+                  resp.facilidade_implementacao || "",
+                );
+              }
+
               return {
-                ...q,
-                importancia: i,
-                urgencia: u,
-                facilidade_implementacao: f,
-                priorizacao: calcularPriorizacao(i, u, f),
+                id_pergunta: item.id_pergunta,
+                id_resposta: item.id_resposta,
+                texto_pergunta: item.texto_pergunta,
+                departamento: item.departamento,
+                oportunidade: item.oportunidade || item.texto_pergunta,
+                importancia,
+                urgencia,
+                facilidade_implementacao: facilidade,
+                priorizacao: calcularPriorizacao(
+                  importancia,
+                  urgencia,
+                  facilidade,
+                ),
               };
             } catch {
               return {
-                ...q,
+                id_pergunta: item.id_pergunta,
+                id_resposta: item.id_resposta,
+                texto_pergunta: item.texto_pergunta,
+                departamento: item.departamento,
+                oportunidade: item.oportunidade || item.texto_pergunta,
                 importancia: "",
                 urgencia: "",
                 facilidade_implementacao: "",
@@ -166,19 +177,17 @@ export default function TableAnswers({
           }),
         );
 
-        const sorted = perguntasComEstados.sort(
-          (a, b) => b.priorizacao - a.priorizacao,
-        );
-        setQuestions(sorted);
-      } catch (e) {
-        console.error(e);
+        oportunidades.sort((a, b) => b.priorizacao - a.priorizacao);
+        setQuestions(oportunidades);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuestions();
-  }, [clienteId, reloadTrigger]);
+    carregarOportunidades();
+  }, [clienteId]); // ← SÓ DEPENDE DO clienteId
 
   const atualizarCampo = async (
     id_resposta: number,
@@ -187,15 +196,15 @@ export default function TableAnswers({
   ) => {
     const updated = questions.map((q) => {
       if (q.id_resposta === id_resposta) {
-        const atualizado = { ...q, [campo]: valor };
-        atualizado.priorizacao = calcularPriorizacao(
+        const novo = { ...q, [campo]: valor };
+        novo.priorizacao = calcularPriorizacao(
           campo === "importancia" ? valor : q.importancia,
           campo === "urgencia" ? valor : q.urgencia,
           campo === "facilidade_implementacao"
             ? valor
             : q.facilidade_implementacao,
         );
-        return atualizado;
+        return novo;
       }
       return q;
     });
@@ -215,7 +224,7 @@ export default function TableAnswers({
         }),
       });
     } catch (e) {
-      console.error(e);
+      console.error("Erro ao salvar ICE:", e);
     }
   };
 
@@ -229,7 +238,7 @@ export default function TableAnswers({
       : questions.filter((q) => q.departamento === departamentoSelecionado);
 
   const totalPaginas = Math.ceil(filtradas.length / itensPorPagina);
-  const perguntasPaginadas = filtradas.slice(
+  const paginadas = filtradas.slice(
     (paginaAtual - 1) * itensPorPagina,
     paginaAtual * itensPorPagina,
   );
@@ -237,61 +246,67 @@ export default function TableAnswers({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="px-4 py-2 bg-primary rounded-md w-full cursor-pointer">
-          Tabela de Ice FrameWork
+        <Button variant="default" size="lg" className="w-full">
+          Ver Oportunidades no ICE Framework ({questions.length})
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[80vw] !max-w-none max-h-[85vh] overflow-y-auto mb-6">
-        <div className="w-full space-y-4">
-          <h1 className="text-center font-bold text-3xl">
-            Tabela de Ice FrameWork
-          </h1>
-          <p className="text-center text-muted-foreground">
-            Foram encontradas {questions.length} oportunidades para sua empresa.
-            <br />
-            <p className="font-medium">
-              (Recomendado diminuir o zoom da tela em monitores menores para
-              melhor visualização.)
+
+      <DialogContent className="min-w-7xl max-h-[90vh] overflow-y-auto">
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold">
+              ICE Framework – Priorização de Oportunidades
+            </h2>
+            <p className="text-muted-foreground mt-2">
+              {questions.length} oportunidades identificadas • Ordenadas por
+              impacto
             </p>
-          </p>
+          </div>
+
+          <div className="flex justify-end">
+            <select
+              value={departamentoSelecionado}
+              onChange={(e) => {
+                setDepartamentoSelecionado(e.target.value);
+                setPaginaAtual(1);
+              }}
+              className="px-4 py-2 border rounded-lg bg-background"
+            >
+              {departamentos.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {loading ? (
-            <div className="flex justify-center items-center">
-              <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-solid rounded-full animate-spin border-t-primary"></div>
+            <div className="flex justify-center py-20">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
+          ) : questions.length === 0 ? (
+            <p className="text-center text-muted-foreground py-10">
+              Nenhuma oportunidade identificada ainda.
+            </p>
           ) : (
             <>
-              <Table className="border-collapse border border-b-accent">
+              <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Oportunidades</TableHead>
-                    <TableHead>
-                      Departamento:
-                      <select
-                        value={departamentoSelecionado}
-                        onChange={(e) => {
-                          setDepartamentoSelecionado(e.target.value);
-                          setPaginaAtual(1);
-                        }}
-                        className="ml-2 p-1 rounded-md text-muted-foreground bg-card"
-                      >
-                        {departamentos.map((dep) => (
-                          <option key={dep} value={dep}>
-                            {dep}
-                          </option>
-                        ))}
-                      </select>
-                    </TableHead>
-                    <TableHead>Importância</TableHead>
-                    <TableHead>Urgência</TableHead>
-                    <TableHead>Facilidade</TableHead>
-                    <TableHead>Priorização</TableHead>
+                    <TableHead className="w-[40%]">Oportunidade</TableHead>
+                    <TableHead>Departamento</TableHead>
+                    <TableHead className="text-center">Importância</TableHead>
+                    <TableHead className="text-center">Urgência</TableHead>
+                    <TableHead className="text-center">Facilidade</TableHead>
+                    <TableHead className="text-center">Score ICE</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {perguntasPaginadas.map((q) => (
-                    <TableRow key={q.id_pergunta}>
-                      <TableCell>{q.oportunidade}</TableCell>
+                  {paginadas.map((q) => (
+                    <TableRow key={q.id_resposta}>
+                      <TableCell className="font-medium">
+                        {q.oportunidade}
+                      </TableCell>
                       <TableCell>{q.departamento}</TableCell>
                       {[
                         "importancia",
@@ -308,57 +323,53 @@ export default function TableAnswers({
                                 e.target.value,
                               )
                             }
-                            className={`w-full text-center outline-none bg-transparent ${corNivel(
-                              String(q[campo as keyof Question]),
-                            )}`}
+                            className={`px-3 py-1 rounded border bg-transparent ${corNivel(String(q[campo as keyof Question]))}`}
                           >
                             {(campo === "facilidade_implementacao"
                               ? opcoesFacilidade
                               : opcoesNivel
                             ).map((opt) => (
-                              <option key={opt} value={opt} className="">
+                              <option key={opt} value={opt}>
                                 {opt}
                               </option>
                             ))}
                           </select>
                         </TableCell>
                       ))}
-                      <TableCell
-                        className={`text-center ${
-                          q.priorizacao >= 91
-                            ? " font-bold"
-                            : q.priorizacao >= 71
-                              ? " font-semibold"
-                              : q.priorizacao >= 51
-                                ? " font-medium"
-                                : q.priorizacao >= 31
-                                  ? " font-medium"
-                                  : " font-light"
-                        }`}
-                      >
-                        {q.priorizacao}
+                      <TableCell className="text-center text-sm font-bold">
+                        <span
+                          className={
+                            q.priorizacao >= 80
+                              ? "text-green-600"
+                              : q.priorizacao >= 50
+                                ? "text-amber-600"
+                                : "text-red-600"
+                          }
+                        >
+                          {q.priorizacao}
+                        </span>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              <div className="flex justify-center mt-4 space-x-2">
-                {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
-                  (num) => (
-                    <button
-                      key={num}
-                      onClick={() => setPaginaAtual(num)}
-                      className={`px-4 py-1 rounded-md border cursor-pointer ${
-                        paginaAtual === num
-                          ? "bg-primary text-muted"
-                          : "bg-card text-primary"
-                      }`}
-                    >
-                      {num}
-                    </button>
-                  ),
-                )}
-              </div>
+
+              {totalPaginas > 1 && (
+                <div className="flex justify-center gap-2">
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
+                    (p) => (
+                      <Button
+                        key={p}
+                        variant={paginaAtual === p ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setPaginaAtual(p)}
+                      >
+                        {p}
+                      </Button>
+                    ),
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>

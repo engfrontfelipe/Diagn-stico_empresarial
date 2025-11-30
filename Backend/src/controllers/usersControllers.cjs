@@ -173,6 +173,7 @@ const acessarUsuario = async (req, res) => {
     res
       .status(500)
       .json({ error: "Erro ao buscar usuário", detalhes: error.message });
+      console.error("Erro ao acessar usuário:", error);
   }
 };
 
