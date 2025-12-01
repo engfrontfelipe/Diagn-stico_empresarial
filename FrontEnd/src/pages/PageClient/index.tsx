@@ -140,7 +140,7 @@ export default function PageClient() {
         <SidebarInset>
           <SiteHeader title="Diagnóstico do Cliente" icon={false} />
           <div className="p-4 lg:p-6">
-            <Card className="max-w-7xl mx-auto">
+            <Card className="w-full mx-auto">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex-1">
                   <CardTitle className="text-3xl font-bold">
@@ -211,7 +211,7 @@ export default function PageClient() {
                     </div>
                   </div>
 
-                  <div className="flex justify-center">
+                  <div className="flex justify-end mr-10">
                     <ChartContainer config={{}} className="w-60 h-60">
                       <PieChart>
                         <Pie
