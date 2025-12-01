@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { AlertCircle } from "lucide-react";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 const DEPARTAMENTOS_DISPONIVEIS = [
   "RH",

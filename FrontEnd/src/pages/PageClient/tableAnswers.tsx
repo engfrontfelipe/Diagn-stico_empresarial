@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 const converterFacilidade = (valor: string): string => {
   switch (valor) {

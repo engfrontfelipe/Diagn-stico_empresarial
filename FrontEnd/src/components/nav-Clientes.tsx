@@ -1,5 +1,5 @@
 "use client";
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 import {
   SidebarGroup,

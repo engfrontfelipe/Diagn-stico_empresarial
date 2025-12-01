@@ -6,7 +6,7 @@ import GeneralDashHome from "./GeneralDashHome.tsx";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Building2, CheckCircle2, Clock, Sparkles } from "lucide-react";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 export default function Page() {
   const [clientes, setClientes] = useState<any[]>([]);

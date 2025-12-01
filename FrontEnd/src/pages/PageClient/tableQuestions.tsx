@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 interface Pergunta {
   id_pergunta: number;

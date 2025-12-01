@@ -7,7 +7,7 @@ import { toast, Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/auth";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 export function LoginForm({
   className,

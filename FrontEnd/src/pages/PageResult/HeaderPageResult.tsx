@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/lib/changeButton";
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 const components: { title: string; href: string; description: string }[] = [
   {

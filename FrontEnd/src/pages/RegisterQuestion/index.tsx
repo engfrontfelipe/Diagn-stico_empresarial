@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 
 const apiUrl =
-  "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host/";
+  "https://backend-backend-diagnostico.yjayid.easypanel.host/";
 
 import {
   Select,

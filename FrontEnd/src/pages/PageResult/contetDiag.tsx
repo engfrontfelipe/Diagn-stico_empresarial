@@ -1,4 +1,4 @@
-// ContentDiag.tsx — VERSÃO FINAL, DINÂMICA E IGNORA 0% COMO UM DEUS
+// ContentDiag.tsx — VERSÃO FINAL CORRIGIDA (Estratégias e Operações agora aparecem!)
 import { useEffect, useState } from "react";
 import {
   introducoes,
@@ -20,8 +20,19 @@ import {
   MaturidadeNivel,
 } from "../Client/StaticDictionary";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
+// ======================== FUNÇÃO DE NORMALIZAÇÃO (REMOVE ACENTOS E Ç) ========================
+const normalizar = (str: string): string => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .replace(/ç/g, "c")
+    .replace(/[^a-z0-9]/g, ""); // opcional: remove qualquer coisa que não seja letra/número
+};
+
+// ======================== FUNÇÕES DE NÍVEL E TEXTOS ========================
 export function obterNivelMaturidade(pontuacao: number): MaturidadeNivel {
   const nivel = Math.min(Math.ceil(pontuacao / 10) * 10, 100);
   return nivel.toString() as MaturidadeNivel;
@@ -60,10 +71,7 @@ export function selecionarTexto(pontuacao: number): string {
   `;
 }
 
-const introducoesPorDepartamento: Record<
-  string,
-  Record<MaturidadeNivel, string[]>
-> = {
+const introducoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
   estrategias: introducoesEstrategia,
   vendas: introducoesVendas,
   marketing: introducoesMarketing,
@@ -73,10 +81,7 @@ const introducoesPorDepartamento: Record<
   financeiro: introducoesFinanceiro,
 };
 
-const conclusoesPorDepartamento: Record<
-  string,
-  Record<MaturidadeNivel, string[]>
-> = {
+const conclusoesPorDepartamento: Record<string, Record<MaturidadeNivel, string[]>> = {
   estrategias: conclusoesEstrategia,
   vendas: conclusoesVendas,
   marketing: conclusoesMarketing,
@@ -86,17 +91,11 @@ const conclusoesPorDepartamento: Record<
   financeiro: conclusoesFinanceiro,
 };
 
-export function selecionarTextoPorDepartamento(
-  departamento: string,
-  pontuacao: number,
-): string {
-  if (pontuacao === 0) return ""; // IGNORA TOTALMENTE SE FOR 0
-
+export function selecionarTextoPorDepartamento(departamento: string, pontuacao: number): string {
+  if (pontuacao === 0) return "";
   const nivel = obterNivelMaturidade(pontuacao);
-  const intros =
-    introducoesPorDepartamento[departamento.toLowerCase()] || introducoes;
+  const intros = introducoesPorDepartamento[departamento.toLowerCase()] || introducoes;
   const opcoes = intros[nivel];
-
   if (!opcoes || opcoes.length === 0) return "";
 
   const indiceAleatorio = Math.floor(Math.random() * opcoes.length);
@@ -109,12 +108,8 @@ export function selecionarTextoPorDepartamento(
   `;
 }
 
-export function selecionarConclusaoPorDepartamento(
-  departamento: string,
-  pontuacao: number,
-): string {
-  if (pontuacao === 0) return ""; // IGNORA TOTALMENTE SE FOR 0
-
+export function selecionarConclusaoPorDepartamento(departamento: string, pontuacao: number): string {
+  if (pontuacao === 0) return "";
   const nivel = obterNivelMaturidade(pontuacao);
   const conclusoes = conclusoesPorDepartamento[departamento.toLowerCase()];
   if (!conclusoes) return "";
@@ -132,6 +127,7 @@ export function selecionarConclusaoPorDepartamento(
   `;
 }
 
+// ======================== TIPOS ========================
 type AreaMaturidade = {
   nome: string;
   percentual: number;
@@ -161,12 +157,11 @@ export function obterNivelTexto(porcentagem: number): string {
   return "Avançado";
 }
 
+// ======================== RENDERIZAÇÃO DE LISTAS ========================
 function renderizarListaDeAreas(areas: AreaMaturidade[]) {
   if (!Array.isArray(areas) || areas.length === 0) return null;
 
-  // FILTRA APENAS ÁREAS COM > 0%
   const areasValidas = areas.filter((area) => area.percentual > 0);
-
   if (areasValidas.length === 0) {
     return <p className="text-muted-foreground">Nenhuma área avaliada.</p>;
   }
@@ -175,21 +170,15 @@ function renderizarListaDeAreas(areas: AreaMaturidade[]) {
     <ul className="list-disc pl-6 space-y-2">
       {areasValidas.map((area, index) => (
         <li key={index}>
-          <span className="font-medium">{area.nome}</span> — {area.percentual}%
-          ({obterNivelTexto(area.percentual)})
+          <span className="font-medium">{area.nome}</span> — {area.percentual}% ({obterNivelTexto(area.percentual)})
         </li>
       ))}
     </ul>
   );
 }
 
-function renderizarPontosFortes(
-  departamento: string,
-  respostas: RespostaNegativa[],
-) {
-  const pontos = respostas.filter(
-    (r) => r.departamento.toLowerCase() === departamento.toLowerCase(),
-  );
+function renderizarPontosFortes(departamento: string, respostas: RespostaNegativa[]) {
+  const pontos = respostas.filter((r) => normalizar(r.departamento) === departamento);
 
   if (pontos.length === 0) return null;
 
@@ -204,13 +193,8 @@ function renderizarPontosFortes(
   );
 }
 
-function renderizarPlanoAcao(
-  departamento: string,
-  respostas: RespostaNegativa[],
-) {
-  const planos = respostas.filter(
-    (r) => r.departamento.toLowerCase() === departamento.toLowerCase(),
-  );
+function renderizarPlanoAcao(departamento: string, respostas: RespostaNegativa[]) {
+  const planos = respostas.filter((r) => normalizar(r.departamento) === departamento);
 
   if (planos.length === 0) return null;
 
@@ -239,18 +223,15 @@ function ComponenteConclusao({ pontuacao }: { pontuacao: any }) {
   return <div dangerouslySetInnerHTML={{ __html: conclusaoHtml }} />;
 }
 
+// ======================== COMPONENTE PRINCIPAL ========================
 export function ContentDiag({
   htmlIntroducao,
   areas,
   percentualGeral,
   clienteId,
 }: ContentDiagProps) {
-  const [respostasNegativas, setRespostasNegativas] = useState<
-    RespostaNegativa[]
-  >([]);
-  const [respostasPositivas, setRespostasPositivas] = useState<
-    RespostaNegativa[]
-  >([]);
+  const [respostasNegativas, setRespostasNegativas] = useState<RespostaNegativa[]>([]);
+  const [respostasPositivas, setRespostasPositivas] = useState<RespostaNegativa[]>([]);
 
   useEffect(() => {
     const buscarRespostas = async () => {
@@ -277,19 +258,13 @@ export function ContentDiag({
 
   const nivelGeral = obterNivelTexto(percentualGeral);
 
-  // FUNÇÃO PARA RENDERIZAR UMA ÁREA (IGNORA SE FOR 0%)
+  // FUNÇÃO QUE RENDEIZA CADA ÁREA (AGORA COM NORMALIZAÇÃO DE ACENTOS)
   const renderizarArea = (nomeNormalizado: string, nomeExibicao: string) => {
-    const area = areas.find((a) => a.nome.toLowerCase() === nomeNormalizado);
+    const area = areas.find((a) => normalizar(a.nome) === nomeNormalizado);
     if (!area || area.percentual === 0) return null;
 
-    const textoIntro = selecionarTextoPorDepartamento(
-      nomeNormalizado,
-      area.percentual,
-    );
-    const textoConclusao = selecionarConclusaoPorDepartamento(
-      nomeNormalizado,
-      area.percentual,
-    );
+    const textoIntro = selecionarTextoPorDepartamento(nomeNormalizado, area.percentual);
+    const textoConclusao = selecionarConclusaoPorDepartamento(nomeNormalizado, area.percentual);
 
     return (
       <div id={nomeNormalizado} className="mt-8 border-b pb-8 last:border-0">
@@ -298,25 +273,18 @@ export function ContentDiag({
         {textoIntro && (
           <>
             <h4 className="font-medium mt-5">Análise</h4>
-            <div
-              className="mt-2 text-justify"
-              dangerouslySetInnerHTML={{ __html: textoIntro }}
-            />
+            <div className="mt-2 text-justify" dangerouslySetInnerHTML={{ __html: textoIntro }} />
           </>
         )}
 
         <h4 className="mt-5 font-medium italic">Oportunidades de Melhoria</h4>
         {renderizarPlanoAcao(nomeNormalizado, respostasNegativas) || (
-          <p className="text-sm text-muted-foreground italic">
-            Nenhuma oportunidade identificada.
-          </p>
+          <p className="text-sm text-muted-foreground italic">Nenhuma oportunidade identificada.</p>
         )}
 
         <h4 className="mt-5 font-medium italic">Pontos Fortes</h4>
         {renderizarPontosFortes(nomeNormalizado, respostasPositivas) || (
-          <p className="text-sm text-muted-foreground italic">
-            Nenhum ponto forte identificado.
-          </p>
+          <p className="text-sm text-muted-foreground italic">Nenhum ponto forte identificado.</p>
         )}
 
         {textoConclusao && (
@@ -344,25 +312,21 @@ export function ContentDiag({
       </section>
 
       <section id="grau-por-area" className="mb-12">
-        <h2 className="font-bold text-2xl mb-6">
-          Grau de Maturidade das Áreas Avaliadas
-        </h2>
+        <h2 className="font-bold text-2xl mb-6">Grau de Maturidade das Áreas Avaliadas</h2>
         <p className="mb-6 text-lg">
-          A empresa foi avaliada nas seguintes áreas com base nas respostas
-          fornecidas:
+          A empresa foi avaliada nas seguintes áreas com base nas respostas fornecidas:
         </p>
 
         {renderizarListaDeAreas(areas)}
 
         <p className="mt-8 text-lg">
-          A avaliação geral indica um nível{" "}
-          <strong className="text-primary">{nivelGeral}</strong> de maturidade
-          empresarial, com uma pontuação média de{" "}
+          A avaliação geral indica um nível <strong className="text-primary">{nivelGeral}</strong> de
+          maturidade empresarial, com uma pontuação média de{" "}
           <strong className="text-primary">{percentualGeral}%</strong>.
         </p>
       </section>
 
-      {/* ÁREAS DINÂMICAS — SÓ MOSTRA SE > 0% */}
+      {/* ÁREAS DINÂMICAS — AGORA FUNCIONA COM ACENTOS! */}
       {renderizarArea("estrategias", "Estratégias")}
       {renderizarArea("vendas", "Vendas")}
       {renderizarArea("marketing", "Marketing")}
@@ -380,8 +344,8 @@ export function ContentDiag({
 
       <div className="mt-16 text-center italic text-lg text-muted-foreground">
         <p>
-          "O segredo da mudança é focar toda a sua energia não em lutar contra o
-          velho, mas em construir o novo." — Sócrates
+          "O segredo da mudança é focar toda a sua energia não em lutar contra o velho, mas em
+          construir o novo." — Sócrates
         </p>
       </div>
     </div>

@@ -25,7 +25,7 @@ import {
   obterNivelTexto,
 } from "../PageResult/contetDiag";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 type RespostaNegativa = {
   id: string;

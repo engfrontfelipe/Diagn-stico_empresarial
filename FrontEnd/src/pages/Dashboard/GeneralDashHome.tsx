@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Building2, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 interface Cliente {
   id_cliente: string;

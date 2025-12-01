@@ -13,7 +13,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { CheckCircle2, Trophy } from "lucide-react";
 
-const apiUrl = "https://backend-grove-diagnostico-empresarial.xjjkzc.easypanel.host";
+const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
 export default function PageClient() {
   const { id } = useParams<{ id: string }>();
