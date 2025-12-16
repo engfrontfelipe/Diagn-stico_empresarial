@@ -17,7 +17,9 @@ interface Cliente {
   id_cliente: string;
   nome: string;
   final_diagnostico?: string | null;
+  ativo: boolean;
 }
+
 
 export default function GeneralDashHome() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -87,7 +89,11 @@ export default function GeneralDashHome() {
         resultados.forEach((r) => (map[r.id] = r.status));
 
         setStatusMap(map);
-        setClientes(clientesData);
+const clientesAtivos = clientesData.filter(
+  (cliente) => cliente.ativo === true
+);
+
+setClientes(clientesAtivos);
       } catch (err) {
         console.error("Erro no dashboard:", err);
       } finally {

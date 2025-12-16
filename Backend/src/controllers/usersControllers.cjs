@@ -125,7 +125,7 @@ function generateToken(usuario) {
     role: usuario.role,
   };
 
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "10h" });
 }
 
 function verificarToken(req, res, next) {
