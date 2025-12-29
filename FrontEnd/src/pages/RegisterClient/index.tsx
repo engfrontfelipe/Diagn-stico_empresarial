@@ -19,7 +19,15 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
-import { AlertCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { AlertCircle, Copy } from "lucide-react";
 
 const apiUrl = "https://backend-backend-diagnostico.yjayid.easypanel.host";
 
@@ -82,6 +90,22 @@ export default function RegisterUser() {
   // Sheet de edição
   const [sheetOpen, setSheetOpen] = useState(false);
   const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
+
+  // Dialog de duplicação
+  const [dialogDuplicarOpen, setDialogDuplicarOpen] = useState(false);
+  const [clienteDuplicando, setClienteDuplicando] = useState<{
+    nome: string;
+    nome_responsavel: string;
+    cnpj: string;
+    cargo_responsavel: string;
+    ramo_empresa: string;
+    consultor: string;
+    linkedin: string;
+    site: string;
+    logo_url: string;
+    departamentos: string[];
+  } | null>(null);
+  const [duplicando, setDuplicando] = useState(false);
 
   const formatCNPJ = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 14);
@@ -172,17 +196,55 @@ export default function RegisterUser() {
     }
   };
 
-  // ABERTURA DO SHEET COM GARANTIA DE ARRAY
-  const abrirEdicao = (cliente: Cliente) => {
-    setClienteEditando({
-      ...cliente,
-      cnpj: cliente.cnpj.replace(
-        /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-        "$1.$2.$3/$4-$5",
-      ),
-      departamentos: cliente.departamentos ?? [], // Nunca será null/undefined
-    });
-    setSheetOpen(true);
+  // ABERTURA DO SHEET - BUSCA DADOS COMPLETOS DA API
+  const abrirEdicao = async (cliente: Cliente) => {
+    try {
+      // Busca dados completos do cliente via API
+      const [clienteRes, deptRes] = await Promise.all([
+        fetch(`${apiUrl}/clientes/${cliente.id_cliente}`),
+        fetch(`${apiUrl}/clientes/${cliente.id_cliente}/departamentos`),
+      ]);
+
+      const clienteCompleto = clienteRes.ok ? await clienteRes.json() : null;
+      const departamentosData = deptRes.ok ? await deptRes.json() : [];
+
+      const departamentos = Array.isArray(departamentosData)
+        ? departamentosData.map((d: any) => d.departamento || d)
+        : cliente.departamentos || [];
+
+      const dados = clienteCompleto || cliente;
+
+      setClienteEditando({
+        id_cliente: dados.id_cliente,
+        nome: dados.nome || "",
+        nome_responsavel: dados.nome_responsavel || "",
+        cnpj: (dados.cnpj || "").replace(
+          /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+          "$1.$2.$3/$4-$5",
+        ),
+        cargo_responsavel: dados.cargo_responsavel || "",
+        ramo_empresa: dados.ramo_empresa || "",
+        consultor: dados.consultor || "",
+        linkedin: dados.linkedin || "",
+        site: dados.site || "",
+        logo_url: dados.logo_url || null,
+        ativo: dados.ativo ?? true,
+        departamentos: departamentos,
+      });
+      setSheetOpen(true);
+    } catch (err) {
+      console.error("Erro ao buscar dados do cliente:", err);
+      // Fallback para dados locais
+      setClienteEditando({
+        ...cliente,
+        cnpj: (cliente.cnpj || "").replace(
+          /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+          "$1.$2.$3/$4-$5",
+        ),
+        departamentos: cliente.departamentos ?? [],
+      });
+      setSheetOpen(true);
+    }
   };
 
   const salvarEdicao = async () => {
@@ -217,6 +279,124 @@ export default function RegisterUser() {
       fetchClientes();
     } catch {
       toast.error("Erro ao salvar alterações");
+    }
+  };
+
+  const abrirDialogDuplicar = async () => {
+    if (!clienteEditando) return;
+
+    try {
+      // Busca dados completos do cliente via API
+      const [clienteRes, deptRes] = await Promise.all([
+        fetch(`${apiUrl}/clientes/${clienteEditando.id_cliente}`),
+        fetch(`${apiUrl}/clientes/${clienteEditando.id_cliente}/departamentos`),
+      ]);
+
+      const clienteCompleto = clienteRes.ok ? await clienteRes.json() : null;
+      const departamentosData = deptRes.ok ? await deptRes.json() : [];
+
+      // Extrai os nomes dos departamentos
+      const departamentos = Array.isArray(departamentosData)
+        ? departamentosData.map((d: any) => d.departamento || d)
+        : clienteEditando.departamentos || [];
+
+      const dados = clienteCompleto || clienteEditando;
+
+      setClienteDuplicando({
+        nome: `${dados.nome} (Cópia)`,
+        nome_responsavel: dados.nome_responsavel || "",
+        cnpj: formatCNPJ(dados.cnpj || ""),
+        cargo_responsavel: dados.cargo_responsavel || "",
+        ramo_empresa: dados.ramo_empresa || "",
+        consultor: dados.consultor || "",
+        linkedin: dados.linkedin || "",
+        site: dados.site || "",
+        logo_url: dados.logo_url || "",
+        departamentos: departamentos,
+      });
+      setDialogDuplicarOpen(true);
+    } catch (err) {
+      console.error("Erro ao buscar dados do cliente:", err);
+      // Fallback para dados locais
+      setClienteDuplicando({
+        nome: `${clienteEditando.nome} (Cópia)`,
+        nome_responsavel: clienteEditando.nome_responsavel || "",
+        cnpj: formatCNPJ(clienteEditando.cnpj || ""),
+        cargo_responsavel: clienteEditando.cargo_responsavel || "",
+        ramo_empresa: clienteEditando.ramo_empresa || "",
+        consultor: clienteEditando.consultor || "",
+        linkedin: clienteEditando.linkedin || "",
+        site: clienteEditando.site || "",
+        logo_url: clienteEditando.logo_url || "",
+        departamentos: clienteEditando.departamentos || [],
+      });
+      setDialogDuplicarOpen(true);
+    }
+  };
+
+  const toggleDepartamentoDuplicar = (dept: string) => {
+    if (!clienteDuplicando) return;
+    const atual = clienteDuplicando.departamentos;
+    const novos = atual.includes(dept)
+      ? atual.filter((d) => d !== dept)
+      : [...atual, dept];
+    setClienteDuplicando({ ...clienteDuplicando, departamentos: novos });
+  };
+
+  const duplicarCliente = async () => {
+    if (!clienteDuplicando) return;
+
+    if (
+      !clienteDuplicando.nome.trim() ||
+      !clienteDuplicando.nome_responsavel.trim() ||
+      !clienteDuplicando.cnpj.trim() ||
+      !clienteDuplicando.consultor.trim()
+    ) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    if (clienteDuplicando.departamentos.length === 0) {
+      toast.error("Selecione pelo menos um departamento");
+      return;
+    }
+
+    setDuplicando(true);
+
+    const payload = {
+      nome: clienteDuplicando.nome.trim(),
+      nome_responsavel: clienteDuplicando.nome_responsavel.trim(),
+      cnpj: clienteDuplicando.cnpj.replace(/\D/g, ""),
+      cargo_responsavel: clienteDuplicando.cargo_responsavel,
+      ramo_empresa: clienteDuplicando.ramo_empresa,
+      consultor: clienteDuplicando.consultor.trim(),
+      linkedin: clienteDuplicando.linkedin,
+      site: clienteDuplicando.site,
+      logo_url: clienteDuplicando.logo_url || null,
+      departamentos: clienteDuplicando.departamentos,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}/clientes/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao duplicar");
+      }
+
+      toast.success("Cliente duplicado com sucesso!");
+      setDialogDuplicarOpen(false);
+      setSheetOpen(false);
+      setClienteDuplicando(null);
+      fetchClientes();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao duplicar cliente");
+    } finally {
+      setDuplicando(false);
     }
   };
 
@@ -541,10 +721,195 @@ export default function RegisterUser() {
             <SheetClose asChild>
               <Button variant="outline">Cancelar</Button>
             </SheetClose>
+            <Button variant="secondary" onClick={abrirDialogDuplicar}>
+              <Copy className="w-4 h-4 mr-2" />
+              Duplicar
+            </Button>
             <Button onClick={salvarEdicao}>Salvar Alterações</Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      {/* DIALOG DE DUPLICAÇÃO */}
+      <Dialog open={dialogDuplicarOpen} onOpenChange={setDialogDuplicarOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Duplicar Cliente</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do novo cliente. Os campos foram copiados do
+              cliente original.
+            </DialogDescription>
+          </DialogHeader>
+
+          {clienteDuplicando && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>
+                    Nome da Empresa <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    value={clienteDuplicando.nome}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        nome: e.target.value,
+                      })
+                    }
+                    placeholder="Nome da empresa"
+                  />
+                </div>
+                <div>
+                  <Label>
+                    Consultor <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    value={clienteDuplicando.consultor}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        consultor: e.target.value,
+                      })
+                    }
+                    placeholder="Consultor responsável"
+                  />
+                </div>
+                <div>
+                  <Label>
+                    Nome do Responsável <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    value={clienteDuplicando.nome_responsavel}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        nome_responsavel: e.target.value,
+                      })
+                    }
+                    placeholder="Nome do responsável"
+                  />
+                </div>
+                <div>
+                  <Label>Cargo do Responsável</Label>
+                  <Input
+                    value={clienteDuplicando.cargo_responsavel}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        cargo_responsavel: e.target.value,
+                      })
+                    }
+                    placeholder="Cargo"
+                  />
+                </div>
+                <div>
+                  <Label>Ramo da Empresa</Label>
+                  <Input
+                    value={clienteDuplicando.ramo_empresa}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        ramo_empresa: e.target.value,
+                      })
+                    }
+                    placeholder="Ramo de atuação"
+                  />
+                </div>
+                <div>
+                  <Label>
+                    CNPJ <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    value={clienteDuplicando.cnpj}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        cnpj: formatCNPJ(e.target.value),
+                      })
+                    }
+                    placeholder="99.999.999/9999-99"
+                  />
+                </div>
+                <div>
+                  <Label>LinkedIn</Label>
+                  <Input
+                    value={clienteDuplicando.linkedin}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        linkedin: e.target.value,
+                      })
+                    }
+                    placeholder="LinkedIn"
+                  />
+                </div>
+                <div>
+                  <Label>Site</Label>
+                  <Input
+                    value={clienteDuplicando.site}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        site: e.target.value,
+                      })
+                    }
+                    placeholder="Site"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <Label>Logo URL (opcional)</Label>
+                  <Input
+                    value={clienteDuplicando.logo_url}
+                    onChange={(e) =>
+                      setClienteDuplicando({
+                        ...clienteDuplicando,
+                        logo_url: e.target.value,
+                      })
+                    }
+                    placeholder="URL da logo"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <Label className="text-base font-semibold mb-3 block">
+                  Departamentos para Diagnóstico{" "}
+                  <span className="text-red-500">*</span>
+                </Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {DEPARTAMENTOS_DISPONIVEIS.map((dept) => (
+                    <div key={dept} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`dup-${dept}`}
+                        checked={clienteDuplicando.departamentos.includes(dept)}
+                        onCheckedChange={() => toggleDepartamentoDuplicar(dept)}
+                      />
+                      <label
+                        htmlFor={`dup-${dept}`}
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        {dept}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogDuplicarOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={duplicarCliente} disabled={duplicando}>
+              {duplicando ? "Duplicando..." : "Confirmar Duplicação"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Toaster position="bottom-center" richColors closeButton />
     </SidebarProvider>

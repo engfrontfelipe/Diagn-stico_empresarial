@@ -6,6 +6,7 @@ router.post("/clientes/create", clientsControlers.criarCliente);
 router.get("/clientes/list", clientsControlers.listarClientes);
 router.patch("/clientes/update/:id", clientsControlers.atualizarCliente);
 router.get("/clientes/:id", clientsControlers.buscarClientePorId);
+router.get("/clientes/:id/departamentos", clientsControlers.buscarDepartamentosCliente);
 router.post(
   "/cliente/diagnostico/iniciar/:id",
   clientsControlers.iniciarDiagnostico,

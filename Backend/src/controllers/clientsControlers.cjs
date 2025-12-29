@@ -65,6 +65,12 @@ const criarCliente = async (req, res) => {
     });
   } catch (error) {
     console.error("Erro ao criar cliente com departamentos:", error);
+    
+    // Verifica se é erro de CNPJ duplicado
+    if (error.message && error.message.includes('unique') && error.message.includes('cnpj')) {
+      return res.status(400).json({ error: "CNPJ já cadastrado no sistema" });
+    }
+    
     res.status(500).json({ error: "Erro interno ao criar cliente", detalhes: error.message });
   }
 };
@@ -74,15 +80,27 @@ const listarClientes = async (req, res) => {
   try {
     const clientes = await sql`
       SELECT 
-        id_cliente, 
-        nome, 
-        nome_responsavel, 
-        cnpj, 
-        ativo, 
-        data_cadastro,
-        final_diagnostico  -- <<< ESSA LINHA É O QUE TAVA FALTANDO, SEU FILHO DA PUTA
-      FROM clientes 
-      ORDER BY nome
+        c.id_cliente, 
+        c.nome, 
+        c.nome_responsavel, 
+        c.cnpj, 
+        c.ativo, 
+        c.data_cadastro,
+        c.final_diagnostico,
+        c.cargo_responsavel,
+        c.ramo_empresa,
+        c.consultor,
+        c.linkedin,
+        c.site,
+        c.logo_url,
+        COALESCE(
+          (SELECT array_agg(cd.departamento) 
+           FROM cliente_departamentos cd 
+           WHERE cd.id_cliente = c.id_cliente AND cd.ativo = true),
+          ARRAY[]::text[]
+        ) as departamentos
+      FROM clientes c
+      ORDER BY c.nome
     `;
     res.json(clientes);
   } catch (error) {
@@ -190,6 +208,26 @@ const buscarClientePorId = async (req, res) => {
     res
       .status(500)
       .json({ error: "Erro ao buscar cliente", detalhes: error.message });
+  }
+};
+
+const buscarDepartamentosCliente = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await sql`
+      SELECT departamento
+      FROM cliente_departamentos 
+      WHERE id_cliente = ${id} AND ativo = true;
+    `;
+
+    const departamentos = result.map((r) => r.departamento);
+    res.status(200).json(departamentos);
+  } catch (error) {
+    console.error("Erro ao buscar departamentos:", error);
+    res
+      .status(500)
+      .json({ error: "Erro ao buscar departamentos", detalhes: error.message });
   }
 };
 
@@ -316,6 +354,7 @@ module.exports = {
   listarClientes,
   atualizarCliente,
   buscarClientePorId,
+  buscarDepartamentosCliente,
   iniciarDiagnostico,
   verificarDiagnostico,
   concluirDiagnostico,

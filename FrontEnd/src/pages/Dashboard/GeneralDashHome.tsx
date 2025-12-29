@@ -145,6 +145,9 @@ setClientes(clientesAtivos);
               Empresa
             </TableHead>
             <TableHead className="text-center font-bold text-sm">
+              Data de Conclusão
+            </TableHead>
+            <TableHead className="text-center font-bold text-sm">
               Status
             </TableHead>
           </TableRow>
@@ -152,6 +155,9 @@ setClientes(clientesAtivos);
         <TableBody>
           {clientes.map((cliente) => {
             const status = statusMap[cliente.id_cliente] || "nao_iniciado";
+            const dataConclusao = cliente.final_diagnostico
+              ? new Date(cliente.final_diagnostico).toLocaleDateString("pt-BR")
+              : "—";
             return (
               <TableRow
                 key={cliente.id_cliente}
@@ -165,6 +171,9 @@ setClientes(clientesAtivos);
                     <Building2 className="w-5 h-5 opacity-0 group-hover:opacity-100 transition" />
                     {cliente.nome}
                   </Link>
+                </TableCell>
+                <TableCell className="text-center text-sm text-gray-600 dark:text-gray-400">
+                  {dataConclusao}
                 </TableCell>
                 <TableCell className="text-center">
                   <BadgeStatus status={status} />
