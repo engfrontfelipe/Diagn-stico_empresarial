@@ -222,8 +222,9 @@ export default function TableQuestions({
           return (
             <TabsContent key={tab.value} value={tab.value} className="mt-6">
               <div className="space-y-6 bg-card rounded-xl p-6 border">
-                {pageItems.map((field: any) => {
+                {pageItems.map((field: any, index: number) => {
                   const checked = answersRef.current[field.id] ?? null;
+                  const questionNumber = start + index + 1;
 
                   return (
                     <div
@@ -234,6 +235,9 @@ export default function TableQuestions({
                         htmlFor={`q-${field.id}`}
                         className="text-sm leading-relaxed max-w-2xl"
                       >
+                        <span className="font-semibold text-primary mr-2">
+                          {questionNumber}.
+                        </span>
                         {field.label}
                       </Label>
 

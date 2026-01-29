@@ -309,6 +309,7 @@ function QuestionManagement() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[5%]">#</TableHead>
                 <TableHead>Texto</TableHead>
                 <TableHead>
                   Departamento:
@@ -336,8 +337,11 @@ function QuestionManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {perguntas.map((pergunta) => (
+              {perguntas.map((pergunta, index) => (
                 <TableRow key={pergunta.id_pergunta}>
+                  <TableCell className="font-semibold text-primary">
+                    {index + 1}
+                  </TableCell>
                   <TableCell>{pergunta.texto_pergunta}</TableCell>
                   <TableCell>{pergunta.departamento}</TableCell>
                   <TableCell>{pergunta.oportunidade}</TableCell>

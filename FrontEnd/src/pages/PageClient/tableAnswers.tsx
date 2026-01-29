@@ -293,7 +293,8 @@ export default function TableAnswers({ clienteId }: TableAnswersProps) {
               <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Oportunidade</TableHead>
+                    <TableHead className="w-[5%]">#</TableHead>
+                    <TableHead className="w-[35%]">Oportunidade</TableHead>
                     <TableHead>Departamento</TableHead>
                     <TableHead className="text-center">Importância</TableHead>
                     <TableHead className="text-center">Urgência</TableHead>
@@ -302,8 +303,11 @@ export default function TableAnswers({ clienteId }: TableAnswersProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginadas.map((q) => (
+                  {paginadas.map((q, index) => (
                     <TableRow key={q.id_resposta}>
+                      <TableCell className="font-semibold text-primary">
+                        {(paginaAtual - 1) * itensPorPagina + index + 1}
+                      </TableCell>
                       <TableCell className="font-medium">
                         {q.oportunidade}
                       </TableCell>
